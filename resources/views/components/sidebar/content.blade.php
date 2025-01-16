@@ -53,11 +53,16 @@
         </x-slot>
     </x-sidebar.link>
 
-    <x-sidebar.link title="Approval {{ countApproved() }}" href="{{ route('register') }}" :isActive="request()->routeIs('register')">
-        <x-slot name="icon">
-            <x-fas-file-signature class="flex-shrink-0 w-6 h-6" aria-hidden="true" />
-        </x-slot>
-    </x-sidebar.link>
+    @if (auth()->user()->role->id === 1 ||
+            auth()->user()->role->id === 2 ||
+            auth()->user()->role->id === 3 ||
+            auth()->user()->role->id === 4)
+        <x-sidebar.link title="Approval {{ countApproved() }}" href="{{ route('register') }}" :isActive="request()->routeIs('register')">
+            <x-slot name="icon">
+                <x-fas-file-signature class="flex-shrink-0 w-6 h-6" aria-hidden="true" />
+            </x-slot>
+        </x-sidebar.link>
+    @endif
 
 
 

@@ -49,13 +49,13 @@ class AuthenticatedSessionController extends Controller
             return redirect()->route('Admin.dashboard');
         } elseif ($user->idRole == '2') {
             return redirect()->route('Admin.dashboard');
-        } elseif ($user->idRole == '5') {
+        } elseif ($user->idRole == '3') {
 
             return redirect()->route('Admin.dashboard');
         } elseif ($user->idRole == '4') {
             return redirect()->route('Pj.dashboard');
-        } elseif ($user->idRole == '3') {
-            return redirect()->route('User.dashboard');
+        } elseif ($user->idRole == '5') {
+            return redirect()->route('page.dashboard');
         }
 
         // Fallback if no specific role found

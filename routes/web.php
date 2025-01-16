@@ -41,9 +41,7 @@ Route::group(['middleware' => ['role:1,2,3'], 'prefix' => 'AdminMaster'], functi
     Route::resource('lines', MasterLineController::class);
     Route::resource('MasterLine', MasterLineController::class);
     Route::resource('Plan', PlanController::class);
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
     Route::resource('/User', UsersController::class);
     Route::resource('/Role', RoleController::class);
     Route::resource('/Cost', CostController::class);
@@ -53,6 +51,18 @@ Route::group(['middleware' => ['role:1,2,3'], 'prefix' => 'AdminMaster'], functi
     Route::resource('/LineGroup', LineGroupController::class);
     Route::resource('/Material', MaterialController::class);
     Route::resource('/Consumable', ConsumableController::class);
+
+});
+
+Route::get('/profile', [ProfileController::class, 'edit'])->middleware(['role:1,2,3,4,5'])->name('profile.edit');
+Route::patch('/profile', [ProfileController::class, 'update'])->middleware(['role:1,2,3,4,5'])->name('profile.update');
+Route::delete('/profile', [ProfileController::class, 'destroy'])->middleware(['role:1,2,3,4,5'])->name('profile.destroy');
+
+
+
+Route::group(['middleware' => ['role:4,5'], 'prefix' => 'page'], function () {
+    Route::get('/dashboard', [AdminController::class, 'index'])->name('page.dashboard');
+
 
 });
 
