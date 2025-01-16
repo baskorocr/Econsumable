@@ -28,7 +28,7 @@
                 </div>
             @else
                 @foreach ($lines as $line)
-                    <a href="{{ route('listMaterial', $line->Lg_code) }}"
+                    <a href="{{ route('listMaterial', $line->_id) }}"
                         class="p-4 rounded-md shadow-md bg-violet-500 hover:bg-violet-600">
                         <div class="col-span-2 flex flex-col justify-center items-center">
                             <h2 class="text-lg text-white font-semibold">{{ $line->line->Ln_name }}</h2>

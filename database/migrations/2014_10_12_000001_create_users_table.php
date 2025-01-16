@@ -20,8 +20,10 @@ return new class extends Migration {
 
             $table->unsignedBigInteger('idRole');
 
+
             $table->rememberToken();
             $table->timestamps();
+
 
             $table->foreign('idRole')->references('id')->on('roles')->onUpdate('cascade')->onDelete('cascade');
 

@@ -25,17 +25,19 @@ class LineGroupController extends Controller
 
         $lineGroups = MstrLineGroup::with(['plan', 'costCenter', 'line', 'group', 'sloc', 'leader', 'section', 'pjStock'])
             ->when($search, function ($query, $search) {
-                $query->whereHas('plan', function ($q) use ($search) {
-                    $q->where('Pl_name', 'like', "%$search%");
-                })->orWhereHas('costCenter', function ($q) use ($search) {
-                    $q->where('Cs_code', 'like', "%$search%");
-                })->orWhereHas('line', function ($q) use ($search) {
-                    $q->where('Ln_name', 'like', "%$search%");
-                })->orWhereHas('sloc', function ($q) use ($search) {
-                    $q->where('Tp_mtCode', 'like', "%$search%");
-                });
+                $query->where('Lg_code', 'like', "%$search%") // Kolom dari MstrLineGroup
+                    ->orWhereHas('plan', function ($q) use ($search) {
+                        $q->where('Pl_name', 'like', "%$search%");
+                    })->orWhereHas('costCenter', function ($q) use ($search) {
+                        $q->where('Cs_code', 'like', "%$search%");
+                    })->orWhereHas('line', function ($q) use ($search) {
+                        $q->where('Ln_name', 'like', "%$search%");
+                    })->orWhereHas('sloc', function ($q) use ($search) {
+                        $q->where('Tp_mtCode', 'like', "%$search%");
+                    });
             })
             ->paginate(20);
+
 
 
 

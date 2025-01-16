@@ -7,7 +7,7 @@
     </x-sidebar.link>
 
     @if (auth()->user()->role->id === 1 || auth()->user()->role->id === 5)
-        <x-sidebar.link title="Create E-Consumable" href="{{ route('Admin.dashboard') }}" :isActive="request()->routeIs('Admin.dashboard')">
+        <x-sidebar.link title="Create E-Consumable" href="{{ route('listLine') }}" :isActive="request()->routeIs(' listLine')">
             <x-slot name="icon">
                 <x-heroicon-o-plus-circle class="flex-shrink-0 w-6 h-6" aria-hidden="true" />
             </x-slot>

@@ -14,6 +14,7 @@ class LineController extends Controller
      */
     public function indexLine()
     {
+
         $lines = MstrLineGroup::with('group', 'line')->get();
 
         return view('transaction.line', compact('lines'));

@@ -23,6 +23,7 @@ class Users extends Seeder
             'idRole' => 1,
             'noHp' => "089654825055",
 
+
         ]);
         User::create([
             'npk' => '1234567891',
