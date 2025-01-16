@@ -28,12 +28,12 @@
                 </div>
             @else
                 @foreach ($lines as $line)
-                    <a href="" class="p-4  rounded-md shadow-md bg-green-500 hover:bg-green-500">
-                        <div class="col-span-2 flex justify-center items-center">
-                            <h3 class="text-lg text-white  font-semibold">{{ $line->Ln_name }}</h3>
+                    <a href="{{ route('listMaterial', $line->Lg_code) }}"
+                        class="p-4 rounded-md shadow-md bg-violet-500 hover:bg-violet-600">
+                        <div class="col-span-2 flex flex-col justify-center items-center">
+                            <h2 class="text-lg text-white font-semibold">{{ $line->line->Ln_name }}</h2>
+                            <h5 class="text-lg text-white font-semibold">{{ '(' . $line->group->Gr_name . ')' }}</h5>
                         </div>
-
-                        {{-- <p>Kode: {{ $line->code }}</p> --}}
                     </a>
                 @endforeach
             @endif

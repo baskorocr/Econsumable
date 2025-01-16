@@ -6,7 +6,7 @@
     </x-slot>
 
     <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
-        <form method="POST" action="{{ route('LineGroup.update', $lineGroup->Lg_code) }}">
+        <form method="POST" action="{{ route('LineGroup.update', $lineGroup->_id) }}">
             @csrf
             @method('PUT')
             <div class="space-y-4">
@@ -24,8 +24,8 @@
                         class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
                         required>
                         @foreach ($plans as $plan)
-                            <option value="{{ $plan->Pl_code }}"
-                                {{ $lineGroup->Lg_plId == $plan->Pl_code ? 'selected' : '' }}>
+                            <option value="{{ $plan->_id }}"
+                                {{ $lineGroup->Lg_plId == $plan->_id ? 'selected' : '' }}>
                                 {{ $plan->Pl_name }}
                             </option>
                         @endforeach
@@ -38,8 +38,8 @@
                         class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
                         required>
                         @foreach ($costCenters as $costCenter)
-                            <option value="{{ $costCenter->Cs_code }}"
-                                {{ $lineGroup->Lg_csId == $costCenter->Cs_code ? 'selected' : '' }}>
+                            <option value="{{ $costCenter->_id }}"
+                                {{ $lineGroup->Lg_csId == $costCenter->_id ? 'selected' : '' }}>
                                 {{ $costCenter->Cs_name }}</option>
                         @endforeach
                     </select>
@@ -51,8 +51,8 @@
                         class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
                         required>
                         @foreach ($lines as $line)
-                            <option value="{{ $line->id }}"
-                                {{ $lineGroup->Lg_lineId == $line->id ? 'selected' : '' }}>{{ $line->Ln_name }}
+                            <option value="{{ $line->_id }}"
+                                {{ $lineGroup->Lg_lineId == $line->_id ? 'selected' : '' }}>{{ $line->Ln_name }}
                             </option>
                         @endforeach
                     </select>
@@ -64,24 +64,20 @@
                         class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
                         required>
                         @foreach ($groups as $group)
-                            <option value="{{ $group->id }}"
-                                {{ $lineGroup->Lg_groupId == $group->id ? 'selected' : '' }}>{{ $group->Gr_name }}
+                            <option value="{{ $group->_id }}"
+                                {{ $lineGroup->Lg_groupId == $group->_id ? 'selected' : '' }}>{{ $group->Gr_name }}
                             </option>
                         @endforeach
                     </select>
                 </div>
                 <div>
-                    <label for="Lg_slocId"
-                        class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Select Sloc') }}</label>
-                    <select name="Lg_slocId" id="Lg_slocId"
-                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
-                        required>
-                        @foreach ($slocs as $sloc)
-                            <option value="{{ $sloc->Tp_mtCode }}"
-                                {{ $lineGroup->Lg_slocId == $sloc->Tp_mtCode ? 'selected' : '' }}>{{ $sloc->Tp_name }}
-                            </option>
-                        @endforeach
-                    </select>
+                    <div>
+                        <label for="Lg_slocId"
+                            class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Code Line Group') }}</label>
+                        <input type="text" name="Lg_slocId" id="Lg_slocId"
+                            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                            value="{{ $lineGroup->Lg_slocId }}">
+                    </div>
                 </div>
 
                 <div>

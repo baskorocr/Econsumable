@@ -11,7 +11,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('mstr_lines', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->uuid('_id')->primary();
             $table->string('Ln_name');
             $table->timestamps();
         });

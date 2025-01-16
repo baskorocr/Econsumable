@@ -12,16 +12,21 @@ class MstrLine extends Model
 
     protected $table = 'mstr_lines';
     public $incrementing = false;
+    protected $primaryKey = '_id';
     protected $keyType = 'string';
+
+    //////////////////////
+
+
     protected $fillable = [
-        'id',
+        '_id',
         'Ln_name'
     ];
 
 
     public function lineGroups()
     {
-        return $this->hasMany(MstrLineGroup::class, 'Lg_lineId', 'id');
+        return $this->hasMany(MstrLineGroup::class, 'Lg_lineId', '_id');
     }
     protected static function boot()
     {

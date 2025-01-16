@@ -11,14 +11,15 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('mstr_materials', function (Blueprint $table) {
-            $table->string('Mt_number')->primary();
-            $table->string('Mt_lgId');
+            $table->uuid('_id')->primary();
+            $table->string('Mt_number');
+            $table->uuid('Mt_lgId');
 
             $table->string('Mt_desc');
             $table->timestamps();
 
-            $table->foreign('Mt_lgId')->references('Lg_code')->on('mstr_line_groups')->onDelete('cascade')->onUpdate('cascade');
-            $table->foreign('Mt_typeId')->references('id')->on('mstr_type_materials')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('Mt_lgId')->references('_id')->on('mstr_line_groups')->onDelete('cascade')->onUpdate('cascade');
+            // $table->foreign('Mt_typeId')->references('id')->on('mstr_type_materials')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 

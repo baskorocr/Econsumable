@@ -11,7 +11,8 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('mstr_plans', function (Blueprint $table) {
-            $table->integer('Pl_code')->length(4)->primary();
+            $table->uuid('_id')->primary();
+            $table->integer('Pl_code')->length(4);
             $table->string('Pl_name');
             $table->string('Pl_orderType')->nullable();
             $table->timestamps();

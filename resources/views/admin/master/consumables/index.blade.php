@@ -6,10 +6,16 @@
     </x-slot>
 
     <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
-        <button id="openCreateModal"
-            class="inline-block bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white px-4 py-2 rounded-md mb-4">
-            {{ __('Add New Consumable') }}
-        </button>
+        <div class="flex justify-between mb-4">
+            <button id="openCreateModal"
+                class="inline-block bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white px-4 py-2 rounded-md">
+                {{ __('Add New Consumable') }}
+            </button>
+
+            <!-- Search Input -->
+            <input type="text" id="searchInput" value="{{ $search }}" placeholder="Search by name"
+                class="mt-1 block w-1/3 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600">
+        </div>
 
         <div class="overflow-x-auto">
             <table class="table-auto min-w-full text-center text-sm">
@@ -21,12 +27,17 @@
                         </th>
                         <th
                             class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            {{ __('Description') }}
+                        </th>
+                        <th
+                            class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             {{ __('Material Number') }}
                         </th>
                         <th
                             class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                            {{ __('Description') }}
+                            {{ __('Material Description') }}
                         </th>
+
                         <th
                             class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             {{ __('Actions') }}
@@ -37,18 +48,21 @@
                     @foreach ($consumables as $consumable)
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
                             <td class="px-6 py-4 text-gray-700 dark:text-gray-300">{{ $consumable->Cb_number }}</td>
+                            <td class="px-6 py-4 text-gray-700 dark:text-gray-300">{{ $consumable->Cb_desc }}</td>
                             <td class="px-6 py-4 text-gray-700 dark:text-gray-300">
                                 {{ $consumable->material->Mt_number ?? 'N/A' }}</td>
-                            <td class="px-6 py-4 text-gray-700 dark:text-gray-300">{{ $consumable->Cb_desc }}</td>
+                            <td class="px-6 py-4 text-gray-700 dark:text-gray-300">
+                                {{ $consumable->material->Mt_desc ?? 'N/A' }}</td>
+
                             <td class="px-6 py-4 flex justify-center items-center space-x-4">
                                 <button
                                     class="bg-yellow-500 hover:bg-yellow-600 dark:bg-yellow-600 dark:hover:bg-yellow-700 text-white px-4 py-2 rounded-md editConsumableBtn"
-                                    data-id="{{ $consumable->Cb_number }}" data-desc="{{ $consumable->Cb_desc }}"
+                                    data-id="{{ $consumable->_id }}" data-desc="{{ $consumable->Cb_desc }}"
                                     data-mtid="{{ $consumable->Cb_mtId }}">
                                     {{ __('Edit') }}
                                 </button>
 
-                                <form action="{{ route('Consumable.destroy', $consumable->Cb_number) }}" method="POST"
+                                <form action="{{ route('Consumable.destroy', $consumable->_id) }}" method="POST"
                                     onsubmit="return confirm('Are you sure you want to delete this consumable?');">
                                     @csrf
                                     @method('DELETE')
@@ -206,6 +220,23 @@
             // Close Edit Modal
             closeEditModalButton.addEventListener('click', () => {
                 editModal.classList.add('hidden');
+            });
+
+            searchInput.addEventListener('input', function() {
+                const search = this.value;
+                const url = new URL(window.location.href);
+                url.searchParams.set('search', search);
+                window.history.pushState({}, '', url);
+                fetch(url)
+                    .then(response => response.text())
+                    .then(html => {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const newTableBody = doc.querySelector('tbody');
+                        const newPagination = doc.querySelector('.mt-4');
+                        document.querySelector('tbody').innerHTML = newTableBody.innerHTML;
+                        document.querySelector('.mt-4').innerHTML = newPagination.innerHTML;
+                    });
             });
         });
     </script>

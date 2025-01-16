@@ -47,11 +47,11 @@
                             <td class="px-6 py-4 flex justify-center items-center space-x-4">
                                 <button
                                     class="bg-yellow-500 hover:bg-yellow-600 dark:bg-yellow-600 dark:hover:bg-yellow-700 text-white px-4 py-2 rounded-md editLineBtn"
-                                    data-id="{{ $cost->Cs_code }}" data-name="{{ $cost->Cs_name }}">
+                                    data-id="{{ $cost->_id }}" data-name="{{ $cost->Cs_name }}">
                                     {{ __('Edit') }}
                                 </button>
 
-                                <form action="{{ route('Cost.destroy', $cost->Cs_code) }}" method="POST"
+                                <form action="{{ route('Cost.destroy', $cost->_id) }}" method="POST"
                                     onsubmit="return confirm('Are you sure you want to delete this line?');">
                                     @csrf
                                     @method('DELETE')

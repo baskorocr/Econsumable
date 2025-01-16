@@ -11,13 +11,14 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('mstr_consumables', function (Blueprint $table) {
-            $table->string('Cb_number')->primary();
-            $table->string('Cb_mtId');
+            $table->uuid('_id')->primary();
+            $table->string('Cb_number');
+            $table->uuid('Cb_mtId');
 
             $table->string('Cb_desc');
             $table->timestamps();
 
-            $table->foreign('Cb_mtId')->references('Mt_number')->on('mstr_materials')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('Cb_mtId')->references('_id')->on('mstr_materials')->onDelete('cascade')->onUpdate('cascade');
 
 
         });

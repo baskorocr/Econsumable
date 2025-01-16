@@ -11,12 +11,13 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('mstr_line_groups', function (Blueprint $table) {
-            $table->string('Lg_code')->primary();
-            $table->integer('Lg_plId')->length(4);
-            $table->integer('Lg_csId')->length(10);
-            $table->string('Lg_lineId');
-            $table->unsignedBigInteger('Lg_groupId');
-            $table->integer('Lg_slocId')->length(4);
+            $table->uuid('_id')->primary();
+            $table->string('Lg_code');
+            $table->uuid('Lg_plId');
+            $table->uuid('Lg_csId');
+            $table->uuid('Lg_lineId');
+            $table->uuid('Lg_groupId');
+            $table->uuid('Lg_slocId');
 
 
             $table->string('NpkLeader');
@@ -28,11 +29,11 @@ return new class extends Migration {
             $table->foreign('NpkSection')->references('npk')->on('users');
 
             $table->foreign('NpkPjStock')->references('npk')->on('users');
-            $table->foreign('Lg_plId')->references('Pl_code')->on('mstr_plans')->onUpdate('cascade')->onDelete('cascade');
-            $table->foreign('Lg_csId')->references('Cs_code')->on('mstr_cost_centers')->onUpdate('cascade')->onDelete('cascade');
-            $table->foreign('Lg_lineId')->references('id')->on('mstr_lines')->onUpdate('cascade')->onDelete('cascade');
-            $table->foreign('Lg_groupId')->references('id')->on('mstr_groups')->onUpdate('cascade')->onDelete('cascade');
-            $table->foreign('Lg_slocId')->references('Tp_mtCode')->on('mstr_slocs')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('Lg_plId')->references('_id')->on('mstr_plans')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('Lg_csId')->references('_id')->on('mstr_cost_centers')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('Lg_lineId')->references('_id')->on('mstr_lines')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('Lg_groupId')->references('_id')->on('mstr_groups')->onUpdate('cascade')->onDelete('cascade');
+
 
             $table->timestamps();
         });

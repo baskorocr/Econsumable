@@ -38,7 +38,7 @@ Route::get('/', function () {
 
 Route::group(['middleware' => ['role:1,2,3'], 'prefix' => 'AdminMaster'], function () {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('Admin.dashboard');
-    Route::resource('lines', LineController::class);
+    Route::resource('lines', MasterLineController::class);
     Route::resource('MasterLine', MasterLineController::class);
     Route::resource('Plan', PlanController::class);
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -53,6 +53,13 @@ Route::group(['middleware' => ['role:1,2,3'], 'prefix' => 'AdminMaster'], functi
     Route::resource('/LineGroup', LineGroupController::class);
     Route::resource('/Material', MaterialController::class);
     Route::resource('/Consumable', ConsumableController::class);
+
+});
+
+Route::group(['middleware' => ['role:1,5'], 'prefix' => 'Transaction'], function () {
+    Route::get('/ListLine', [LineController::class, 'indexLine'])->name('listLine');
+    Route::get('/{id}/material', [LineController::class, 'indexMaterial'])->name('listMaterial');
+    Route::get('/{line}/{material}', [LineController::class, 'indexConsumable'])->name('listConsumable');
 
 });
 

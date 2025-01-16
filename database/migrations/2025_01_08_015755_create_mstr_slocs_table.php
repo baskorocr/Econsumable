@@ -11,7 +11,8 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('mstr_slocs', function (Blueprint $table) {
-            $table->integer('Tp_mtCode')->length(4)->primary();
+            $table->uuid('_id')->primary();
+            $table->integer('Tp_mtCode')->length(4);
             $table->string('Tp_name');
             $table->timestamps();
         });

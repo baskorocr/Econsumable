@@ -10,7 +10,7 @@ class MstrConsumable extends Model
     use HasFactory;
 
     protected $table = 'mstr_consumables';
-    protected $primaryKey = 'Cb_number';
+    protected $primaryKey = '_id';
 
     public $incrementing = false;
     protected $keyType = 'string';
@@ -25,7 +25,7 @@ class MstrConsumable extends Model
 
     public function material()
     {
-        return $this->belongsTo(MstrMaterial::class, 'Cb_mtId', 'Mt_number');
+        return $this->belongsTo(MstrMaterial::class, 'Cb_mtId', '_id');
     }
 
 

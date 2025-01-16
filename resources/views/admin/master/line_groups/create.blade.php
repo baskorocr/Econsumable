@@ -23,7 +23,7 @@
                         class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
                         required>
                         @foreach ($plans as $plan)
-                            <option value="{{ $plan->Pl_code }}">{{ $plan->Pl_name }}</option>
+                            <option value="{{ $plan->_id }}">{{ $plan->Pl_name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -34,7 +34,7 @@
                         class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
                         required>
                         @foreach ($costCenters as $costCenter)
-                            <option value="{{ $costCenter->Cs_code }}">{{ $costCenter->Cs_name }}</option>
+                            <option value="{{ $costCenter->_id }}">{{ $costCenter->Cs_name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -45,7 +45,7 @@
                         class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
                         required>
                         @foreach ($lines as $line)
-                            <option value="{{ $line->id }}">{{ $line->Ln_name }}</option>
+                            <option value="{{ $line->_id }}">{{ $line->Ln_name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -56,20 +56,18 @@
                         class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
                         required>
                         @foreach ($groups as $group)
-                            <option value="{{ $group->id }}">{{ $group->Gr_name }}</option>
+                            <option value="{{ $group->_id }}">{{ $group->Gr_name }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div>
-                    <label for="Lg_slocId"
-                        class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Sloc ID') }}</label>
-                    <select name="Lg_slocId" id="Lg_slocId"
-                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
-                        required>
-                        @foreach ($slocs as $sloc)
-                            <option value="{{ $sloc->Tp_mtCode }}">{{ $sloc->Tp_name }}</option>
-                        @endforeach
-                    </select>
+                    <div>
+                        <label for="Lg_slocId"
+                            class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('SLOC') }}</label>
+                        <input type="text" name="Lg_slocId" id="Lg_slocId"
+                            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                            required>
+                    </div>
                 </div>
                 <div>
                     <label for="Dept"

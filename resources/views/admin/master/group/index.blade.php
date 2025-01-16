@@ -42,7 +42,7 @@
                     @foreach ($groups as $group)
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
                             <td style="width: 13rem; height: 4rem;" class="px-6 py-4 text-gray-700 dark:text-gray-300">
-                                {{ $group->id }}
+                                {{ $group->_id }}
                             </td>
                             <td class="px-6 py-4 text-gray-700 dark:text-gray-300">
                                 {{ $group->Gr_name }}
@@ -53,12 +53,12 @@
                             <td class="px-6 py-4 flex justify-center items-center space-x-4">
                                 <button
                                     class="bg-yellow-500 hover:bg-yellow-600 dark:bg-yellow-600 dark:hover:bg-yellow-700 text-white px-4 py-2 rounded-md editGroupBtn"
-                                    data-id="{{ $group->id }}" data-name="{{ $group->Gr_name }}"
+                                    data-id="{{ $group->_id }}" data-name="{{ $group->Gr_name }}"
                                     data-segment="{{ $group->Gr_segment }}">
                                     {{ __('Edit') }}
                                 </button>
 
-                                <form action="{{ route('Group.destroy', $group->id) }}" method="POST"
+                                <form action="{{ route('Group.destroy', $group->_id) }}" method="POST"
                                     onsubmit="return confirm('Are you sure you want to delete this group?');">
                                     @csrf
                                     @method('DELETE')
@@ -218,6 +218,7 @@
                 editModal.classList.add('hidden');
             });
 
+
             searchInput.addEventListener('input', function() {
                 const search = this.value;
                 const url = new URL(window.location.href);
@@ -234,6 +235,8 @@
                         document.querySelector('.mt-4').innerHTML = newPagination.innerHTML;
                     });
             });
+
+
         });
     </script>
 </x-app-layout>

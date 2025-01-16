@@ -46,11 +46,11 @@
                             <td class="px-6 py-4 flex justify-center items-center space-x-4">
                                 <button
                                     class="bg-yellow-500 hover:bg-yellow-600 dark:bg-yellow-600 dark:hover:bg-yellow-700 text-white px-4 py-2 rounded-md editPlanBtn"
-                                    data-id="{{ $plans->Pl_code }}" data-name="{{ $plans->Pl_name }}">
+                                    data-id="{{ $plans->_id }}" data-name="{{ $plans->Pl_name }}">
                                     {{ __('Edit') }}
                                 </button>
 
-                                <form action="{{ route('Plan.destroy', $plans->Pl_code) }}" method="POST"
+                                <form action="{{ route('Plan.destroy', $plans->_id) }}" method="POST"
                                     onsubmit="return confirm('Are you sure you want to delete this plan?');">
                                     @csrf
                                     @method('DELETE')

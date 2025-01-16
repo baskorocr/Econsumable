@@ -71,11 +71,12 @@ class MasterLineController extends Controller
     {
 
 
+
         $request->validate([
             'Ln_name' => 'required|string|max:255',
         ]);
 
-        $data = MstrLine::findOrFail($request->id);
+        $data = MstrLine::findOrFail($request->line_id);
 
 
 
@@ -91,6 +92,7 @@ class MasterLineController extends Controller
      */
     public function destroy(string $id)
     {
+
         $line = MstrLine::findOrFail($id);
         $line->delete();
         return redirect()->route('MasterLine.index');

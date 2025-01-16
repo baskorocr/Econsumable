@@ -4,25 +4,35 @@ namespace App\Http\Controllers\admin\transaction;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\MstrLine;
+use App\Models\MstrLineGroup;
+use App\Models\MstrMaterial;
 
 class LineController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function indexLine()
     {
-        $lines = MstrLine::all();
-        return view('admin.transaction.line', compact('lines'));
+        $lines = MstrLineGroup::with('group', 'line')->get();
+
+        return view('transaction.line', compact('lines'));
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function indexMaterial($id)
     {
-        //
+        $materials = MstrMaterial::where('mt_lgId', $id)->get();
+
+        return view('transaction.material', compact('materials'));
+    }
+
+
+    public function indexConsumable($lines, $material)
+    {
+        dd($lines, $material);
     }
 
     /**

@@ -4,18 +4,21 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class MstrMaterial extends Model
 {
     use HasFactory;
 
     protected $table = 'mstr_materials';
-    protected $primaryKey = 'Mt_number';
+    protected $primaryKey = '_id'; // Explicitly define the primary key
+    public $incrementing = false;  // Disable auto-incrementing
+    public $timestamps = false;   // Disable timestamps
+    protected $keyType = 'string'; // Set key type as string
 
-    public $incrementing = false;
-    protected $keyType = 'string';
 
     protected $fillable = [
+        '_id',
         'Mt_number',
         'Mt_lgId',
         'Mt_desc'
@@ -23,12 +26,25 @@ class MstrMaterial extends Model
 
     public function masterLineGroup()
     {
-        return $this->belongsTo(MstrLineGroup::class, 'Mt_lgId', 'Lg_code');
+        return $this->belongsTo(MstrLineGroup::class, 'Mt_lgId', '_id');
     }
 
     public function consumables()
     {
-        return $this->hasMany(MstrConsumable::class, 'Cb_mtId', 'Mt_number');
+        return $this->hasMany(MstrConsumable::class, 'Cb_mtId', '_id');
+    }
+
+
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (empty($model->{$model->getKeyName()})) {
+                $model->{$model->getKeyName()} = (string) Str::uuid();
+            }
+        });
     }
 
 }

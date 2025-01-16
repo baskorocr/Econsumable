@@ -43,7 +43,7 @@
                             <td style="width: 13rem; height: 4rem;" class="px-6 py-4 text-gray-700 dark:text-gray-300">
                                 <div
                                     style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background: white;">
-                                    {!! DNS2D::getBarcodeHTML($line->id, 'QRCODE', 2, 2) !!}
+                                    {!! DNS2D::getBarcodeHTML($line->_id, 'QRCODE', 2, 2) !!}
                                 </div>
                             </td>
                             <td class="px-6 py-4 text-gray-700 dark:text-gray-300">
@@ -52,11 +52,11 @@
                             <td class="px-6 py-4 flex justify-center items-center space-x-4">
                                 <button
                                     class="bg-yellow-500 hover:bg-yellow-600 dark:bg-yellow-600 dark:hover:bg-yellow-700 text-white px-4 py-2 rounded-md editLineBtn"
-                                    data-id="{{ $line->id }}" data-name="{{ $line->Ln_name }}">
+                                    data-id="{{ $line->_id }}" data-name="{{ $line->Ln_name }}">
                                     {{ __('Edit') }}
                                 </button>
 
-                                <form action="{{ route('lines.destroy', $line->id) }}" method="POST"
+                                <form action="{{ route('lines.destroy', $line->_id) }}" method="POST"
                                     onsubmit="return confirm('Are you sure you want to delete this line?');">
                                     @csrf
 

@@ -17,12 +17,29 @@ class LineGroupController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $lineGroups = MstrLineGroup::with(['plan', 'costCenter', 'line', 'group', 'sloc', 'leader', 'section', 'pjStock'])->paginate(20);
+        $search = $request->input('search');
 
 
-        return view('admin.master.line_groups.index', compact('lineGroups'));
+
+        $lineGroups = MstrLineGroup::with(['plan', 'costCenter', 'line', 'group', 'sloc', 'leader', 'section', 'pjStock'])
+            ->when($search, function ($query, $search) {
+                $query->whereHas('plan', function ($q) use ($search) {
+                    $q->where('Pl_name', 'like', "%$search%");
+                })->orWhereHas('costCenter', function ($q) use ($search) {
+                    $q->where('Cs_code', 'like', "%$search%");
+                })->orWhereHas('line', function ($q) use ($search) {
+                    $q->where('Ln_name', 'like', "%$search%");
+                })->orWhereHas('sloc', function ($q) use ($search) {
+                    $q->where('Tp_mtCode', 'like', "%$search%");
+                });
+            })
+            ->paginate(20);
+
+
+
+        return view('admin.master.line_groups.index', compact('lineGroups', 'search'));
     }
 
     public function create()
@@ -31,28 +48,29 @@ class LineGroupController extends Controller
         $costCenters = MstrCostCenter::all();
         $lines = MstrLine::all();
         $groups = MstrGroup::all();
-        $slocs = MstrSloc::all();
         $usersSects = User::where('idRole', 2)->get();
         $usersDepts = User::where('idRole', 3)->get();
         $pjs = User::where('idRole', 4)->get();
-        return view('admin.master.line_groups.create', compact('plans', 'costCenters', 'lines', 'groups', 'slocs', 'usersSects', 'usersDepts', 'pjs'));
+        return view('admin.master.line_groups.create', compact('plans', 'costCenters', 'lines', 'groups', 'usersSects', 'usersDepts', 'pjs'));
     }
 
 
     public function store(Request $request)
     {
 
+
         $request->validate([
             'Lg_code' => 'required|string|max:255|unique:mstr_line_groups',
-            'Lg_plId' => 'required|integer',
-            'Lg_csId' => 'required|integer',
+            'Lg_plId' => 'required|string',
+            'Lg_csId' => 'required|string',
             'Lg_lineId' => 'required|string',
-            'Lg_groupId' => 'required|integer',
-            'Lg_slocId' => 'required|integer',
+            'Lg_groupId' => 'required|string',
+            'Lg_slocId' => 'required|string',
             'NpkLeader' => 'required|string|max:255',
             'NpkSection' => 'required|string|max:255',
             'NpkPjStock' => 'required|string|max:255',
         ]);
+
 
         MstrLineGroup::create([
             'Lg_code' => $request->Lg_code,
@@ -90,12 +108,12 @@ class LineGroupController extends Controller
 
 
         $request->validate([
-            'Lg_code' => 'required|integer ',
-            'Lg_plId' => 'required|integer',
-            'Lg_csId' => 'required|integer',
+            'Lg_code' => 'required|string ',
+            'Lg_plId' => 'required|string',
+            'Lg_csId' => 'required|string',
             'Lg_lineId' => 'required|string',
-            'Lg_groupId' => 'required|integer',
-            'Lg_slocId' => 'required|integer',
+            'Lg_groupId' => 'required|string',
+            'Lg_slocId' => 'required|string',
             "NpkLeader" => "required|string",
             "NpkSection" => "required|string",
             "NpkPjStock" => "required|string"
@@ -104,6 +122,7 @@ class LineGroupController extends Controller
 
 
         $lineGroup = MstrLineGroup::findOrFail($id);
+
 
 
 

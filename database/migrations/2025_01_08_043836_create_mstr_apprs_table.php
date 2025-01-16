@@ -12,7 +12,7 @@ return new class extends Migration {
     {
         Schema::create('mstr_apprs', function (Blueprint $table) {
             $table->string('Order_no')->primary();
-            $table->string('ConsumableId');
+            $table->uuid('ConsumableId');
             $table->string('CreateNpk');
             $table->date('ApprSectDate');
             $table->date('ApprDeptDate');
@@ -21,7 +21,7 @@ return new class extends Migration {
             $table->string('token')->nullable();
 
             $table->foreign('CreateNpk')->references('npk')->on('users')->onUpdate('cascade')->onDelete('cascade');
-            $table->foreign('consumableId')->references('Cb_number')->on('mstr_consumables')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('consumableId')->references('_id')->on('mstr_consumables')->onUpdate('cascade')->onDelete('cascade');
 
             $table->timestamps();
         });

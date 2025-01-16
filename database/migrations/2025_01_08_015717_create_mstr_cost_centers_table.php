@@ -11,7 +11,8 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('mstr_cost_centers', function (Blueprint $table) {
-            $table->integer('Cs_code')->length(10)->primary();
+            $table->uuid('_id')->primary();
+            $table->integer('Cs_code')->length(10);
             $table->string('Cs_name');
 
         });

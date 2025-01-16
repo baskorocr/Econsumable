@@ -113,7 +113,7 @@
                             class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
                             required>
                             @foreach ($lineGroups as $lineGroup)
-                                <option value="{{ $lineGroup->Lg_code }}">{{ $lineGroup->Lg_code }}</option>
+                                <option value="{{ $lineGroup->_id }}">{{ $lineGroup->_id }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -158,7 +158,7 @@
                             class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
                             required>
                             @foreach ($lineGroups as $lineGroup)
-                                <option value="{{ $lineGroup->Lg_code }}">{{ $lineGroup->Lg_code }}</option>
+                                <option value="{{ $lineGroup->_id }}">{{ $lineGroup->_id }}</option>
                             @endforeach
                         </select>
                     </div>

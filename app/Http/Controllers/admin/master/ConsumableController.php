@@ -12,13 +12,22 @@ class ConsumableController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $consumables = MstrConsumable::with('material')->paginate(20);
 
+        $search = $request->input('search', '');
+
+        $consumables = MstrConsumable::with('material')
+            ->when($search, function ($query, $search) {
+                $query->where('Cb_desc', 'like', "%$search%")
+                    ->orWhereHas('material', function ($q) use ($search) {
+                        $q->where('Mt_desc', 'like', "%$search%");
+                    });
+            })
+            ->paginate(20);
 
         $materials = MstrMaterial::all();
-        return view('admin.master.consumables.index', compact('consumables', 'materials'));
+        return view('admin.master.consumables.index', compact('consumables', 'search', 'materials'));
     }
 
     public function create()
