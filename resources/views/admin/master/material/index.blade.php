@@ -7,10 +7,16 @@
 
     <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
         <div class="flex justify-between mb-4">
-            <button id="openCreateModal"
-                class="inline-block bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white px-4 py-2 rounded-md">
-                {{ __('Add New Material') }}
-            </button>
+            <div class="flex flex-wrap items-center space-x-4 md:space-x-6">
+                <button id="openCreateModal"
+                    class="inline-block bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white px-4 py-2 rounded-md">
+                    {{ __('Add New Material') }}
+                </button>
+                <button id="openUploadModal"
+                    class="inline-block bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-4 py-2 rounded-md">
+                    {{ __('Upload Excel') }}
+                </button>
+            </div>
 
             <!-- Search Input -->
             <input type="text" id="searchInput" value="{{ $search }}" placeholder="Search by description"
@@ -185,6 +191,45 @@
         </div>
     </div>
 
+    {{-- upload modal --}}
+    <div id="uploadExcelModal"
+        class="fixed inset-0 bg-gray-500 bg-opacity-50 hidden flex justify-center items-center">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-96">
+            <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">{{ __('Upload Excel File') }}</h2>
+
+            <div class="mb-4">
+                <a href="{{ route('download.file') }}"
+                    class="bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white px-6 py-2 rounded-md">
+                    {{ __('Download Template') }}
+                </a>
+            </div>
+            <form id="uploadExcelForm" method="POST" action="" enctype="multipart/form-data">
+                @csrf
+                <div class="space-y-4">
+                    <div>
+                        <label for="excelFile"
+                            class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Select File') }}</label>
+                        <input type="file" name="excelFile" id="excelFile" accept=".xlsx, .xls"
+                            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                            required>
+                    </div>
+
+                    <div class="flex justify-between">
+                        <button type="submit"
+                            class="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-6 py-2 rounded-md">
+                            {{ __('Upload') }}
+                        </button>
+                        <button type="button" id="closeUploadModal"
+                            class="bg-gray-500 hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700 text-white px-4 py-2 rounded-md">
+                            {{ __('Close') }}
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const openCreateModalButton = document.getElementById('openCreateModal');
@@ -230,6 +275,8 @@
             closeEditModalButton.addEventListener('click', () => {
                 editModal.classList.add('hidden');
             });
+
+            //search dynamic
             searchInput.addEventListener('input', function() {
                 const search = this.value;
                 const url = new URL(window.location.href);
@@ -245,6 +292,22 @@
                         document.querySelector('tbody').innerHTML = newTableBody.innerHTML;
                         document.querySelector('.mt-4').innerHTML = newPagination.innerHTML;
                     });
+            });
+
+
+            //mass upload material
+            const openUploadModalButton = document.getElementById('openUploadModal');
+            const uploadModal = document.getElementById('uploadExcelModal');
+            const closeUploadModalButton = document.getElementById('closeUploadModal');
+
+            // Show Upload Modal
+            openUploadModalButton.addEventListener('click', () => {
+                uploadModal.classList.remove('hidden');
+            });
+
+            // Close Upload Modal
+            closeUploadModalButton.addEventListener('click', () => {
+                uploadModal.classList.add('hidden');
             });
         });
     </script>

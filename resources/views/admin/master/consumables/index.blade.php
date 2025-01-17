@@ -33,10 +33,7 @@
                             class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             {{ __('Material Number') }}
                         </th>
-                        <th
-                            class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                            {{ __('Material Description') }}
-                        </th>
+
 
                         <th
                             class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -51,14 +48,12 @@
                             <td class="px-6 py-4 text-gray-700 dark:text-gray-300">{{ $consumable->Cb_desc }}</td>
                             <td class="px-6 py-4 text-gray-700 dark:text-gray-300">
                                 {{ $consumable->material->Mt_number ?? 'N/A' }}</td>
-                            <td class="px-6 py-4 text-gray-700 dark:text-gray-300">
-                                {{ $consumable->material->Mt_desc ?? 'N/A' }}</td>
 
                             <td class="px-6 py-4 flex justify-center items-center space-x-4">
                                 <button
                                     class="bg-yellow-500 hover:bg-yellow-600 dark:bg-yellow-600 dark:hover:bg-yellow-700 text-white px-4 py-2 rounded-md editConsumableBtn"
-                                    data-id="{{ $consumable->_id }}" data-desc="{{ $consumable->Cb_desc }}"
-                                    data-mtid="{{ $consumable->Cb_mtId }}">
+                                    data-id="{{ $consumable->_id }}" data-no="{{ $consumable->Cb_number }}"
+                                    data-desc="{{ $consumable->Cb_desc }}" data-mtid="{{ $consumable->Cb_mtId }}">
                                     {{ __('Edit') }}
                                 </button>
 
@@ -107,7 +102,7 @@
                             class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
                             required>
                             @foreach ($materials as $material)
-                                <option value="{{ $material->Mt_number }}">{{ $material->Mt_number }}</option>
+                                <option value="{{ $material->_id }}">{{ $material->Mt_desc }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -152,6 +147,7 @@
                         <input type="text" name="Cb_mtId" id="editCb_mtId"
                             class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
                             readonly>
+
                     </div>
                     <div>
                         <label for="editCb_desc"
@@ -201,7 +197,7 @@
                 button.addEventListener('click', function() {
                     const consumableId = this.getAttribute('data-id');
                     const consumableDesc = this.getAttribute('data-desc');
-                    const consumableMtId = this.getAttribute('data-mtid');
+                    const consumableMtId = this.getAttribute('data-mtId');
 
                     // Set the data in the edit modal
                     document.getElementById('editConsumableId').value = consumableId;

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\admin\transaction;
 
 use App\Http\Controllers\Controller;
+use App\Models\MstrConsumable;
 use Illuminate\Http\Request;
 use App\Models\MstrLineGroup;
 use App\Models\MstrMaterial;
@@ -33,8 +34,56 @@ class LineController extends Controller
 
     public function indexConsumable($lines, $material)
     {
-        dd($lines, $material);
+
+
+
+
+        // $consumables = MstrConsumable::with(['material.masterLineGroup.plan', 'material.masterLineGroup.costCenter']) // Muat relasi hingga masterLineGroup
+        //     ->where('Cb_mtId', $material)->get();
+        $materials = MstrMaterial::with(['masterLineGroup.plan', 'masterLineGroup.costCenter', 'consumables'])->where('Mt_lgId', $lines)->where('_id', $material)->get();
+
+
+
+        return view('transaction.consumable', compact('materials'));
+
+
     }
+
+    public function preview(Request $request)
+    {
+        $data = $request->all();
+
+
+
+        // Hapus array consumables dengan quantity = 0
+        foreach ($data as $key => $value) {
+            if (is_array($value) && isset($value['quantity']) && $value['quantity'] == 0) {
+                unset($data[$key]); // Hapus array consumables
+            }
+        }
+
+        $idMt = $data['idMt'];
+
+        // Ambil data consumables
+        $consumables = [];
+        foreach ($data as $key => $value) {
+            if (strpos($key, 'consumables') === 0) {
+                $consumables[] = $value; // Push consumables to array
+            }
+        }
+
+        // Gabungkan idMt dan consumables menjadi satu array
+        $mergedData = [
+            'idMt' => $idMt,
+            'consumables' => $consumables, // Put consumables as an array
+        ];
+
+        $jsonData = json_encode($mergedData); // Convert the array to JSON
+        return $jsonData;
+    }
+
+
+
 
     /**
      * Store a newly created resource in storage.

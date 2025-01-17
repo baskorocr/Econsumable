@@ -51,6 +51,7 @@ Route::group(['middleware' => ['role:1,2,3'], 'prefix' => 'AdminMaster'], functi
     Route::resource('/LineGroup', LineGroupController::class);
     Route::resource('/Material', MaterialController::class);
     Route::resource('/Consumable', ConsumableController::class);
+    Route::get('/download-template', [MaterialController::class, 'downloadTemplate'])->name('download.file');
 
 });
 
@@ -70,6 +71,7 @@ Route::group(['middleware' => ['role:1,5'], 'prefix' => 'Transaction'], function
     Route::get('/ListLine', [LineController::class, 'indexLine'])->name('listLine');
     Route::get('/{id}/material', [LineController::class, 'indexMaterial'])->name('listMaterial');
     Route::get('/{line}/{material}', [LineController::class, 'indexConsumable'])->name('listConsumable');
+    Route::post('/preview', [LineController::class, 'preview'])->name('preview');
 
 });
 

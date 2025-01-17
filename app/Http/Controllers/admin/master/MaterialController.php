@@ -90,4 +90,17 @@ class MaterialController extends Controller
         $material->delete();
         return redirect()->route('Material.index');
     }
+    public function downloadTemplate()
+    {
+        // Path to the template file in the public directory
+        $filePath = public_path('templates/example.xlsx');
+
+        // Check if the file exists
+        if (!file_exists($filePath)) {
+            abort(404, 'Template file not found.');
+        }
+
+        // Return the file as a download response
+        return response()->download($filePath, 'example_template.xlsx');
+    }
 }

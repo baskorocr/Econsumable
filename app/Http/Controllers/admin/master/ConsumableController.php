@@ -22,6 +22,8 @@ class ConsumableController extends Controller
                 $query->where('Cb_desc', 'like', "%$search%")
                     ->orWhereHas('material', function ($q) use ($search) {
                         $q->where('Mt_desc', 'like', "%$search%");
+                    })->orWhereHas('material', function ($q) use ($search) {
+                        $q->where('Mt_number', 'like', "%$search%");
                     });
             })
             ->paginate(20);
@@ -38,6 +40,8 @@ class ConsumableController extends Controller
 
     public function store(Request $request)
     {
+
+
         $request->validate([
             'Cb_number' => 'required|string|max:255|unique:mstr_consumables',
             'Cb_mtId' => 'required|string',

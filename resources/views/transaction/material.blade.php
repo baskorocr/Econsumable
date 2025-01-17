@@ -28,7 +28,7 @@
                 </div>
             @else
                 @foreach ($materials as $material)
-                    <a href="{{ route('listConsumable', ['line' => $material->Mt_lgId, 'material' => $material->Mt_number]) }}"
+                    <a href="{{ route('listConsumable', ['line' => $material->Mt_lgId, 'material' => $material->_id]) }}"
                         class="p-4 rounded-md shadow-md bg-violet-500 hover:bg-violet-600">
                         <div class="col-span-2 flex flex-col justify-center items-center">
                             <h2 class="text-lg text-white font-semibold">{{ $material->Mt_desc }}</h2>
