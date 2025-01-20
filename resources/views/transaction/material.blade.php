@@ -61,7 +61,7 @@
                             data.forEach(material => {
                                 const link = document.createElement('a');
                                 link.href =
-                                    `{{ url('listConsumable') }}/${material.Mt_lgId}/${material._id}`;
+                                    `{{ url('Transaction') }}/${material.Mt_lgId}/${material._id}`;
                                 link.classList.add('p-4', 'rounded-md', 'shadow-md',
                                     'bg-violet-500', 'hover:bg-violet-600');
 
