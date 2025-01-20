@@ -62,8 +62,11 @@
             'translate-y-full': scrollingDown,
             'translate-y-0': scrollingUp,
         }">
-        <x-button type="button" icon-only variant="secondary" sr-text="Search">
-            <x-heroicon-o-search aria-hidden="true" class="w-6 h-6" />
+
+        <x-button type="button" icon-only variant="secondary" sr-text="Open main menu"
+            x-on:click="isSidebarOpen = !isSidebarOpen">
+            <x-heroicon-o-menu x-show="!isSidebarOpen" aria-hidden="true" class="w-6 h-6" />
+            <x-heroicon-o-x x-show="isSidebarOpen" aria-hidden="true" class="w-6 h-6" />
         </x-button>
 
 
@@ -72,11 +75,11 @@
             <span class="sr-only">Dashboard</span>
         </a>
 
-        <x-button type="button" icon-only variant="secondary" sr-text="Open main menu"
-            x-on:click="isSidebarOpen = !isSidebarOpen">
-            <x-heroicon-o-menu x-show="!isSidebarOpen" aria-hidden="true" class="w-6 h-6" />
-            <x-heroicon-o-x x-show="isSidebarOpen" aria-hidden="true" class="w-6 h-6" />
+        <x-button type="button" icon-only variant="secondary" sr-text="Search">
+            <x-heroicon-o-search aria-hidden="true" class="w-6 h-6" />
         </x-button>
+
+
     </div>
 @endauth
 
