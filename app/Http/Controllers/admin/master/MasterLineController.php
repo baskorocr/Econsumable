@@ -98,4 +98,28 @@ class MasterLineController extends Controller
         return redirect()->route('MasterLine.index');
 
     }
+
+    public function uploadExcel(Request $request)
+    {
+        $request->validate([
+            'excelFile' => 'required|file|mimes:xlsx,xls|max:2048', // Validate file type and size
+        ]);
+
+
+
+        if ($request->hasFile('excelFile')) {
+            $file = $request->file('excelFile');
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $uploadPath = storage_path('app/uploads/excel'); // Define upload directory
+
+            // Move the uploaded file
+            $file->move($uploadPath, $fileName);
+
+            // Process the uploaded file (Optional: Add processing logic here)
+
+            return redirect()->back()->with('success', 'File uploaded successfully!');
+        }
+
+        return redirect()->back()->with('error', 'Failed to upload file.');
+    }
 }

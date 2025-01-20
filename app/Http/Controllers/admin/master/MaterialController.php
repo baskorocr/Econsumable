@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\MstrLineGroup;
 use App\Models\MstrMaterial;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\MstrMaterialImport;
+use Illuminate\Support\Facades\Log;
 
 class MaterialController extends Controller
 {
@@ -86,6 +89,7 @@ class MaterialController extends Controller
     public function destroy(string $id)
     {
 
+
         $material = MstrMaterial::findOrFail($id);
         $material->delete();
         return redirect()->route('Material.index');
@@ -102,5 +106,42 @@ class MaterialController extends Controller
 
         // Return the file as a download response
         return response()->download($filePath, 'example_template.xlsx');
+    }
+
+
+    public function uploadExcel(Request $request)
+    {
+
+
+        $request->validate([
+            'excelFile' => 'required|file|mimes:xlsx,xls'
+        ]);
+
+
+
+        try {
+            // Import data
+            $import = new MstrMaterialImport;
+            Excel::import($import, $request->file('excelFile'));
+
+            // Get the status messages
+            $statusMessages = $import->getStatusMessages();
+
+            // Log the status messages
+            Log::info('Import status: ' . json_encode($statusMessages));
+
+            // Check if all rows were successfully imported
+            $allSuccessful = !in_array(false, $statusMessages, true);
+
+
+            if ($allSuccessful) {
+                return back()->with('success', 'Data Excel berhasil diimpor.');
+            } else {
+                return back()->with('warning', 'Data Excel sebagian berhasil diimpor. Periksa log untuk detail.');
+            }
+        } catch (\Exception $e) {
+            Log::error('Error during import: ' . $e->getMessage());
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
     }
 }

@@ -76,7 +76,7 @@
                                     {{ __('Edit') }}
                                 </button>
 
-                                <form action="{{ route('Material.destroy', $material->Mt_number) }}" method="POST"
+                                <form action="{{ route('Material.destroy', $material->_id) }}" method="POST"
                                     onsubmit="return confirm('Are you sure you want to delete this material?');">
                                     @csrf
                                     @method('DELETE')
@@ -203,7 +203,8 @@
                     {{ __('Download Template') }}
                 </a>
             </div>
-            <form id="uploadExcelForm" method="POST" action="" enctype="multipart/form-data">
+            <form id="uploadExcelForm" method="POST" action="{{ route('upload.excel') }}"
+                enctype="multipart/form-data">
                 @csrf
                 <div class="space-y-4">
                     <div>
