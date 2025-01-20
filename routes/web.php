@@ -61,6 +61,7 @@ Route::patch('/profile', [ProfileController::class, 'update'])->middleware(['rol
 Route::delete('/profile', [ProfileController::class, 'destroy'])->middleware(['role:1,2,3,4,5'])->name('profile.destroy');
 Route::get('/line/search', [LineController::class, 'search'])->middleware(['role:1,5'])->name('line.search');
 Route::get('/material/search', [LineController::class, 'searchMaterial'])->middleware(['role:1,5'])->name('material.search');
+Route::get('/consumable/search', [LineController::class, 'searchConsumable'])->name('consumable.search');
 
 
 

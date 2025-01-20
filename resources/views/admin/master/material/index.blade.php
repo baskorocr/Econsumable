@@ -133,13 +133,14 @@
                 </div>
 
                 <div class="flex justify-between mt-4">
-                    <button type="submit"
-                        class="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-6 py-2 rounded-md">
-                        {{ __('Add Material') }}
-                    </button>
+
                     <button type="button" id="closeCreateModal"
                         class="bg-gray-500 hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700 text-white px-4 py-2 rounded-md">
                         {{ __('Close') }}
+                    </button>
+                    <button type="submit"
+                        class="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-6 py-2 rounded-md">
+                        {{ __('Add Material') }}
                     </button>
                 </div>
             </form>
@@ -178,13 +179,14 @@
                 </div>
 
                 <div class="flex justify-between mt-4">
-                    <button type="submit"
-                        class="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-6 py-2 rounded-md">
-                        {{ __('Update Material') }}
-                    </button>
+
                     <button type="button" id="closeEditModal"
                         class="bg-gray-500 hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700 text-white px-4 py-2 rounded-md">
                         {{ __('Close') }}
+                    </button>
+                    <button type="submit"
+                        class="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-6 py-2 rounded-md">
+                        {{ __('Update Material') }}
                     </button>
                 </div>
             </form>
@@ -216,13 +218,14 @@
                     </div>
 
                     <div class="flex justify-between">
-                        <button type="submit"
-                            class="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-6 py-2 rounded-md">
-                            {{ __('Upload') }}
-                        </button>
+
                         <button type="button" id="closeUploadModal"
                             class="bg-gray-500 hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700 text-white px-4 py-2 rounded-md">
                             {{ __('Close') }}
+                        </button>
+                        <button type="submit"
+                            class="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-6 py-2 rounded-md">
+                            {{ __('Upload') }}
                         </button>
                     </div>
                 </div>

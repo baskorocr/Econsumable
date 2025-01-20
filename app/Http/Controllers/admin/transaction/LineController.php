@@ -56,6 +56,7 @@ class LineController extends Controller
     public function indexConsumable($lines, $material)
     {
 
+        $id = $material;
 
 
 
@@ -65,7 +66,7 @@ class LineController extends Controller
 
 
 
-        return view('transaction.consumable', compact('materials'));
+        return view('transaction.consumable', compact('materials', 'id'));
 
 
     }
@@ -101,6 +102,16 @@ class LineController extends Controller
 
         $jsonData = json_encode($mergedData); // Convert the array to JSON
         return $jsonData;
+    }
+
+    public function searchConsumable(Request $request)
+    {
+        $search = $request->input('search');
+        $id = $request->input('id');
+
+        $materials = MstrConsumable::where('Cb_number', 'like', '%' . $search . '%')->where('Cb_mtId', 'like', '%' . $id . '%')->get();
+
+        return response()->json($materials);
     }
 
 
