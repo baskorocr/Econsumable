@@ -59,6 +59,8 @@ Route::group(['middleware' => ['role:1,2,3'], 'prefix' => 'AdminMaster'], functi
 Route::get('/profile', [ProfileController::class, 'edit'])->middleware(['role:1,2,3,4,5'])->name('profile.edit');
 Route::patch('/profile', [ProfileController::class, 'update'])->middleware(['role:1,2,3,4,5'])->name('profile.update');
 Route::delete('/profile', [ProfileController::class, 'destroy'])->middleware(['role:1,2,3,4,5'])->name('profile.destroy');
+Route::get('/line/search', [LineController::class, 'search'])->name('line.search');
+Route::get('/material/search', [LineController::class, 'searchMaterial'])->name('material.search');
 
 
 

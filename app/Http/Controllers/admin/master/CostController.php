@@ -77,13 +77,26 @@ class CostController extends Controller
 
         $request->validate([
             'Cs_name' => 'required|string|max:255',
+            'Cs_code' => 'required|string|max:255',
         ]);
 
-        $cs = MstrCostCenter::findOrFail($request->Cs_code);
-        $cs->Cs_name = $request->Cs_name;
-        $cs->save();
 
-        return redirect()->route('Cost.index');
+        $cs = MstrCostCenter::findOrFail($id);
+        try {
+            $cs->update([
+                'Cs_code' => $request->Cs_code,
+                'Cs_name' => $request->Cs_name,
+            ]);
+            return redirect()->route('Cost.index');
+
+        } catch (\Exception $e) {
+
+            return redirect()->route('Cost.index');
+
+        }
+
+
+
 
     }
 

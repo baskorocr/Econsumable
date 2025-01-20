@@ -28,7 +28,28 @@ class LineController extends Controller
     {
         $materials = MstrMaterial::where('mt_lgId', $id)->get();
 
-        return view('transaction.material', compact('materials'));
+
+        return view('transaction.material', compact('materials', 'id'));
+    }
+
+    public function searchMaterial(Request $request)
+    {
+
+        $search = $request->input('search');
+        $id = $request->input('id'); // Ambil 'id' dari request
+
+        if (empty($search)) {
+            // Jika tidak ada pencarian, ambil semua material berdasarkan mt_lgId
+            $materials = MstrMaterial::where('mt_lgId', $id)->get();
+        } else {
+            // Jika ada pencarian, filter berdasarkan mt_number
+            $materials = MstrMaterial::where('mt_lgId', $id)
+                ->where('mt_number', 'like', '%' . $search . '%')
+                ->get();
+        }
+
+
+        return response()->json($materials);
     }
 
 
@@ -131,4 +152,19 @@ class LineController extends Controller
 
         return redirect()->route('MasterLine.index')->with('success', 'Line deleted successfully.');
     }
+
+    public function search(Request $request)
+    {
+        $search = $request->input('search');
+
+        $lines = MstrLineGroup::with('group', 'line')
+            ->whereHas('group', function ($query) use ($search) {
+                $query->where('Gr_name', 'like', '%' . $search . '%');
+            })
+            ->get();
+
+        return response()->json($lines);
+    }
+
+
 }

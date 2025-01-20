@@ -47,7 +47,8 @@
                             <td class="px-6 py-4 flex justify-center items-center space-x-4">
                                 <button
                                     class="bg-yellow-500 hover:bg-yellow-600 dark:bg-yellow-600 dark:hover:bg-yellow-700 text-white px-4 py-2 rounded-md editLineBtn"
-                                    data-id="{{ $cost->_id }}" data-name="{{ $cost->Cs_name }}">
+                                    data-id="{{ $cost->_id }}" data-name="{{ $cost->Cs_name }}"
+                                    data-code="{{ $cost->Cs_code }}">
                                     {{ __('Edit') }}
                                 </button>
 
@@ -126,6 +127,13 @@
 
                 <div class="space-y-4">
                     <div>
+                        <label for="editCs_code"
+                            class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Cost Code') }}</label>
+                        <input type="text" name="Cs_code" id="editCs_code"
+                            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                            required>
+                    </div>
+                    <div>
                         <label for="editNameLine"
                             class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Cost Name') }}</label>
                         <input type="text" name="Cs_name" id="editNameLine"
@@ -197,10 +205,12 @@
             editButtons.forEach(button => {
                 button.addEventListener('click', function() {
                     const lineId = this.getAttribute('data-id');
+                    const lineCode = this.getAttribute('data-code');
                     const lineName = this.getAttribute('data-name');
 
                     // Set the data in the edit modal
                     document.getElementById('editLineId').value = lineId;
+                    document.getElementById('editCs_code').value = lineCode;
                     document.getElementById('editNameLine').value = lineName;
 
                     // Set the form action to include the line id
