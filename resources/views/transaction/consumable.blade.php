@@ -62,7 +62,7 @@
                             </button>
 
                             <!-- Collapse Content -->
-                            <form action="{{ route('preview') }}" method="POST">
+                            <form action="{{ route('sapSend') }}" method="POST">
                                 @csrf
                                 <div id="collapse-{{ $material->id }}" class="collapse-content hidden mt-4">
                                     @if ($material->consumables->isEmpty())
@@ -74,11 +74,19 @@
                                         </div>
                                     @else
                                         <input type="hidden" name="idMt" value="{{ $material->_id }}">
+                                        <input type="hidden" name="PlanCode"
+                                            value="{{ $material->masterLineGroup->plan->Pl_code }}">
+                                        <input type="hidden" name="CsCode"
+                                            value="{{ $material->masterLineGroup->costCenter->Cs_code }}">
+                                        <input type="hidden" name="SlocId"
+                                            value="{{ $material->masterLineGroup->Lg_slocId }}">
                                         @foreach ($material->consumables as $index => $consumable)
                                             <div
                                                 class="flex flex-col md:flex-row bg-violet-500 p-4 rounded-md items-center justify-between mb-4 mt-5">
                                                 <input type="hidden" name="consumables{{ $loop->iteration }}[id]"
                                                     value="{{ $consumable->_id }}">
+                                                <input type="hidden" name="consumables{{ $loop->iteration }}[id]"
+                                                    value="{{ $consumable->Cb_number }}">
 
                                                 <!-- Consumable Description -->
                                                 <p class="text-white mb-2 md:mb-0">

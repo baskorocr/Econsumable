@@ -7,6 +7,7 @@ use App\Models\MstrConsumable;
 use Illuminate\Http\Request;
 use App\Models\MstrLineGroup;
 use App\Models\MstrMaterial;
+use GuzzleHttp\Client;
 
 class LineController extends Controller
 {
@@ -71,37 +72,89 @@ class LineController extends Controller
 
     }
 
-    public function preview(Request $request)
+    public function sapSend(Request $request)
     {
-        $data = $request->all();
+        $input = $request->all();
 
-
-
-        // Hapus array consumables dengan quantity = 0
-        foreach ($data as $key => $value) {
-            if (is_array($value) && isset($value['quantity']) && $value['quantity'] == 0) {
-                unset($data[$key]); // Hapus array consumables
-            }
-        }
-
-        $idMt = $data['idMt'];
-
-        // Ambil data consumables
+        // Menggabungkan consumables1, consumables2, dll. ke dalam satu array
         $consumables = [];
-        foreach ($data as $key => $value) {
-            if (strpos($key, 'consumables') === 0) {
-                $consumables[] = $value; // Push consumables to array
+        foreach ($input as $key => $value) {
+            if (str_starts_with($key, 'consumables')) {
+                $consumables[] = $value;
             }
         }
 
-        // Gabungkan idMt dan consumables menjadi satu array
-        $mergedData = [
-            'idMt' => $idMt,
-            'consumables' => $consumables, // Put consumables as an array
+        // Validasi jika consumables kosong
+        if (empty($consumables)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak ada consumables yang ditemukan.'
+            ], 400);
+        }
+
+        // Menyiapkan payload untuk API SAP
+        $sapPayload = [
+            "cons" => "X",
+            "LT_INPUT" => []
         ];
 
-        $jsonData = json_encode($mergedData); // Convert the array to JSON
-        return $jsonData;
+        foreach ($consumables as $consumable) {
+            $sapPayload['LT_INPUT'][] = [
+                "MATERIAL" => $consumable['id'],
+                "PLANT_ASAL" => $request->input('PlanCode'),
+                "SLOC_ASAL" => $request->input('SlocId'),
+                "QUANTITY" => $consumable['quantity'],
+                "SATUAN" => "L", // Ubah ke satuan yang sesuai jika perlu
+                "COST_CENTER" => $request->input('CsCode')
+            ];
+        }
+
+        // Filter untuk menghapus elemen dengan QUANTITY = "0"
+        $sapPayload['LT_INPUT'] = array_filter($sapPayload['LT_INPUT'], function ($item) {
+            return $item['QUANTITY'] !== "0";
+        });
+
+
+        // Validasi jika tidak ada data setelah filter
+        if (empty($sapPayload['LT_INPUT'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Semua consumables memiliki quantity 0. Tidak ada data yang dikirim ke SAP.'
+            ], 400);
+        }
+
+        // URL API SAP
+        $sapApiUrl = "http://erpdev-dp.dharmap.com:8001/sap/zapi/ZMM_GI_SCRAP?sap-client=110";
+
+        try {
+            // Membuat client Guzzle
+            $client = new Client();
+
+            // Mengirim request POST ke API SAP
+            $response = $client->post($sapApiUrl, [
+                'json' => $sapPayload,
+                'auth' => ["wcs-abap", "Wilmar12"],
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/json',
+                ],
+            ]);
+
+            // Mengambil respons dari API SAP
+            $responseBody = json_decode($response->getBody(), true);
+
+            return response()->json([
+                'success' => true,
+                'data' => $responseBody,
+            ]);
+
+        } catch (\Exception $e) {
+            // Menangani error
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function searchConsumable(Request $request)
