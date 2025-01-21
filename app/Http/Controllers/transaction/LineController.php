@@ -104,7 +104,7 @@ class LineController extends Controller
                 "PLANT_ASAL" => $request->input('PlanCode'),
                 "SLOC_ASAL" => $request->input('SlocId'),
                 "QUANTITY" => $consumable['quantity'],
-                "SATUAN" => "L", // Ubah ke satuan yang sesuai jika perlu
+                "SATUAN" => "PCE", // Ubah ke satuan yang sesuai jika perlu
                 "COST_CENTER" => $request->input('CsCode')
             ];
         }
@@ -124,7 +124,7 @@ class LineController extends Controller
         }
 
         // URL API SAP
-        $sapApiUrl = "http://erpdev-dp.dharmap.com:8001/sap/zapi/ZMM_GI_SCRAP?sap-client=110";
+        $sapApiUrl = "http://erpqas-dp.dharmap.com:8001/sap/zapi/ZMM_GI_SCRAP?sap-client=300";
 
         try {
             // Membuat client Guzzle
@@ -133,7 +133,7 @@ class LineController extends Controller
             // Mengirim request POST ke API SAP
             $response = $client->post($sapApiUrl, [
                 'json' => $sapPayload,
-                'auth' => ["wcs-abap", "Wilmar12"],
+                'auth' => ["dpm-itfc01", "Dharma48"],
                 'headers' => [
                     'Content-Type' => 'application/json',
                     'Accept' => 'application/json',

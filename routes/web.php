@@ -8,7 +8,7 @@ use App\Http\Controllers\admin\master\ConsumableController;
 use App\Http\Controllers\admin\master\CostController;
 use App\Http\Controllers\admin\master\GroupController;
 use App\Http\Controllers\admin\master\LineGroupController;
-use App\Http\Controllers\admin\transaction\LineController;
+use App\Http\Controllers\transaction\LineController;
 use App\Http\Controllers\admin\master\MasterLineController;
 use App\Http\Controllers\admin\master\MaterialController;
 use App\Http\Controllers\admin\master\PlanController;
