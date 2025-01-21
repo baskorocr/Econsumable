@@ -55,7 +55,7 @@
                         } else {
                             data.forEach(line => {
                                 const link = document.createElement('a');
-                                link.href = `{{ url('listMaterial') }}/${line._id}`;
+                                link.href = `{{ url('Transaction') }}/${line._id}/material`;
                                 link.classList.add('p-4', 'rounded-md', 'shadow-md',
                                     'bg-violet-500', 'hover:bg-violet-600');
 

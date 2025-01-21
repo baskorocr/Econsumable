@@ -16,6 +16,7 @@ class LinesController extends Controller
 
         $lines = MstrLineGroup::with('group', 'line')->get();
 
+
         return view('transaction.line', compact('lines'));
     }
 
@@ -73,6 +74,7 @@ class LinesController extends Controller
     {
         $input = $request->all();
 
+
         // Menggabungkan consumables1, consumables2, dll. ke dalam satu array
         $consumables = [];
         foreach ($input as $key => $value) {
@@ -94,6 +96,8 @@ class LinesController extends Controller
             "cons" => "X",
             "LT_INPUT" => []
         ];
+
+
 
         foreach ($consumables as $consumable) {
             $sapPayload['LT_INPUT'][] = [

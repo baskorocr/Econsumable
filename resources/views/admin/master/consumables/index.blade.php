@@ -144,10 +144,16 @@
                     <div>
                         <label for="editCb_mtId"
                             class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Material Number') }}</label>
-                        <input type="text" name="Cb_mtId" id="editCb_mtId"
+                        <select name="Cb_mtId" id="editCb_mtId"
                             class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
-                            readonly>
-
+                            required>
+                            @foreach ($materials as $material)
+                                <option value="{{ $material->_id }}"
+                                    {{ $material->_id == old('Cb_mtId', $consumable->Cb_mtId) ? 'selected' : '' }}>
+                                    {{ $material->Mt_number }} - {{ $material->Mt_desc }}
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
                     <div>
                         <label for="editCb_desc"
