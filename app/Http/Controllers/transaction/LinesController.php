@@ -1,19 +1,16 @@
 <?php
 
-namespace App\Http\Controllers\admin\transaction;
+namespace App\Http\Controllers\transaction;
 
 use App\Http\Controllers\Controller;
-use App\Models\MstrConsumable;
 use Illuminate\Http\Request;
 use App\Models\MstrLineGroup;
 use App\Models\MstrMaterial;
+use App\Models\MstrLine;
 use GuzzleHttp\Client;
-
-class LineController extends Controller
+use App\Models\MstrConsumable;
+class LinesController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function indexLine()
     {
 
@@ -229,6 +226,5 @@ class LineController extends Controller
 
         return response()->json($lines);
     }
-
 
 }

@@ -8,7 +8,8 @@ use App\Http\Controllers\admin\master\ConsumableController;
 use App\Http\Controllers\admin\master\CostController;
 use App\Http\Controllers\admin\master\GroupController;
 use App\Http\Controllers\admin\master\LineGroupController;
-use App\Http\Controllers\transaction\LineController;
+use App\Http\Controllers\transaction\LinesController;
+
 use App\Http\Controllers\admin\master\MasterLineController;
 use App\Http\Controllers\admin\master\MaterialController;
 use App\Http\Controllers\admin\master\PlanController;
@@ -59,9 +60,9 @@ Route::group(['middleware' => ['role:1,2,3'], 'prefix' => 'AdminMaster'], functi
 Route::get('/profile', [ProfileController::class, 'edit'])->middleware(['role:1,2,3,4,5'])->name('profile.edit');
 Route::patch('/profile', [ProfileController::class, 'update'])->middleware(['role:1,2,3,4,5'])->name('profile.update');
 Route::delete('/profile', [ProfileController::class, 'destroy'])->middleware(['role:1,2,3,4,5'])->name('profile.destroy');
-Route::get('/line/search', [LineController::class, 'search'])->middleware(['role:1,5'])->name('line.search');
-Route::get('/material/search', [LineController::class, 'searchMaterial'])->middleware(['role:1,5'])->name('material.search');
-Route::get('/consumable/search', [LineController::class, 'searchConsumable'])->name('consumable.search');
+Route::get('/line/search', [LinesController::class, 'search'])->middleware(['role:1,5'])->name('line.search');
+Route::get('/material/search', [LinesController::class, 'searchMaterial'])->middleware(['role:1,5'])->name('material.search');
+Route::get('/consumable/search', [LinesController::class, 'searchConsumable'])->name('consumable.search');
 
 
 
@@ -72,10 +73,10 @@ Route::group(['middleware' => ['role:4,5'], 'prefix' => 'page'], function () {
 });
 
 Route::group(['middleware' => ['role:1,5'], 'prefix' => 'Transaction'], function () {
-    Route::get('/ListLine', [LineController::class, 'indexLine'])->name('listLine');
-    Route::get('/{id}/material', [LineController::class, 'indexMaterial'])->name('listMaterial');
-    Route::get('/{line}/{material}', [LineController::class, 'indexConsumable'])->name('listConsumable');
-    Route::post('/sapSend', [LineController::class, 'sapSend'])->name('sapSend');
+    Route::get('/ListLine', [LinesController::class, 'indexLine'])->name('listLine');
+    Route::get('/{id}/material', [LinesController::class, 'indexMaterial'])->name('listMaterial');
+    Route::get('/{line}/{material}', [LinesController::class, 'indexConsumable'])->name('listConsumable');
+    Route::post('/sapSend', [LinesController::class, 'sapSend'])->name('sapSend');
 
 });
 
