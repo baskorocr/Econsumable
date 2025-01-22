@@ -73,7 +73,7 @@ class TransactionController extends Controller
             //     echo "ID: " . $consumable['id'] . " - Quantity: " . $consumable['quantity'] . "\n";
             // }
             try {
-                MstrAppr::create([
+                $requestId = MstrAppr::create([
                     'no_order' => $generate,
                     'ConsumableId' => $consumable['id'],
                     'jumlah' => $consumable['quantity'],
@@ -87,6 +87,14 @@ class TransactionController extends Controller
                     'token' => Str::uuid()->toString()
 
                 ]);
+                $requestId->load('orderSegment');
+
+                if ($segment->masterLineGroup->leader->noHp !== null) {
+
+                    $this->sendWa($segment->masterLineGroup->leader->noHp, $segment->masterLineGroup->leader->name, $requestId->orderSegment->noOrder)->get();
+                }
+
+
 
 
             } catch (\Exception $e) {
@@ -96,7 +104,7 @@ class TransactionController extends Controller
 
         }
 
-        $this->sendWa($segment->masterLineGroup->leader->noHp);
+
 
         return redirect()->route('listLine');
 
@@ -129,13 +137,29 @@ class TransactionController extends Controller
 
     }
 
-    public function sendWa($nomer)
+    public function sendWa($nomer, $name, $requestId)
     {
+        $by = auth()->user()->name;
+        $date = date('l, d F Y');
         header('Access-Control-Allow-Origin: *');
 
         header('Access-Control-Allow-Methods: GET, POST');
 
-        $message = "test";
+        $message = "Hi {$name}, kamu baru saja menerima notifikasi approval request dari sistem Econsumable dengan detail:
+
+- Request By : {$by}
+- Request Date: {$date}
+- Request ID: {$requestId}
+
+
+Anda dapat dengan segera mengkonfirmasi pada link dibawah ini:
+
+link ApproveRequest: dasdsadsadsa
+link RejectRequest: dasdsadsadsa
+
+Best regards,
+IT Development Dharma Polimetal
+                    ";
 
         header("Access-Control-Allow-Headers: X-Requested-With");
         $curl = curl_init();

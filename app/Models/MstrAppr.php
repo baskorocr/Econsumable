@@ -49,4 +49,10 @@ class MstrAppr extends Model
         // Generate a random 24-character alphanumeric string
         return substr(md5(uniqid(mt_rand(), true)), 0, 24);
     }
+
+    public function orderSegment()
+    {
+        return $this->hasOne(OrderSegment::class, '_id', 'no_order');
+    }
+
 }
