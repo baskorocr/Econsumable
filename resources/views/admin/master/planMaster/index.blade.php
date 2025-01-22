@@ -168,42 +168,49 @@
                 const newplansField = document.createElement('div');
                 newplansField.innerHTML =
                     `
-                        <label for="PlCode" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Plan Code') }}</label>
-                        <input type="text" name="PlanCode[]" id="PlanCode" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600" required>
-                        <label for="PlanName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('plans Name') }}</label>
-                        <input type="text" name="PlanName[]" id="PlanName" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600" required>
-                    `;
+                <label for="PlCode" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Plan Code') }}</label>
+                <input type="text" name="PlanCode[]" id="PlanCode" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600" required>
+                <label for="PlanName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('plans Name') }}</label>
+                <input type="text" name="PlanName[]" id="PlanName" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600" required>
+            `;
                 plansFieldsContainer.appendChild(newplansField);
             });
 
             // Edit modal functionality
-            const editButtons = document.querySelectorAll('.editPlanBtn');
             const editModal = document.getElementById('editplansModal');
             const closeEditModalButton = document.getElementById('closeEditModal');
 
-            editButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const plansId = this.getAttribute('data-id');
-                    const plansName = this.getAttribute('data-name');
+            function attachEditEventListeners() {
+                const editButtons = document.querySelectorAll('.editPlanBtn');
+                editButtons.forEach(button => {
+                    button.addEventListener('click', function() {
+                        const plansId = this.getAttribute('data-id');
+                        const plansName = this.getAttribute('data-name');
 
-                    // Set the data in the edit modal
-                    document.getElementById('editplansId').value = plansId;
-                    document.getElementById('editNameplans').value = plansName;
+                        // Set the data in the edit modal
+                        document.getElementById('editplansId').value = plansId;
+                        document.getElementById('editNameplans').value = plansName;
 
-                    // Set the form action to include the plans id
-                    const formAction = document.getElementById('editplansForm').action.replace(
-                        ':id', plansId);
-                    document.getElementById('editplansForm').action = formAction;
+                        // Set the form action to include the plans id
+                        const formAction = document.getElementById('editplansForm').action.replace(
+                            ':id', plansId);
+                        document.getElementById('editplansForm').action = formAction;
 
-                    editModal.classList.remove('hidden');
+                        editModal.classList.remove('hidden');
+                    });
                 });
-            });
+            }
+
+            // Attach edit event listeners initially
+            attachEditEventListeners();
 
             // Close Edit Modal
             closeEditModalButton.addEventListener('click', () => {
                 editModal.classList.add('hidden');
             });
 
+            // Search dynamic
+            const searchInput = document.getElementById('searchInput');
             searchInput.addEventListener('input', function() {
                 const search = this.value;
                 const url = new URL(window.location.href);
@@ -218,6 +225,9 @@
                         const newPagination = doc.querySelector('.mt-4');
                         document.querySelector('tbody').innerHTML = newTableBody.innerHTML;
                         document.querySelector('.mt-4').innerHTML = newPagination.innerHTML;
+
+                        // Reattach event listeners after dynamic search result update
+                        attachEditEventListeners();
                     });
             });
         });

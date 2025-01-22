@@ -165,7 +165,7 @@
                             class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
                             required>
                             @foreach ($lineGroups as $lineGroup)
-                                <option value="{{ $lineGroup->_id }}">{{ $lineGroup->_id }}</option>
+                                <option value="{{ $lineGroup->_id }}">{{ $lineGroup->Lg_code }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -251,36 +251,42 @@
             });
 
             // Edit modal functionality
-            const editButtons = document.querySelectorAll('.editMaterialBtn');
             const editModal = document.getElementById('editMaterialModal');
             const closeEditModalButton = document.getElementById('closeEditModal');
 
-            editButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const materialId = this.getAttribute('data-id');
-                    const materialDesc = this.getAttribute('data-desc');
-                    const materialLgId = this.getAttribute('data-lgid');
+            function attachEditEventListeners() {
+                const editButtons = document.querySelectorAll('.editMaterialBtn');
+                editButtons.forEach(button => {
+                    button.addEventListener('click', function() {
+                        const materialId = this.getAttribute('data-id');
+                        const materialDesc = this.getAttribute('data-desc');
+                        const materialLgId = this.getAttribute('data-lgid');
 
-                    // Set the data in the edit modal
-                    document.getElementById('editMaterialId').value = materialId;
-                    document.getElementById('editMt_desc').value = materialDesc;
-                    document.getElementById('editMt_lgId').value = materialLgId;
+                        // Set the data in the edit modal
+                        document.getElementById('editMaterialId').value = materialId;
+                        document.getElementById('editMt_desc').value = materialDesc;
+                        document.getElementById('editMt_lgId').value = materialLgId;
 
-                    // Set the form action to include the material id
-                    const formAction = document.getElementById('editMaterialForm').action.replace(
-                        ':id', materialId);
-                    document.getElementById('editMaterialForm').action = formAction;
+                        // Set the form action to include the material id
+                        const formAction = document.getElementById('editMaterialForm').action
+                            .replace(':id', materialId);
+                        document.getElementById('editMaterialForm').action = formAction;
 
-                    editModal.classList.remove('hidden');
+                        editModal.classList.remove('hidden');
+                    });
                 });
-            });
+            }
+
+            // Attach edit event listeners initially
+            attachEditEventListeners();
 
             // Close Edit Modal
             closeEditModalButton.addEventListener('click', () => {
                 editModal.classList.add('hidden');
             });
 
-            //search dynamic
+            // Search dynamic
+            const searchInput = document.getElementById('searchInput');
             searchInput.addEventListener('input', function() {
                 const search = this.value;
                 const url = new URL(window.location.href);
@@ -295,11 +301,13 @@
                         const newPagination = doc.querySelector('.mt-4');
                         document.querySelector('tbody').innerHTML = newTableBody.innerHTML;
                         document.querySelector('.mt-4').innerHTML = newPagination.innerHTML;
+
+                        // Reattach event listeners after dynamic search result update
+                        attachEditEventListeners();
                     });
             });
 
-
-            //mass upload material
+            // Mass upload material
             const openUploadModalButton = document.getElementById('openUploadModal');
             const uploadModal = document.getElementById('uploadExcelModal');
             const closeUploadModalButton = document.getElementById('closeUploadModal');

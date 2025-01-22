@@ -18,8 +18,13 @@ class MaterialController extends Controller
     public function index(Request $request)
     {
         $search = $request->get('search', '');
-        $materials = MstrMaterial::where('Mt_desc', 'like', '%' . $search . '%')
+        $materials = MstrMaterial::where(function ($query) use ($search) {
+            $query->whereRaw('LOWER(mt_number) like ?', ['%' . strtolower($search) . '%'])
+                ->orWhereRaw('mt_desc like ?', ['%' . strtolower($search) . '%']);
+        })
             ->paginate(10);
+
+
         $lineGroups = MstrLineGroup::all();
         return view('admin.master.material.index', compact('materials', 'lineGroups', 'search'));
     }

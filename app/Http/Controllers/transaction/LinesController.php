@@ -43,9 +43,13 @@ class LinesController extends Controller
         } else {
             // Jika ada pencarian, filter berdasarkan mt_number
             $materials = MstrMaterial::where('mt_lgId', $id)
-                ->where('mt_number', 'like', '%' . $search . '%')
+                ->where(function ($query) use ($search) {
+                    $query->whereRaw('LOWER(mt_number) like ?', ['%' . strtolower($search) . '%'])
+                        ->orWhereRaw('MT_desc like ?', ['%' . strtolower($search) . '%']);
+                })
                 ->get();
         }
+
 
 
         return response()->json($materials);
@@ -163,7 +167,21 @@ class LinesController extends Controller
         $search = $request->input('search');
         $id = $request->input('id');
 
-        $materials = MstrConsumable::where('Cb_number', 'like', '%' . $search . '%')->where('Cb_mtId', 'like', '%' . $id . '%')->get();
+        if (empty($search)) {
+            $materials = [];
+        } else {
+            $materials = MstrConsumable::where('Cb_mtId', 'like', '%' . $id . '%')
+                ->where(function ($query) use ($search) {
+                    $query->where('Cb_number', 'like', '%' . $search . '%')
+                        ->orWhere('Cb_desc', 'like', '%' . $search . '%');
+                })
+                ->get();
+
+
+        }
+
+
+
 
         return response()->json($materials);
     }

@@ -182,43 +182,49 @@
                 const newGroupField = document.createElement('div');
                 newGroupField.innerHTML =
                     `<label for="Gr_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Name') }}</label>
-                    <input type="text" name="Gr_name[]" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600" required>
-                    <label for="Gr_segment" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Segment') }}</label>
-                    <input type="text" name="Gr_segment[]" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600" required>`;
+            <input type="text" name="Gr_name[]" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600" required>
+            <label for="Gr_segment" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Segment') }}</label>
+            <input type="text" name="Gr_segment[]" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600" required>`;
                 groupFieldsContainer.appendChild(newGroupField);
             });
 
             // Edit modal functionality
-            const editButtons = document.querySelectorAll('.editGroupBtn');
             const editModal = document.getElementById('editGroupModal');
             const closeEditModalButton = document.getElementById('closeEditModal');
 
-            editButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const groupId = this.getAttribute('data-id');
-                    const groupName = this.getAttribute('data-name');
-                    const groupSegment = this.getAttribute('data-segment');
+            function attachEditEventListeners() {
+                const editButtons = document.querySelectorAll('.editGroupBtn');
+                editButtons.forEach(button => {
+                    button.addEventListener('click', function() {
+                        const groupId = this.getAttribute('data-id');
+                        const groupName = this.getAttribute('data-name');
+                        const groupSegment = this.getAttribute('data-segment');
 
-                    // Set the data in the edit modal
-                    document.getElementById('editGroupId').value = groupId;
-                    document.getElementById('editGroupName').value = groupName;
-                    document.getElementById('editGroupSegment').value = groupSegment;
+                        // Set the data in the edit modal
+                        document.getElementById('editGroupId').value = groupId;
+                        document.getElementById('editGroupName').value = groupName;
+                        document.getElementById('editGroupSegment').value = groupSegment;
 
-                    // Set the form action to include the group id
-                    const formAction = document.getElementById('editGroupForm').action.replace(
-                        ':id', groupId);
-                    document.getElementById('editGroupForm').action = formAction;
+                        // Set the form action to include the group id
+                        const formAction = document.getElementById('editGroupForm').action.replace(
+                            ':id', groupId);
+                        document.getElementById('editGroupForm').action = formAction;
 
-                    editModal.classList.remove('hidden');
+                        editModal.classList.remove('hidden');
+                    });
                 });
-            });
+            }
+
+            // Attach edit event listeners initially
+            attachEditEventListeners();
 
             // Close Edit Modal
             closeEditModalButton.addEventListener('click', () => {
                 editModal.classList.add('hidden');
             });
 
-
+            // Search dynamic
+            const searchInput = document.getElementById('searchInput');
             searchInput.addEventListener('input', function() {
                 const search = this.value;
                 const url = new URL(window.location.href);
@@ -233,10 +239,11 @@
                         const newPagination = doc.querySelector('.mt-4');
                         document.querySelector('tbody').innerHTML = newTableBody.innerHTML;
                         document.querySelector('.mt-4').innerHTML = newPagination.innerHTML;
+
+                        // Reattach event listeners after dynamic search result update
+                        attachEditEventListeners();
                     });
             });
-
-
         });
     </script>
 </x-app-layout>

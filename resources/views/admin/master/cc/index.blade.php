@@ -13,7 +13,7 @@
             </button>
 
             <!-- Search Input -->
-            <input type="text" id="searchInput" value="{{ $search }}" placeholder="Search by name"
+            <input type="text" id="searchInput" value="{{ $search }}" placeholder="Search by Cost Center"
                 class="mt-1 block w-1/3 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600">
         </div>
 
@@ -179,54 +179,61 @@
                 const newLineField = document.createElement('div');
                 newLineField.innerHTML =
                     `<div id="lineFieldsContainer" class="space-y-4">
-                    <div>
-                        <label for="cost"
-                            class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Cost Code') }}</label>
-                        <input type="text" name="Cs_code[]" id="Cs_code"
-                            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
-                            required>
-                    </div>
-                    <div>
-                        <label for="cost name"
-                            class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Cost Name') }}</label>
-                        <input type="text" name="Cs_name[]" id="Cs_name"
-                            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
-                            required>
-                    </div>
-                </div>`;
+            <div>
+                <label for="cost"
+                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Cost Code') }}</label>
+                <input type="text" name="Cs_code[]" id="Cs_code"
+                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                    required>
+            </div>
+            <div>
+                <label for="cost name"
+                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Cost Name') }}</label>
+                <input type="text" name="Cs_name[]" id="Cs_name"
+                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                    required>
+            </div>
+        </div>`;
                 lineFieldsContainer.appendChild(newLineField);
             });
 
             // Edit modal functionality
-            const editButtons = document.querySelectorAll('.editLineBtn');
             const editModal = document.getElementById('editLineModal');
             const closeEditModalButton = document.getElementById('closeEditModal');
 
-            editButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const lineId = this.getAttribute('data-id');
-                    const lineCode = this.getAttribute('data-code');
-                    const lineName = this.getAttribute('data-name');
+            function attachEditEventListeners() {
+                const editButtons = document.querySelectorAll('.editLineBtn');
+                editButtons.forEach(button => {
+                    button.addEventListener('click', function() {
+                        const lineId = this.getAttribute('data-id');
+                        const lineCode = this.getAttribute('data-code');
+                        const lineName = this.getAttribute('data-name');
 
-                    // Set the data in the edit modal
-                    document.getElementById('editLineId').value = lineId;
-                    document.getElementById('editCs_code').value = lineCode;
-                    document.getElementById('editNameLine').value = lineName;
+                        // Set the data in the edit modal
+                        document.getElementById('editLineId').value = lineId;
+                        document.getElementById('editCs_code').value = lineCode;
+                        document.getElementById('editNameLine').value = lineName;
 
-                    // Set the form action to include the line id
-                    const formAction = document.getElementById('editLineForm').action.replace(':id',
-                        lineId);
-                    document.getElementById('editLineForm').action = formAction;
+                        // Set the form action to include the line id
+                        const formAction = document.getElementById('editLineForm').action.replace(
+                            ':id', lineId);
+                        document.getElementById('editLineForm').action = formAction;
 
-                    editModal.classList.remove('hidden');
+                        editModal.classList.remove('hidden');
+                    });
                 });
-            });
+            }
+
+            // Attach edit event listeners initially
+            attachEditEventListeners();
 
             // Close Edit Modal
             closeEditModalButton.addEventListener('click', () => {
                 editModal.classList.add('hidden');
             });
 
+            // Search dynamic
+            const searchInput = document.getElementById('searchInput');
             searchInput.addEventListener('input', function() {
                 const search = this.value;
                 const url = new URL(window.location.href);
@@ -241,6 +248,9 @@
                         const newPagination = doc.querySelector('.mt-4');
                         document.querySelector('tbody').innerHTML = newTableBody.innerHTML;
                         document.querySelector('.mt-4').innerHTML = newPagination.innerHTML;
+
+                        // Reattach event listeners after dynamic search result update
+                        attachEditEventListeners();
                     });
             });
         });
