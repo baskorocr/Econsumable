@@ -11,17 +11,27 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('mstr_apprs', function (Blueprint $table) {
-            $table->string('Order_no')->primary();
+            $table->uuid('_id')->primary();
+            $table->uuid('no_order');
             $table->uuid('ConsumableId');
-            $table->string('CreateNpk');
-            $table->date('ApprSectDate');
-            $table->date('ApprDeptDate');
-            $table->date('ApprPjStokDate');
+            $table->string('NpkUser');
+            $table->string('NpkSect')->nullable();
+            $table->string('NpkDept')->nullable();
+            $table->string('NpkPj')->nullable();
+            $table->date('ApprSectDate')->nullable();
+            $table->date('ApprDeptDate')->nullable();
+            $table->date('ApprPjStokDate')->nullable();
             $table->integer('status')->default(1);
             $table->string('token')->nullable();
+            $table->integer('jumlah');
 
-            $table->foreign('CreateNpk')->references('npk')->on('users')->onUpdate('cascade')->onDelete('cascade');
-            $table->foreign('consumableId')->references('_id')->on('mstr_consumables')->onUpdate('cascade')->onDelete('cascade');
+            // Menambahkan foreign key constraint
+            $table->foreign('no_order')->references('_id')->on('order_segments')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('ConsumableId')->references('_id')->on('mstr_consumables')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('NpkUser')->references('npk')->on('users')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('NpkSect')->references('npk')->on('users')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('NpkDept')->references('npk')->on('users')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('NpkPj')->references('npk')->on('users')->onUpdate('cascade')->onDelete('cascade');
 
             $table->timestamps();
         });

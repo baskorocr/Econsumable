@@ -4,29 +4,25 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 
-class MstrGroup extends Model
+class orderSegment extends Model
 {
     use HasFactory;
 
-    protected $table = 'mstr_groups';
+    protected $table = 'order_segments';
     protected $primaryKey = '_id'; // Explicitly define the primary key
     public $incrementing = false;  // Disable auto-incrementing
     public $timestamps = false;   // Disable timestamps
     protected $keyType = 'string';
 
+    // Set key type as string
+
+
     protected $fillable = [
         '_id',
-        'Gr_name',
-        'Gr_segment',
+        'noOrder',
+
     ];
-
-    public function lineGroups()
-    {
-        return $this->hasMany(MstrLineGroup::class, 'Lg_groupId', '_id');
-    }
-
 
     protected static function boot()
     {
@@ -45,7 +41,4 @@ class MstrGroup extends Model
         // Generate a random 24-character alphanumeric string
         return substr(md5(uniqid(mt_rand(), true)), 0, 24);
     }
-
-
-
 }

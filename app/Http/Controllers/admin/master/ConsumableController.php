@@ -43,7 +43,7 @@ class ConsumableController extends Controller
 
 
         $request->validate([
-            'Cb_number' => 'required|string|max:255|unique:mstr_consumables',
+            'Cb_number' => 'required|string|max:255|',
             'Cb_mtId' => 'required|string',
             'Cb_desc' => 'required|string',
         ]);

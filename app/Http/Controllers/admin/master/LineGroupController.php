@@ -59,10 +59,11 @@ class LineGroupController extends Controller
 
     public function store(Request $request)
     {
+        dd("Dasdas");
 
 
         $request->validate([
-            'Lg_code' => 'required|string|max:255|unique:mstr_line_groups',
+            'Lg_code' => 'required|string|max:255|',
             'Lg_plId' => 'required|string',
             'Lg_csId' => 'required|string',
             'Lg_lineId' => 'required|string',

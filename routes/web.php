@@ -17,7 +17,7 @@ use App\Http\Controllers\admin\master\RoleController;
 use App\Http\Controllers\admin\master\SlocController;
 use App\Http\Controllers\admin\master\TypeMtController;
 use App\Http\Controllers\admin\user\UsersController;
-
+use App\Http\Controllers\transaction\TransactionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -77,6 +77,7 @@ Route::group(['middleware' => ['role:1,5'], 'prefix' => 'Transaction'], function
     Route::get('/{id}/material', [LinesController::class, 'indexMaterial'])->name('listMaterial');
     Route::get('/{line}/{material}', [LinesController::class, 'indexConsumable'])->name('listConsumable');
     Route::post('/sapSend', [LinesController::class, 'sapSend'])->name('sapSend');
+    Route::resource('/proses', TransactionController::class);
 
 });
 

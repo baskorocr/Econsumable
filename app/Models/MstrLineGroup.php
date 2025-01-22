@@ -85,8 +85,15 @@ class MstrLineGroup extends Model
 
         static::creating(function ($model) {
             if (empty($model->{$model->getKeyName()})) {
-                $model->{$model->getKeyName()} = (string) Str::uuid();
+                // Generate custom 24-character ID
+                $model->{$model->getKeyName()} = self::generateCustomID();
             }
         });
+    }
+
+    protected static function generateCustomID()
+    {
+        // Generate a random 24-character alphanumeric string
+        return substr(md5(uniqid(mt_rand(), true)), 0, 24);
     }
 }

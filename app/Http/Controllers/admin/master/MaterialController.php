@@ -43,7 +43,7 @@ class MaterialController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'Mt_number' => 'required|string|max:255|unique:mstr_materials',
+            'Mt_number' => 'required|string|max:255|',
             'Mt_lgId' => 'required|string',
             'Mt_desc' => 'required|string',
         ]);

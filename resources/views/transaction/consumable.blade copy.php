@@ -62,7 +62,7 @@
                             </button>
 
                             <!-- Collapse Content -->
-                            <form action="{{ route('proses.store') }}" method="POST">
+                            <form action="{{ route('sapSend') }}" method="POST">
                                 @csrf
                                 <div id="collapse-{{ $material->id }}" class="collapse-content hidden mt-4">
                                     @if ($material->consumables->isEmpty())
@@ -85,8 +85,7 @@
                                                 class="flex flex-col md:flex-row bg-violet-500 p-4 rounded-md items-center justify-between mb-4 mt-5">
                                                 <input type="hidden" name="consumables{{ $loop->iteration }}[id]"
                                                     value="{{ $consumable->_id }}">
-                                                <input type="hidden"
-                                                    name="consumables{{ $loop->iteration }}[Cb_number]"
+                                                <input type="hidden" name="consumables{{ $loop->iteration }}[id]"
                                                     value="{{ $consumable->Cb_number }}">
 
                                                 <!-- Consumable Description -->
@@ -137,7 +136,7 @@
     <div id="consumableModal" class="fixed inset-0 bg-gray-500 bg-opacity-50 hidden flex justify-center items-center">
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-96 max-h-full overflow-y-auto">
             <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">{{ __('Consumable Details') }}</h2>
-            <form id="modalForm" action="{{ route('proses.store') }}" method="POST">
+            <form id="modalForm" action="{{ route('sapSend') }}" method="POST">
                 @csrf
                 <input type="hidden" name="idMt" value="{{ $material->_id }}">
                 <input type="hidden" name="PlanCode" value="{{ $material->masterLineGroup->plan->Pl_code }}">
@@ -216,9 +215,6 @@
 
                             if (data.length > 0) {
                                 data.forEach((item, index) => {
-
-
-
                                     const div = document.createElement('div');
                                     div.classList.add('p-4', 'rounded-md', 'shadow-md',
                                         'bg-violet-500', 'hover:bg-violet-600', 'mb-4');
@@ -282,18 +278,8 @@
                                     hiddenQuantityInput.type = 'hidden';
                                     hiddenQuantityInput.name = `${consumableIndex}[id]`;
                                     hiddenQuantityInput.value = item
-                                        ._id; // ID of the consumable
-                                    modalForm.appendChild(hiddenQuantityInput);
-
-                                    const hiddenQuantitysInput = document.createElement(
-                                        'input');
-                                    hiddenQuantitysInput.type = 'hidden';
-                                    hiddenQuantitysInput.name = `${consumableIndex}[Cb_number]`;
-                                    hiddenQuantitysInput.value = item
                                         .Cb_number; // ID of the consumable
-                                    modalForm.appendChild(hiddenQuantitysInput);
-
-
+                                    modalForm.appendChild(hiddenQuantityInput);
 
                                     const hiddenQuantityValueInput = document.createElement(
                                         'input');
