@@ -93,7 +93,7 @@ Route::group(['middleware' => ['role:1,5'], 'prefix' => 'Transaction'], function
     Route::get('/ListLine', [LinesController::class, 'indexLine'])->name('listLine');
     Route::get('/{id}/material', [LinesController::class, 'indexMaterial'])->name('listMaterial');
     Route::get('/{line}/{material}', [LinesController::class, 'indexConsumable'])->name('listConsumable');
-    Route::post('/sapSend', [LinesController::class, 'sapSend'])->name('sapSend');
+    // Route::post('/sapSend', [ApprovalController::class, 'sapSend'])->name('sapSend');
     Route::resource('/proses', TransactionController::class);
 
 });

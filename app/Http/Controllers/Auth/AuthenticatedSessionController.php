@@ -15,8 +15,20 @@ class AuthenticatedSessionController extends Controller
     /**
      * Display the login view.
      */
-    public function create(): View
+    public function create(): View|RedirectResponse
     {
+        if (Auth::check()) {
+            // Redirect user based on their role
+            $user = auth()->user();
+            if ($user->idRole == '1') {
+                return redirect()->route('Admin.dashboard');
+            } elseif (in_array($user->idRole, ['2', '3'])) {
+                return redirect()->route('Admin.dashboard');
+            } elseif (in_array($user->idRole, ['4', '5'])) {
+                return redirect()->route('page.dashboard');
+            }
+        }
+
         return view('auth.login');
     }
 
@@ -25,6 +37,7 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
+
         $credentials = $request->only('identifier', 'password');
 
         // Determine if the identifier is email or NPK
