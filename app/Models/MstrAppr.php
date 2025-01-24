@@ -26,7 +26,8 @@ class MstrAppr extends Model
         'ApprDeptDate',
         'ApprPjStokDate',
         'jumlah',
-        'token'
+        'token',
+        'status',
 
 
     ];
@@ -53,6 +54,16 @@ class MstrAppr extends Model
     public function orderSegment()
     {
         return $this->hasOne(OrderSegment::class, '_id', 'no_order');
+    }
+
+    public function consumable()
+    {
+        return $this->hasOne(MstrConsumable::class, '_id', 'ConsumableId');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'NpkUser', 'npk');
     }
 
 }

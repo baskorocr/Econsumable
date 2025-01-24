@@ -53,7 +53,7 @@ class AuthenticatedSessionController extends Controller
 
             return redirect()->route('Admin.dashboard');
         } elseif ($user->idRole == '4') {
-            return redirect()->route('Pj.dashboard');
+            return redirect()->route('page.dashboard');
         } elseif ($user->idRole == '5') {
             return redirect()->route('page.dashboard');
         }

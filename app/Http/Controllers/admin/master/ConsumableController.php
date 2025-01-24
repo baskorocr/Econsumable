@@ -17,7 +17,7 @@ class ConsumableController extends Controller
 
         $search = $request->input('search', '');
 
-        $consumables = MstrConsumable::with('material')
+        $consumables = MstrConsumable::with('material', 'material.masterLineGroup')
             ->when($search, function ($query, $search) {
                 $query->where('Cb_desc', 'like', "%$search%")
                     ->orWhereHas('material', function ($q) use ($search) {

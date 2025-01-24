@@ -1,5 +1,6 @@
 <x-perfect-scrollbar as="nav" aria-label="main" class="flex flex-col flex-1 gap-4 px-3">
 
+
     <x-sidebar.link title="Dashboard" href="{{ route('Admin.dashboard') }}" :isActive="request()->routeIs('Admin.dashboard')">
         <x-slot name="icon">
             <x-icons.dashboard class="flex-shrink-0 w-6 h-6" aria-hidden="true" />
@@ -53,16 +54,14 @@
         </x-slot>
     </x-sidebar.link>
 
-    @if (auth()->user()->role->id === 1 ||
-            auth()->user()->role->id === 2 ||
-            auth()->user()->role->id === 3 ||
-            auth()->user()->role->id === 4)
-        <x-sidebar.link title="Approval {{ countApproved() }}" href="{{ route('register') }}" :isActive="request()->routeIs('register')">
-            <x-slot name="icon">
-                <x-fas-file-signature class="flex-shrink-0 w-6 h-6" aria-hidden="true" />
-            </x-slot>
-        </x-sidebar.link>
-    @endif
+
+    <x-sidebar.link title="Approval {{ $apprCount }}" href="{{ route('approvalConfirmation.index') }}"
+        :isActive="request()->routeIs('approvalConfirmation.index')">
+        <x-slot name="icon">
+            <x-fas-file-signature class="flex-shrink-0 w-6 h-6" aria-hidden="true" />
+        </x-slot>
+    </x-sidebar.link>
+
 
 
 

@@ -60,13 +60,15 @@ class TransactionController extends Controller
             }
         }
 
-        $generate = $this->generateCustomID($segment->masterLineGroup->group->Gr_segment);
+        $generate = generateCustomID($segment->masterLineGroup->group->Gr_segment);
+
 
 
 
 
         // Output hasil setelah filter
         foreach ($filteredConsumables as $key => $consumable) {
+
             // // Cek apakah quantity lebih dari 0
             // if ($consumable['quantity'] > 0) {
             //     // Lakukan sesuatu dengan data consumable
@@ -87,11 +89,14 @@ class TransactionController extends Controller
                     'token' => Str::uuid()->toString()
 
                 ]);
-                $requestId->load('orderSegment');
+                $requestId->load('orderSegment', 'user');
 
-                if ($segment->masterLineGroup->leader->noHp !== null) {
 
-                    $this->sendWa($segment->masterLineGroup->leader->noHp, $segment->masterLineGroup->leader->name, $requestId->orderSegment->noOrder)->get();
+
+                if ($segment->masterLineGroup->section->noHp !== null) {
+
+
+                    sendWa($segment->masterLineGroup->section->noHp, $segment->masterLineGroup->section->name, $requestId->orderSegment->noOrder, $requestId->user->name, $requestId->token);
                 }
 
 
@@ -112,88 +117,9 @@ class TransactionController extends Controller
 
     }
 
-    public function generateCustomID($segment)
-    {
-        $date = date('dmy');
-
-        // Hitung jumlah order yang sudah ada pada tanggal yang sama
-        $RCount = (orderSegment::where('noOrder', 'like', '%' . $date . '%')->count()) + 1;
-
-        // Format nomor urut dengan 4 digit (misalnya: 0001, 0002, 0003)
-        $formattedSequence = str_pad($RCount, 4, '0', STR_PAD_LEFT); // Menjaga nomor urut selalu 4 digit
-
-        // Angka acak di akhir (misalnya antara 1-9)
 
 
-        // Gabungkan menjadi kode akhir
-        $code = "EC" . $date . $formattedSequence . '-' . $segment;
-        $code = orderSegment::create([
 
-            'noOrder' => $code
-        ]);
-
-
-        return $code->_id;
-
-    }
-
-    public function sendWa($nomer, $name, $requestId)
-    {
-        $by = auth()->user()->name;
-        $date = date('l, d F Y');
-        header('Access-Control-Allow-Origin: *');
-
-        header('Access-Control-Allow-Methods: GET, POST');
-
-        $message = "Hi {$name}, kamu baru saja menerima notifikasi approval request dari sistem Econsumable dengan detail:
-
-- Request By : {$by}
-- Request Date: {$date}
-- Request ID: {$requestId}
-
-
-Anda dapat dengan segera mengkonfirmasi pada link dibawah ini:
-
-link ApproveRequest: dasdsadsadsa
-link RejectRequest: dasdsadsadsa
-
-Best regards,
-IT Development Dharma Polimetal
-                    ";
-
-        header("Access-Control-Allow-Headers: X-Requested-With");
-        $curl = curl_init();
-        $token = "66g9FzV9n6sGzMUyEP@H";
-        $target = $nomer;
-        curl_setopt_array(
-            $curl,
-            array(
-                CURLOPT_URL => 'https://api.fonnte.com/send',
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => '',
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 0,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => 'POST',
-                CURLOPT_POSTFIELDS => array(
-                    'target' => $target,
-                    'message' => $message,
-                    'countryCode' => '62', //optional
-                ),
-                CURLOPT_HTTPHEADER => array(
-                    "Authorization: $token" //change TOKEN to your actual token
-                ),
-            )
-        );
-
-        $response = curl_exec($curl);
-
-
-        curl_close($curl);
-        dd($response);
-        echo $response;
-    }
 
     /**
      * Display the specified resource.

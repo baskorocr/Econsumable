@@ -29,6 +29,11 @@ class MstrConsumable extends Model
         return $this->belongsTo(MstrMaterial::class, 'Cb_mtId', '_id');
     }
 
+    public function Appr()
+    {
+        return $this->belongsTo(MstrAppr::class, 'Cb_mtId', '_id');
+    }
+
 
 
     protected static function boot()

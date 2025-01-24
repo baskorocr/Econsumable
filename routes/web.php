@@ -17,7 +17,9 @@ use App\Http\Controllers\admin\master\RoleController;
 use App\Http\Controllers\admin\master\SlocController;
 use App\Http\Controllers\admin\master\TypeMtController;
 use App\Http\Controllers\admin\user\UsersController;
+use App\Http\Controllers\transaction\ApprovalController;
 use App\Http\Controllers\transaction\TransactionController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -32,7 +34,7 @@ use App\Http\Controllers\transaction\TransactionController;
 
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('home');
 
 // Route::get('register', [RegisteredUserController::class, 'create'])->middleware('role:1,2,3');
 
@@ -57,12 +59,27 @@ Route::group(['middleware' => ['role:1,2,3'], 'prefix' => 'AdminMaster'], functi
 
 });
 
+Route::group(['middleware' => ['role:1,2,3,4'], 'prefix' => 'list'], function () {
+    Route::get('/approvalConfirmation', [ApprovalController::class, 'index'])->name('approvalConfirmation.index');
+    Route::get('/accConfirmation/{id}', [ApprovalController::class, 'acc'])->name('approvalConfirmation.acc');
+    Route::get('/rejectConfirmation/{id}', [ApprovalController::class, 'reject'])->name('approvalConfirmation.reject');
+
+
+});
+
+Route::get('/appr/{id}', [ApprovalController::class, 'apprNon'])->name('appr.show');
+Route::post('/acc', [ApprovalController::class, 'accNon'])->name('acc');
+Route::get('/reject/{id}', [ApprovalController::class, 'rejectNon'])->name('reject');
+
+
+
 Route::get('/profile', [ProfileController::class, 'edit'])->middleware(['role:1,2,3,4,5'])->name('profile.edit');
 Route::patch('/profile', [ProfileController::class, 'update'])->middleware(['role:1,2,3,4,5'])->name('profile.update');
 Route::delete('/profile', [ProfileController::class, 'destroy'])->middleware(['role:1,2,3,4,5'])->name('profile.destroy');
 Route::get('/line/search', [LinesController::class, 'search'])->middleware(['role:1,5'])->name('line.search');
 Route::get('/material/search', [LinesController::class, 'searchMaterial'])->middleware(['role:1,5'])->name('material.search');
 Route::get('/consumable/search', [LinesController::class, 'searchConsumable'])->name('consumable.search');
+
 
 
 
