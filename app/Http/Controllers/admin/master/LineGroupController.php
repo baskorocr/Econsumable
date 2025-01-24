@@ -11,6 +11,9 @@ use App\Models\MstrLine;
 use App\Models\MstrGroup;
 use App\Models\MstrSloc;
 use App\Models\User;
+use Exception;
+use RealRashid\SweetAlert\Facades\Alert;
+
 
 class LineGroupController extends Controller
 {
@@ -59,7 +62,7 @@ class LineGroupController extends Controller
 
     public function store(Request $request)
     {
-        dd("Dasdas");
+
 
 
         $request->validate([
@@ -75,17 +78,24 @@ class LineGroupController extends Controller
         ]);
 
 
-        MstrLineGroup::create([
-            'Lg_code' => $request->Lg_code,
-            'Lg_plId' => $request->Lg_plId,
-            'Lg_csId' => $request->Lg_csId,
-            'Lg_lineId' => $request->Lg_lineId,
-            'Lg_groupId' => $request->Lg_groupId,
-            'Lg_slocId' => $request->Lg_slocId,
-            'NpkLeader' => $request->NpkLeader,
-            'NpkSection' => $request->NpkSection,
-            'NpkPjStock' => $request->NpkPjStock,
-        ]);
+        try {
+            MstrLineGroup::create([
+                'Lg_code' => $request->Lg_code,
+                'Lg_plId' => $request->Lg_plId,
+                'Lg_csId' => $request->Lg_csId,
+                'Lg_lineId' => $request->Lg_lineId,
+                'Lg_groupId' => $request->Lg_groupId,
+                'Lg_slocId' => $request->Lg_slocId,
+                'NpkLeader' => $request->NpkLeader,
+                'NpkSection' => $request->NpkSection,
+                'NpkPjStock' => $request->NpkPjStock,
+            ]);
+            Alert::success('Add Success', 'Data Consumable added successfully');
+        } catch (Exception $e) {
+            Alert::error('Add failed', $e->getMessage());
+            return redirect()->route('LineGroup.index');
+
+        }
 
         return redirect()->route('LineGroup.index')->with('success', 'Line Group created successfully.');
     }
@@ -124,30 +134,45 @@ class LineGroupController extends Controller
 
 
 
-        $lineGroup = MstrLineGroup::findOrFail($id);
+        try {
+            $lineGroup = MstrLineGroup::findOrFail($id);
 
 
 
 
-        $lineGroup->Lg_plId = $request->Lg_plId;
-        $lineGroup->Lg_csId = $request->Lg_csId;
-        $lineGroup->Lg_lineId = $request->Lg_lineId;
-        $lineGroup->Lg_groupId = $request->Lg_groupId;
-        $lineGroup->Lg_slocId = $request->Lg_slocId;
-        $lineGroup->NpkLeader = $request->NpkLeader;
-        $lineGroup->NpkSection = $request->NpkSection;
-        $lineGroup->NpkPjStock = $request->NpkPjStock;
+            $lineGroup->Lg_plId = $request->Lg_plId;
+            $lineGroup->Lg_csId = $request->Lg_csId;
+            $lineGroup->Lg_lineId = $request->Lg_lineId;
+            $lineGroup->Lg_groupId = $request->Lg_groupId;
+            $lineGroup->Lg_slocId = $request->Lg_slocId;
+            $lineGroup->NpkLeader = $request->NpkLeader;
+            $lineGroup->NpkSection = $request->NpkSection;
+            $lineGroup->NpkPjStock = $request->NpkPjStock;
 
 
-        $lineGroup->save();
+            $lineGroup->save();
+            Alert::success('Update Success', 'Data Consumable has been successfully updated');
+
+        } catch (Exception $e) {
+            Alert::error('update failed', $e->getMessage());
+            return redirect()->route('LineGroup.index');
+
+        }
 
         return redirect()->route('LineGroup.index')->with('success', 'Line Group updated successfully.');
     }
 
     public function destroy($id)
     {
-        $lineGroup = MstrLineGroup::findOrFail($id);
-        $lineGroup->delete();
+        try {
+            $lineGroup = MstrLineGroup::findOrFail($id);
+            Alert::success('Delete ' . $lineGroup->Lg_code, 'Data Consumable has been deleted successfully.');
+            $lineGroup->delete();
+
+        } catch (Exception $e) {
+            Alert::error('delete failed', $e->getMessage());
+
+        }
 
         return redirect()->route('LineGroup.index')->with('success', 'Line Group deleted successfully.');
     }

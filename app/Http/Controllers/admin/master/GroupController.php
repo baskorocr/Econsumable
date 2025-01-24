@@ -5,6 +5,8 @@ namespace App\Http\Controllers\admin\master;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\MstrGroup;
+use Exception;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class GroupController extends Controller
 {
@@ -41,14 +43,26 @@ class GroupController extends Controller
             'Gr_segment.*' => 'required|string|max:255',
         ]);
 
-        $data = $request->all();
 
-        foreach ($data['Gr_name'] as $index => $name) {
-            MstrGroup::create([
-                'Gr_name' => $name,
-                'Gr_segment' => $data['Gr_segment'][$index] ?? null,
-            ]);
+
+        try {
+            $data = $request->all();
+            foreach ($data['Gr_name'] as $index => $name) {
+                MstrGroup::create([
+                    'Gr_name' => $name,
+                    'Gr_segment' => $data['Gr_segment'][$index] ?? null,
+                ]);
+            }
+            Alert::success('Add Success', 'Data Group added successfully');
+
+
+        } catch (Exception $e) {
+            Alert::error('Add failed', $e->getMessage());
+            return redirect()->route('Group.index');
+
         }
+
+
 
         return redirect()->route('Group.index');
 
@@ -81,10 +95,18 @@ class GroupController extends Controller
             'Gr_segment' => 'nullable|string|max:255',
         ]);
 
-        $gr = MstrGroup::findOrFail($id);
-        $gr->Gr_name = $request->Gr_name;
-        $gr->Gr_segment = $request->Gr_segment;
-        $gr->save();
+        try {
+
+            $gr = MstrGroup::findOrFail($id);
+            $gr->Gr_name = $request->Gr_name;
+            $gr->Gr_segment = $request->Gr_segment;
+            $gr->save();
+            Alert::success('Update Success', 'Data Group has been successfully updated');
+        } catch (Exception $e) {
+            Alert::error('update failed', $e->getMessage());
+            return redirect()->route('Group.index');
+
+        }
 
         return redirect()->route('Group.index');
 
@@ -95,8 +117,16 @@ class GroupController extends Controller
      */
     public function destroy(string $id)
     {
-        $gr = MstrGroup::findOrFail($id);
-        $gr->delete();
+        try {
+            $gr = MstrGroup::findOrFail($id);
+            Alert::success('Delete ' . $gr->Gr_name, 'Data Consumable has been deleted successfully.');
+            $gr->delete();
+
+        } catch (Exception $e) {
+            Alert::error('delete failed', $e->getMessage());
+            return redirect()->route('Group.index');
+
+        }
         return redirect()->route('Group.index');
     }
 }

@@ -4,8 +4,10 @@ namespace App\Http\Controllers\transaction;
 
 use App\Http\Controllers\Controller;
 use App\Models\MstrAppr;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class ApprovalController extends Controller
 {
@@ -79,57 +81,85 @@ class ApprovalController extends Controller
 
     public function acc($id)
     {
-        $appr = MstrAppr::with(['user', 'consumable.material.masterLineGroup.group', 'consumable.material.masterLineGroup.leader', 'consumable.material.masterLineGroup.section', 'consumable.material.masterLineGroup.pjStock'])->findOrFail($id);
+
         $date = date('Y-m-d');
 
-        if ($appr->status == 1) {
-            $a = $appr->update([
-                'status' => $appr->status + 1,
-                'token' => Str::uuid()->toString(),
-                'ApprSectDate' => $date
+        try {
+            $appr = MstrAppr::with(['user', 'consumable.material.masterLineGroup.group', 'consumable.material.masterLineGroup.leader', 'consumable.material.masterLineGroup.section', 'consumable.material.masterLineGroup.pjStock'])->findOrFail($id);
 
-            ]);
+            if ($appr->status == 1) {
+
+                $a = $appr->update([
+                    'status' => $appr->status + 1,
+                    'token' => Str::uuid()->toString(),
+                    'ApprSectDate' => $date
+
+                ]);
 
 
-            if ($a === true || $appr->consumable->material->masterLineGroup->leader->noHp !== null) {
-                sendWa($appr->consumable->material->masterLineGroup->leader->noHp, $appr->consumable->material->masterLineGroup->leader->name, $appr->orderSegment->noOrder, $appr->user->name, $appr->token);
+                if ($a === true || $appr->consumable->material->masterLineGroup->leader->noHp !== null) {
+                    sendWa($appr->consumable->material->masterLineGroup->leader->noHp, $appr->consumable->material->masterLineGroup->leader->name, $appr->orderSegment->noOrder, $appr->user->name, $appr->token);
+                }
+
+
+
+
+            } elseif ($appr->status == 2) {
+
+                $a = $appr->update([
+                    'status' => $appr->status + 1,
+                    'token' => Str::uuid()->toString(),
+                    'ApprDeptDate' => $date
+
+                ]);
+
+                if ($a === true || $appr->consumable->material->masterLineGroup->leader->noHp !== null) {
+                    sendWa($appr->consumable->material->masterLineGroup->pjStock->noHp, $appr->consumable->material->masterLineGroup->leader->name, $appr->orderSegment->noOrder, $appr->user->name, $appr->token);
+                }
+
+
+
+
+
+
+            } elseif ($appr->status == 3) {
+
+
+                $a = $appr->update([
+                    'status' => $appr->status + 1,
+                    'token' => null,
+                    'ApprPjStokDate' => $date
+
+                ]);
             }
+            Alert::success('Approve Success', 'Thanks for your have been Approved');
 
-        } elseif ($appr->status == 2) {
-            $a = $appr->update([
-                'status' => $appr->status + 1,
-                'token' => Str::uuid()->toString(),
-                'ApprDeptDate' => $date
-
-            ]);
-
-            if ($a === true || $appr->consumable->material->masterLineGroup->leader->noHp !== null) {
-                sendWa($appr->consumable->material->masterLineGroup->pjStock->noHp, $appr->consumable->material->masterLineGroup->leader->name, $appr->orderSegment->noOrder, $appr->user->name, $appr->token);
-            }
-
-        } elseif ($appr->status == 3) {
-            $a = $appr->update([
-                'status' => $appr->status + 1,
-                'token' => null,
-                'ApprPjStokDate' => $date
-
-            ]);
-
-
+        } catch (Exception $e) {
+            Alert::error('Approve failed', $e->getMessage());
+            return redirect()->route('approvalConfirmation.index');
 
         }
-        return redirect()->route('approvalConfirmation.index')->with('success', 'Approval successfully.');
+
+        return redirect()->route('approvalConfirmation.index');
     }
     public function reject($id)
     {
         $appr = MstrAppr::findOrFail($id);
+        try {
+            $appr->update([
+                'status' => 0,
+                'token' => null
 
-        $p = $appr->update([
-            'status' => 0,
-            'token' => null
+            ]);
+            Alert::success('Reject Success', 'Request has been fully rejected');
 
-        ]);
-        dd($p);
+        } catch (Exception $e) {
+
+            Alert::error('Approve failed', $e->getMessage());
+            return redirect()->route('approvalConfirmation.index');
+        }
+
+
 
         return redirect()->route('approvalConfirmation.index')->with('success', 'Approval successfully.');
     }
@@ -145,47 +175,57 @@ class ApprovalController extends Controller
     public function accNon(Request $request)
     {
         $token = $request->input('token');
-        $appr = MstrAppr::where('token', $token)->first();
-
         $date = date('Y-m-d');
 
-
-        if ($appr->status == 1) {
-            $a = $appr->update([
-                'status' => $appr->status + 1,
-                'token' => Str::uuid()->toString(),
-                'ApprSectDate' => $date
-
-            ]);
+        try {
+            $appr = MstrAppr::where('token', $token)->first();
 
 
-            if ($a === true || $appr->consumable->material->masterLineGroup->leader->noHp !== null) {
-                sendWa($appr->consumable->material->masterLineGroup->leader->noHp, $appr->consumable->material->masterLineGroup->leader->name, $appr->orderSegment->noOrder, $appr->user->name, $appr->token);
+            if ($appr->status == 1) {
+                $a = $appr->update([
+                    'status' => $appr->status + 1,
+                    'token' => Str::uuid()->toString(),
+                    'ApprSectDate' => $date
+
+                ]);
+
+
+                if ($a === true || $appr->consumable->material->masterLineGroup->leader->noHp !== null) {
+                    sendWa($appr->consumable->material->masterLineGroup->leader->noHp, $appr->consumable->material->masterLineGroup->leader->name, $appr->orderSegment->noOrder, $appr->user->name, $appr->token);
+                }
+
+            } elseif ($appr->status == 2) {
+                $a = $appr->update([
+                    'status' => $appr->status + 1,
+                    'token' => Str::uuid()->toString(),
+                    'ApprDeptDate' => $date
+
+                ]);
+
+                if ($a === true || $appr->consumable->material->masterLineGroup->leader->noHp !== null) {
+                    sendWa($appr->consumable->material->masterLineGroup->pjStock->noHp, $appr->consumable->material->masterLineGroup->leader->name, $appr->orderSegment->noOrder, $appr->user->name, $appr->token);
+                }
+
+            } elseif ($appr->status == 3) {
+                $a = $appr->update([
+                    'status' => $appr->status + 1,
+                    'token' => null,
+                    'ApprPjStokDate' => $date
+
+                ]);
+
+
+
             }
 
-        } elseif ($appr->status == 2) {
-            $a = $appr->update([
-                'status' => $appr->status + 1,
-                'token' => Str::uuid()->toString(),
-                'ApprDeptDate' => $date
+            Alert::success('Approve Success', 'Thanks for your have been Approved');
 
-            ]);
-
-            if ($a === true || $appr->consumable->material->masterLineGroup->leader->noHp !== null) {
-                sendWa($appr->consumable->material->masterLineGroup->pjStock->noHp, $appr->consumable->material->masterLineGroup->leader->name, $appr->orderSegment->noOrder, $appr->user->name, $appr->token);
-            }
-
-        } elseif ($appr->status == 3) {
-            $a = $appr->update([
-                'status' => $appr->status + 1,
-                'token' => null,
-                'ApprPjStokDate' => $date
-
-            ]);
-
-
+        } catch (Exception $e) {
+            Alert::error('Approve failed', $e->getMessage());
+            return redirect()->route('home');
 
         }
+
 
         return redirect()->route('home');
 
@@ -195,9 +235,25 @@ class ApprovalController extends Controller
 
     }
 
-    public function rejectNon($id)
+    public function rejectNon(Request $request)
     {
-        return view('transaction.confimation');
+        $token = $request->input('token');
+        $appr = MstrAppr::where('token', $token)->first();
+        try {
+            $appr->update([
+                'status' => 0,
+                'token' => null
+
+            ]);
+            Alert::success('Reject Success', 'Request has been fully rejected');
+
+        } catch (Exception $e) {
+            Alert::error('Reject failed', $e->getMessage());
+            return redirect()->route('home');
+        }
+
+
+        return redirect()->route('home');
 
     }
     /**

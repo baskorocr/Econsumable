@@ -5,6 +5,9 @@ namespace App\Http\Controllers\admin\master;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\MstrPlan;
+use Exception;
+use RealRashid\SweetAlert\Facades\Alert;
+
 
 class PlanController extends Controller
 {
@@ -44,15 +47,22 @@ class PlanController extends Controller
 
 
         // Loop through each name and code in the arrays and create a new Plan
-        foreach ($request->PlanName as $index => $name) {
-            $p = MstrPlan::create([
-                'Pl_name' => $name,
-                'Pl_code' => $request->PlanCode[$index],
-            ]);
+        try {
+            foreach ($request->PlanName as $index => $name) {
+                MstrPlan::create([
+                    'Pl_name' => $name,
+                    'Pl_code' => $request->PlanCode[$index],
+                ]);
+
+            }
+            Alert::success('Add Success', 'Data Plant added successfully');
+        } catch (Exception $e) {
+            Alert::error('Add failed', $e->getMessage());
+            return redirect()->route('Plan.index');
 
         }
 
-        return redirect()->route('Plan.index')->with('success', 'Plans added successfully.');
+        return redirect()->route('Plan.index');
     }
 
     /**
@@ -81,7 +91,15 @@ class PlanController extends Controller
 
         ]);
 
-        MstrPlan::findOrFail($id)->update($request->all());
+        try {
+            MstrPlan::findOrFail($id)->update($request->all());
+            Alert::success('Update Success', 'Data Plant has been successfully updated');
+
+        } catch (Exception $e) {
+            Alert::error('update failed', $e->getMessage());
+            return redirect()->route('Plan.index');
+
+        }
 
         return redirect()->route('Plan.index');
     }
@@ -91,7 +109,15 @@ class PlanController extends Controller
      */
     public function destroy(string $id)
     {
-        MstrPlan::findOrFail($id)->delete();
+        try {
+            $plan = MstrPlan::findOrFail($id);
+            Alert::success('Delete ' . $plan->Pl_name, 'Data Plant has been deleted successfully.');
+            $plan->delete();
+
+        } catch (Exception $e) {
+            Alert::error('delete failed', $e->getMessage());
+            return redirect()->route('Plan.index');
+        }
 
         return redirect()->route('Plan.index');
     }

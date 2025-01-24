@@ -69,7 +69,7 @@ Route::group(['middleware' => ['role:1,2,3,4'], 'prefix' => 'list'], function ()
 
 Route::get('/appr/{id}', [ApprovalController::class, 'apprNon'])->name('appr.show');
 Route::post('/acc', [ApprovalController::class, 'accNon'])->name('acc');
-Route::get('/reject/{id}', [ApprovalController::class, 'rejectNon'])->name('reject');
+Route::post('/reject', [ApprovalController::class, 'rejectNon'])->name('reject');
 
 
 

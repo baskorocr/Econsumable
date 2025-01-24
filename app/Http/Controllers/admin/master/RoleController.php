@@ -5,6 +5,9 @@ namespace App\Http\Controllers\admin\master;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Role;
+use Exception;
+use RealRashid\SweetAlert\Facades\Alert;
+
 
 class RoleController extends Controller
 {
@@ -31,16 +34,23 @@ class RoleController extends Controller
     public function store(Request $request)
     {
 
-
-
         $request->validate([
             'NameRole' => 'required|array',
             'NameRole.*' => 'required|string|max:255',
         ]);
 
-        foreach ($request->NameRole as $name) {
-            Role::create(['NameRole' => $name]);
+        try {
+            foreach ($request->NameRole as $name) {
+                Role::create(['NameRole' => $name]);
+            }
+            Alert::success('Add Success', 'Data Role added successfully');
+
+        } catch (Exception $e) {
+            Alert::error('Add failed', $e->getMessage());
+            return redirect()->route('Role.index');
         }
+
+
         return redirect()->route('Role.index');
     }
 
@@ -72,9 +82,15 @@ class RoleController extends Controller
 
 
 
-        $role = Role::findOrFail($id);
-        $role->NameRole = $request->NameRole;
-        $role->save();
+        try {
+            $role = Role::findOrFail($id);
+            $role->NameRole = $request->NameRole;
+            $role->save();
+            Alert::success('Update Success', 'Data Role has been successfully updated');
+        } catch (Exception $e) {
+            Alert::error('update failed', $e->getMessage());
+            return redirect()->route('Role.index');
+        }
         return redirect()->route('Role.index');
 
 
@@ -86,9 +102,16 @@ class RoleController extends Controller
     public function destroy(string $id)
     {
 
-        $role = Role::findOrFail($id);
+        try {
+            $role = Role::findOrFail($id);
+            Alert::success('Delete ' . $role->NameRole, 'Data Consumable has been deleted successfully.');
+            $role->delete();
 
-        $role->delete();
+        } catch (Exception $e) {
+
+            Alert::error('delete failed', $e->getMessage());
+            return redirect()->route('Role.index');
+        }
         return redirect()->route('Role.index');
     }
 }

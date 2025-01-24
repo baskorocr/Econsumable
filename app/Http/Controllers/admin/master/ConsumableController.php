@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\admin\master;
 
 use App\Http\Controllers\Controller;
+use Exception;
 use Illuminate\Http\Request;
 use App\Models\MstrMaterial;
 use App\Models\MstrConsumable;
+use RealRashid\SweetAlert\Facades\Alert;
+
 
 class ConsumableController extends Controller
 {
@@ -48,9 +51,20 @@ class ConsumableController extends Controller
             'Cb_desc' => 'required|string',
         ]);
 
-        MstrConsumable::create($request->all());
+        try {
+            MstrConsumable::create($request->all());
+            Alert::success('Add Success', 'Data Consumable added successfully');
 
-        return redirect()->route('Consumable.index')->with('success', 'Consumable created successfully.');
+
+        } catch (Exception $e) {
+            Alert::error('Add failed', $e->getMessage());
+            return redirect()->route('Consumable.index');
+
+        }
+
+
+
+        return redirect()->route('Consumable.index');
     }
 
     public function show(MstrConsumable $consumable)
@@ -67,23 +81,42 @@ class ConsumableController extends Controller
     public function update(Request $request, $id)
     {
 
-        $consumable = MstrConsumable::findOrFail($id);
-        $request->validate([
-            'Cb_number' => 'required|string|max:255|unique:mstr_consumables,Cb_number,' . $consumable->Cb_number . ',Cb_number',
-            'Cb_mtId' => 'required|string',
-            'Cb_desc' => 'required|string',
-        ]);
+        try {
 
-        $consumable->update($request->all());
+            $consumable = MstrConsumable::findOrFail($id);
+            $request->validate([
+                'Cb_number' => 'required|string|max:255|unique:mstr_consumables,Cb_number,' . $consumable->Cb_number . ',Cb_number',
+                'Cb_mtId' => 'required|string',
+                'Cb_desc' => 'required|string',
+            ]);
+
+
+            $consumable->update($request->all());
+            Alert::success('Update Success', 'Data Consumable has been successfully updated');
+
+
+        } catch (Exception $e) {
+
+            Alert::error('update failed', $e->getMessage());
+            return redirect()->route('Consumable.index');
+
+        }
 
         return redirect()->route('Consumable.index')->with('success', 'Consumable updated successfully.');
     }
 
     public function destroy($id)
     {
-        $consumable = MstrConsumable::findOrFail($id);
 
-        $consumable->delete();
+        try {
+            $consumable = MstrConsumable::findOrFail($id);
+            Alert::success('Delete ' . $consumable->Cb_desc, 'Data Consumable has been deleted successfully.');
+            $consumable->delete();
+
+        } catch (Exception $e) {
+            Alert::error('delete failed', $e->getMessage());
+            return redirect()->route('Consumable.index');
+        }
 
         return redirect()->route('Consumable.index')->with('success', 'Consumable deleted successfully.');
     }

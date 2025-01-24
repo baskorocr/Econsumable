@@ -8,6 +8,7 @@ use App\Models\MstrMaterial;
 use App\Models\orderSegment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class TransactionController extends Controller
 {
@@ -99,11 +100,12 @@ class TransactionController extends Controller
                     sendWa($segment->masterLineGroup->section->noHp, $segment->masterLineGroup->section->name, $requestId->orderSegment->noOrder, $requestId->user->name, $requestId->token);
                 }
 
-
+                Alert::success('Transaction Success', 'Approval application is in progress, please check your dashboard periodically');
 
 
             } catch (\Exception $e) {
-                dd($e);
+                Alert::error('Transaction failed', $e->getMessage());
+                return redirect()->route('listLine');
             }
 
 

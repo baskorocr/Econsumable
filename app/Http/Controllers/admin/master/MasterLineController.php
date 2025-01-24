@@ -6,6 +6,9 @@ use Illuminate\Support\Str;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\MstrLine;
+use Exception;
+use RealRashid\SweetAlert\Facades\Alert;
+
 
 class MasterLineController extends Controller
 {
@@ -41,8 +44,15 @@ class MasterLineController extends Controller
         ]);
 
         // Loop through each name in the 'nameLine' array and create a new Line
-        foreach ($request->nameLine as $name) {
-            MstrLine::create(['Ln_name' => $name]);
+        try {
+            foreach ($request->nameLine as $name) {
+                MstrLine::create(['Ln_name' => $name]);
+            }
+            Alert::success('Add Success', 'Data Line added successfully');
+
+        } catch (Exception $e) {
+            Alert::error('Add failed', $e->getMessage());
+            return redirect()->route('MasterLine.index');
         }
 
         return redirect()->route('MasterLine.index');
@@ -76,12 +86,17 @@ class MasterLineController extends Controller
             'Ln_name' => 'required|string|max:255',
         ]);
 
-        $data = MstrLine::findOrFail($request->line_id);
+        try {
+            $data = MstrLine::findOrFail($request->line_id);
+            $data->Ln_name = $request->Ln_name;
+            $data->save();
+            Alert::success('Update Success', 'Data Line has been successfully updated');
 
+        } catch (Exception $e) {
+            Alert::error('update failed', $e->getMessage());
+            return redirect()->route('MasterLine.index');
 
-
-        $data->Ln_name = $request->Ln_name;
-        $data->save();
+        }
 
 
         return redirect()->route('MasterLine.index');
@@ -92,34 +107,39 @@ class MasterLineController extends Controller
      */
     public function destroy(string $id)
     {
+        try {
 
-        $line = MstrLine::findOrFail($id);
-        $line->delete();
+            $line = MstrLine::findOrFail($id);
+            Alert::success('Delete ' . $line->Ln_name, 'Data Line has been deleted successfully.');
+            $line->delete();
+
+        } catch (Exception $e) {
+        }
         return redirect()->route('MasterLine.index');
 
     }
 
-    public function uploadExcel(Request $request)
-    {
-        $request->validate([
-            'excelFile' => 'required|file|mimes:xlsx,xls|max:2048', // Validate file type and size
-        ]);
+    // public function uploadExcel(Request $request)
+    // {
+    //     $request->validate([
+    //         'excelFile' => 'required|file|mimes:xlsx,xls|max:2048', // Validate file type and size
+    //     ]);
 
 
 
-        if ($request->hasFile('excelFile')) {
-            $file = $request->file('excelFile');
-            $fileName = time() . '_' . $file->getClientOriginalName();
-            $uploadPath = storage_path('app/uploads/excel'); // Define upload directory
+    //     if ($request->hasFile('excelFile')) {
+    //         $file = $request->file('excelFile');
+    //         $fileName = time() . '_' . $file->getClientOriginalName();
+    //         $uploadPath = storage_path('app/uploads/excel'); // Define upload directory
 
-            // Move the uploaded file
-            $file->move($uploadPath, $fileName);
+    //         // Move the uploaded file
+    //         $file->move($uploadPath, $fileName);
 
-            // Process the uploaded file (Optional: Add processing logic here)
+    //         // Process the uploaded file (Optional: Add processing logic here)
 
-            return redirect()->back()->with('success', 'File uploaded successfully!');
-        }
+    //         return redirect()->back()->with('success', 'File uploaded successfully!');
+    //     }
 
-        return redirect()->back()->with('error', 'Failed to upload file.');
-    }
+    //     return redirect()->back()->with('error', 'Failed to upload file.');
+    // }
 }
