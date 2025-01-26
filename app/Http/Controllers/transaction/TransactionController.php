@@ -5,7 +5,7 @@ namespace App\Http\Controllers\transaction;
 use App\Http\Controllers\Controller;
 use App\Models\MstrAppr;
 use App\Models\MstrMaterial;
-use App\Models\orderSegment;
+use App\Models\OrderSegment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use RealRashid\SweetAlert\Facades\Alert;
@@ -90,7 +90,7 @@ class TransactionController extends Controller
                     'token' => Str::uuid()->toString()
 
                 ]);
-                $requestId->load('orderSegment', 'user');
+                $requestId->load('OrderSegment', 'user');
 
 
 

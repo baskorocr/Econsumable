@@ -5,8 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class orderSegment extends Model
+class OrderSegment extends Model
 {
+    use HasFactory;
+
     use HasFactory;
 
     protected $table = 'order_segments';
@@ -45,5 +47,4 @@ class orderSegment extends Model
     {
         return $this->hasMany(MstrAppr::class, 'no_order', 'noOrder');
     }
-
 }
