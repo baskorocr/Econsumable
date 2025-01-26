@@ -61,7 +61,7 @@ class TransactionController extends Controller
             }
         }
 
-        $generate = generateCustomID($segment->masterLineGroup->group->Gr_segment);
+        $generate = GenerateCustomID($segment->masterLineGroup->group->Gr_segment);
 
 
 

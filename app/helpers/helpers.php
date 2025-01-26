@@ -5,7 +5,7 @@ use App\Models\orderSegment;
 use App\Models\User;
 
 
-function sendWa($nomer, $name, $requestId, $pembuat, $token)
+function SendWa($nomer, $name, $requestId, $pembuat, $token)
 {
     $approveLink = config('app.url') . ":8000/appr/{$token}";
     $date = date('l, d F Y');
@@ -63,7 +63,7 @@ IT Development Dharma Polimetal
 
 }
 
-function generateCustomID($segment)
+function GenerateCustomID($segment)
 {
     $date = date('dmy');
 

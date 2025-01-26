@@ -94,7 +94,7 @@ class ApprovalController extends Controller
 
                 ]);
                 if ($a === true || $appr->consumable->material->masterLineGroup->leader->noHp !== null) {
-                    sendWa($appr->consumable->material->masterLineGroup->leader->noHp, $appr->consumable->material->masterLineGroup->leader->name, $appr->orderSegment->noOrder, $appr->user->name, $appr->token);
+                    SendWa($appr->consumable->material->masterLineGroup->leader->noHp, $appr->consumable->material->masterLineGroup->leader->name, $appr->orderSegment->noOrder, $appr->user->name, $appr->token);
                 }
 
             } elseif ($appr->status == 2) {
@@ -107,7 +107,7 @@ class ApprovalController extends Controller
                 ]);
 
                 if ($a === true || $appr->consumable->material->masterLineGroup->leader->noHp !== null) {
-                    sendWa($appr->consumable->material->masterLineGroup->pjStock->noHp, $appr->consumable->material->masterLineGroup->leader->name, $appr->orderSegment->noOrder, $appr->user->name, $appr->token);
+                    SendWa($appr->consumable->material->masterLineGroup->pjStock->noHp, $appr->consumable->material->masterLineGroup->leader->name, $appr->orderSegment->noOrder, $appr->user->name, $appr->token);
                 }
 
 
@@ -184,7 +184,7 @@ class ApprovalController extends Controller
 
 
                 if ($a === true || $appr->consumable->material->masterLineGroup->leader->noHp !== null) {
-                    sendWa($appr->consumable->material->masterLineGroup->leader->noHp, $appr->consumable->material->masterLineGroup->leader->name, $appr->orderSegment->noOrder, $appr->user->name, $appr->token);
+                    SendWa($appr->consumable->material->masterLineGroup->leader->noHp, $appr->consumable->material->masterLineGroup->leader->name, $appr->orderSegment->noOrder, $appr->user->name, $appr->token);
                 }
 
             } elseif ($appr->status == 2) {
@@ -196,7 +196,7 @@ class ApprovalController extends Controller
                 ]);
 
                 if ($a === true || $appr->consumable->material->masterLineGroup->leader->noHp !== null) {
-                    sendWa($appr->consumable->material->masterLineGroup->pjStock->noHp, $appr->consumable->material->masterLineGroup->leader->name, $appr->orderSegment->noOrder, $appr->user->name, $appr->token);
+                    SendWa($appr->consumable->material->masterLineGroup->pjStock->noHp, $appr->consumable->material->masterLineGroup->leader->name, $appr->orderSegment->noOrder, $appr->user->name, $appr->token);
                 }
 
             } elseif ($appr->status == 3) {
