@@ -97,7 +97,7 @@ class TransactionController extends Controller
                 if ($segment->masterLineGroup->section->noHp !== null) {
 
 
-                    sendWa($segment->masterLineGroup->section->noHp, $segment->masterLineGroup->section->name, $requestId->orderSegment->noOrder, $requestId->user->name, $requestId->token);
+                    SendWa($segment->masterLineGroup->section->noHp, $segment->masterLineGroup->section->name, $requestId->orderSegment->noOrder, $requestId->user->name, $requestId->token);
                 }
 
                 Alert::success('Transaction Success', 'Approval application is in progress, please check your dashboard periodically');
