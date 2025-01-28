@@ -13,6 +13,8 @@ return new class extends Migration {
         Schema::create('order_segments', function (Blueprint $table) {
             $table->uuid('_id')->primary();
             $table->string('noOrder');
+            $table->string('NpkUser');
+            $table->foreign('NpkUser')->references('npk')->on('users')->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();
         });
     }

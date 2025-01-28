@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->uuid('_id')->primary();
             $table->uuid('no_order');
             $table->uuid('ConsumableId');
-            $table->string('NpkUser');
+
             $table->string('NpkSect')->nullable();
             $table->string('NpkDept')->nullable();
             $table->string('NpkPj')->nullable();
@@ -28,7 +28,7 @@ return new class extends Migration {
             // Menambahkan foreign key constraint
             $table->foreign('no_order')->references('_id')->on('order_segments')->onUpdate('cascade')->onDelete('cascade');
             $table->foreign('ConsumableId')->references('_id')->on('mstr_consumables')->onUpdate('cascade')->onDelete('cascade');
-            $table->foreign('NpkUser')->references('npk')->on('users')->onUpdate('cascade')->onDelete('cascade');
+
             $table->foreign('NpkSect')->references('npk')->on('users')->onUpdate('cascade')->onDelete('cascade');
             $table->foreign('NpkDept')->references('npk')->on('users')->onUpdate('cascade')->onDelete('cascade');
             $table->foreign('NpkPj')->references('npk')->on('users')->onUpdate('cascade')->onDelete('cascade');

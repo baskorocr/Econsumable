@@ -1,30 +1,34 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Line List') }}
-        </h2>
+        <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <h2 class="text-xl font-semibold leading-tight">
+                {{ __('List Material') }}
+            </h2>
+        </div>
     </x-slot>
 
-    <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
-        <div class="flex justify-between mb-4">
-            <!-- Search Input -->
-            <input type="text" id="searchInput" placeholder="Search by group name"
-                class="mt-1 block w-1/3 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600">
+    <div class="p-6 overflow-hidden bg-white rounded-md shadow-md dark:bg-dark-eval-1">
+        <!-- Pencarian -->
+        <div class="flex flex-col md:flex-row gap-4 mb-4">
+            <div class="flex-1">
+                <input type="text" id="searchInput" placeholder="Search by Material Number"
+                    class="mt-1 block w-1/3 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600">
+            </div>
         </div>
 
-        <!-- Daftar Line -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="lineList">
-            @if ($lines->isEmpty())
+        <!-- Daftar Material -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="materialList">
+            @if ($lg->isEmpty())
                 <div class="col-span-2 flex justify-center items-center">
-                    <p class="text-lg font-semibold">Tidak ada data line yang tersedia.</p>
+                    <p class="text-lg font-semibold">Tidak ada data material yang tersedia.</p>
                 </div>
             @else
-                @foreach ($lines as $line)
-                    <a href="{{ route('listMaterial', $line->_id) }}"
+                @foreach ($lg as $lgs)
+                    <a href="{{ route('listConsumable', ['line' => $lgs->_id, 'material' => $lgs->_id]) }}"
                         class="p-4 rounded-md shadow-md bg-violet-500 hover:bg-violet-600">
                         <div class="col-span-2 flex flex-col justify-center items-center">
-                            <h2 class="text-lg text-white font-semibold">{{ $line->line->Ln_name }}</h2>
-                            <h5 class="text-lg text-white font-semibold">{{ '(' . $line->group->Gr_name . ')' }}</h5>
+                            <h2 class="text-lg text-white font-semibold">{{ $lgs->line->Ln_name }}</h2>
+
                         </div>
                     </a>
                 @endforeach
@@ -35,27 +39,29 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('searchInput');
-            const lineList = document.getElementById('lineList');
-
+            const materialList = document.getElementById('materialList');
+            const id = '{{ $id }}';
             searchInput.addEventListener('input', function() {
                 const search = this.value.toLowerCase();
 
-                fetch(`{{ route('line.search') }}?search=${search}`)
-                    .then(response => response.json())
+                // Ensure this route matches the correct URL in your web.php
+                fetch(`{{ route('material.search') }}?search=${search}&id=${id}`)
+                    .then(response => response.json()) // Expecting JSON response
                     .then(data => {
-                        lineList.innerHTML = '';
+                        materialList.innerHTML = '';
 
                         if (data.length === 0) {
                             const noDataDiv = document.createElement('div');
                             noDataDiv.classList.add('col-span-2', 'flex', 'justify-center',
                                 'items-center');
                             noDataDiv.innerHTML =
-                                '<p class="text-lg font-semibold">Tidak ada data line yang tersedia.</p>';
-                            lineList.appendChild(noDataDiv);
+                                '<p class="text-lg font-semibold">Tidak ada data material yang tersedia.</p>';
+                            materialList.appendChild(noDataDiv);
                         } else {
-                            data.forEach(line => {
+                            data.forEach(material => {
                                 const link = document.createElement('a');
-                                link.href = `{{ url('Transaction') }}/${line._id}/material`;
+                                link.href =
+                                    `{{ url('Transaction') }}/${material.Mt_lgId}/${material._id}`;
                                 link.classList.add('p-4', 'rounded-md', 'shadow-md',
                                     'bg-violet-500', 'hover:bg-violet-600');
 
@@ -63,22 +69,27 @@
                                 div.classList.add('col-span-2', 'flex', 'flex-col',
                                     'justify-center', 'items-center');
 
-                                const h2 = document.createElement('h2');
-                                h2.classList.add('text-lg', 'text-white', 'font-semibold');
-                                h2.textContent = line.line.Ln_name;
+                                const h2Desc = document.createElement('h2');
+                                h2Desc.classList.add('text-lg', 'text-white', 'font-semibold');
+                                h2Desc.textContent = material.Mt_desc;
 
-                                const h5 = document.createElement('h5');
-                                h5.classList.add('text-lg', 'text-white', 'font-semibold');
-                                h5.textContent = `(${line.group.Gr_name})`;
+                                const h2Number = document.createElement('h2');
+                                h2Number.classList.add('text-lg', 'text-white',
+                                    'font-semibold');
+                                h2Number.textContent = material
+                                    .Mt_number; // Add this line for Mt_number
 
-                                div.appendChild(h2);
-                                div.appendChild(h5);
+                                div.appendChild(h2Desc);
+                                div.appendChild(h2Number); // Append Mt_number
                                 link.appendChild(div);
-                                lineList.appendChild(link);
+                                materialList.appendChild(link);
                             });
                         }
-                    });
+                    })
+                    .catch(error => console.error('Error fetching materials:',
+                        error)); // Added error handling
             });
         });
     </script>
+
 </x-app-layout>

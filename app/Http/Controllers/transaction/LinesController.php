@@ -9,26 +9,30 @@ use App\Models\MstrMaterial;
 use App\Models\MstrLine;
 use GuzzleHttp\Client;
 use App\Models\MstrConsumable;
+use App\Models\MstrGroup;
+
 class LinesController extends Controller
 {
-    public function indexLine()
+    public function indexGroup()
     {
 
-        $lines = MstrLineGroup::with('group', 'line')->get();
+        $lines = MstrGroup::all();
 
 
-        return view('transaction.line', compact('lines'));
+
+        return view('transaction.group', compact('lines'));
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function indexMaterial($id)
+    public function indexLine($id)
     {
-        $materials = MstrMaterial::where('mt_lgId', $id)->get();
+
+        $lg = MstrLineGroup::with('line')->where('Lg_groupId', $id)->get();
 
 
-        return view('transaction.material', compact('materials', 'id'));
+        return view('transaction.line', compact('lg', 'id'));
     }
 
     public function searchMaterial(Request $request)

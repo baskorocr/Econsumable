@@ -18,6 +18,7 @@ use App\Http\Controllers\admin\master\SlocController;
 use App\Http\Controllers\admin\master\TypeMtController;
 use App\Http\Controllers\admin\user\UsersController;
 use App\Http\Controllers\transaction\ApprovalController;
+use App\Http\Controllers\transaction\ReportController;
 use App\Http\Controllers\transaction\TransactionController;
 
 
@@ -56,14 +57,16 @@ Route::group(['middleware' => ['role:1,2,3'], 'prefix' => 'AdminMaster'], functi
     Route::resource('/Consumable', ConsumableController::class);
     Route::get('/download-template', [MaterialController::class, 'downloadTemplate'])->name('download.file');
     Route::post('/upload-excel', [MaterialController::class, 'uploadExcel'])->name('upload.excel');
+    Route::get('/line/search', [LinesController::class, 'search'])->name('line.search');
+    Route::get('/material/search', [LinesController::class, 'searchMaterial'])->name('material.search');
+    Route::get('/consumable/search', [LinesController::class, 'searchConsumable'])->name('consumable.search');
 
 });
 
-Route::group(['middleware' => ['role:1,2,3,4'], 'prefix' => 'list'], function () {
+Route::group(['middleware' => ['role:1,2,3,4,5'], 'prefix' => 'list'], function () {
     Route::get('/approvalConfirmation', [ApprovalController::class, 'index'])->name('approvalConfirmation.index');
     Route::get('/accConfirmation/{id}', [ApprovalController::class, 'acc'])->name('approvalConfirmation.acc');
     Route::get('/rejectConfirmation/{id}', [ApprovalController::class, 'reject'])->name('approvalConfirmation.reject');
-
 
 });
 
@@ -76,9 +79,7 @@ Route::post('/reject', [ApprovalController::class, 'rejectNon'])->name('reject')
 Route::get('/profile', [ProfileController::class, 'edit'])->middleware(['role:1,2,3,4,5'])->name('profile.edit');
 Route::patch('/profile', [ProfileController::class, 'update'])->middleware(['role:1,2,3,4,5'])->name('profile.update');
 Route::delete('/profile', [ProfileController::class, 'destroy'])->middleware(['role:1,2,3,4,5'])->name('profile.destroy');
-Route::get('/line/search', [LinesController::class, 'search'])->middleware(['role:1,5'])->name('line.search');
-Route::get('/material/search', [LinesController::class, 'searchMaterial'])->middleware(['role:1,5'])->name('material.search');
-Route::get('/consumable/search', [LinesController::class, 'searchConsumable'])->name('consumable.search');
+Route::get('/report', [ReportController::class, 'index'])->middleware(['role:1,2,3,4,5'])->name('index.report');
 
 
 
@@ -90,8 +91,8 @@ Route::group(['middleware' => ['role:4,5'], 'prefix' => 'page'], function () {
 });
 
 Route::group(['middleware' => ['role:1,5'], 'prefix' => 'Transaction'], function () {
-    Route::get('/ListLine', [LinesController::class, 'indexLine'])->name('listLine');
-    Route::get('/{id}/material', [LinesController::class, 'indexMaterial'])->name('listMaterial');
+    Route::get('/ListGroup', [LinesController::class, 'indexGroup'])->name('listGroup');
+    Route::get('/{id}/line', [LinesController::class, 'indexLine'])->name('listLine');
     Route::get('/{line}/{material}', [LinesController::class, 'indexConsumable'])->name('listConsumable');
     // Route::post('/sapSend', [ApprovalController::class, 'sapSend'])->name('sapSend');
     Route::resource('/proses', TransactionController::class);

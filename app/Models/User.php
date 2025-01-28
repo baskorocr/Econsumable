@@ -70,8 +70,16 @@ class User extends Authenticatable
         return $this->hasMany(MstrLineGroup::class, 'NpkPjStock', 'npk');
     }
 
-    public function Appr()
+    public function sect()
     {
-        return $this->hasMany(MstrAppr::class, 'NpkUser', 'npk');
+        return $this->hasMany(MstrAppr::class, 'NpkSect', 'npk');
+    }
+    public function dept()
+    {
+        return $this->hasMany(MstrAppr::class, 'NpkDept', 'npk');
+    }
+    public function pj()
+    {
+        return $this->hasMany(MstrAppr::class, 'NpkPj', 'npk');
     }
 }

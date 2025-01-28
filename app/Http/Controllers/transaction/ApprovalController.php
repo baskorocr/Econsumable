@@ -4,6 +4,7 @@ namespace App\Http\Controllers\transaction;
 
 use App\Http\Controllers\Controller;
 use App\Models\MstrAppr;
+use App\Models\OrderSegment;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -22,51 +23,74 @@ class ApprovalController extends Controller
 
         if (auth()->user()->idRole == '2') {
 
-            $apprs = MstrAppr::with(['orderSegment', 'consumable', 'user'])
-                ->when($search, function ($query, $search) {
-                    $query->whereHas('orderSegment', function ($q) use ($search) {
-                        $q->where('noOrder', 'like', "%$search%");
-                    });
+            // $apprs = MstrAppr::with(['orderSegment', 'consumable.material.masterLineGroup', 'user'])
+            //     ->when($search, function ($query, $search) {
+            //         $query->whereHas('orderSegment', function ($q) use ($search) {
+            //             $q->where('noOrder', 'like', "%$search%");
+            //         });
+            //     })->whereHas('user', function ($q) {
+            //         $q->where('NpkSect', auth()->user()->npk);
+            //     })
+            //     ->where('status', 1)->paginate(20);
+            $apprs = OrderSegment::with(['mstrApprs.consumable.material.masterLineGroup'])
+                ->whereHas('mstrApprs', function ($q) {
+                    $q->where('NpkSect', auth()->user()->npk)->where('status', 1);
                 })
-                ->where('status', 1)->paginate(20);
-
-        } elseif (auth()->user()->idRole == '3') {
-            $apprs = MstrAppr::with(['orderSegment', 'consumable', 'user'])
                 ->when($search, function ($query, $search) {
-                    $query->whereHas('orderSegment', function ($q) use ($search) {
-                        $q->where('noOrder', 'like', "%$search%");
-                    });
-                })
-                ->where('status', 2)->paginate(20);
-
-        } elseif (auth()->user()->idRole == '4') {
-            $apprs = MstrAppr::with(['orderSegment', 'consumable', 'user'])
-                ->when($search, function ($query, $search) {
-                    $query->whereHas('orderSegment', function ($q) use ($search) {
-                        $q->where('noOrder', 'like', "%$search%");
-                    });
-                })
-                ->where('status', 3)->paginate(20);
-
-        } elseif (auth()->user()->idRole == '5') {
-            $apprs = MstrAppr::with(['orderSegment', 'consumable', 'user'])
-                ->when($search, function ($query, $search) {
-                    $query->whereHas('orderSegment', function ($q) use ($search) {
-                        $q->where('noOrder', 'like', "%$search%");
-                    });
-                })
-                ->where('status', 4)->paginate(20);
-
-        } else {
-            $apprs = MstrAppr::with(['orderSegment', 'consumable', 'user'])
-                ->when($search, function ($query, $search) {
-                    $query->whereHas('orderSegment', function ($q) use ($search) {
-                        $q->where('noOrder', 'like', "%$search%");
-                    });
+                    $query->where('noOrder', 'like', "%$search%");
                 })
                 ->paginate(20);
 
+
+
+
+        } elseif (auth()->user()->idRole == '3') {
+            $apprs = OrderSegment::with(['mstrApprs.consumable.material.masterLineGroup'])
+                ->whereHas('mstrApprs', function ($q) {
+                    $q->where('NpkDept', auth()->user()->npk)->where('status', 2);
+                })
+                ->when($search, function ($query, $search) {
+                    $query->where('noOrder', 'like', "%$search%");
+                })
+                ->paginate(20);
+
+        } elseif (auth()->user()->idRole == '4') {
+            $apprs = OrderSegment::with(['mstrApprs.consumable.material.masterLineGroup'])
+                ->whereHas('mstrApprs', function ($q) {
+                    $q->where('NpkPj', auth()->user()->npk)->where('status', 3);
+                })
+                ->when($search, function ($query, $search) {
+                    $query->where('noOrder', 'like', "%$search%");
+                })
+                ->paginate(20);
+
+        } elseif (auth()->user()->idRole == '5') {
+
+
+            $apprs = OrderSegment::with(['mstrApprs.consumable.material.masterLineGroup'])
+                ->whereHas('mstrApprs', function ($q) {
+                    $q->where('status', 4);
+                })
+                ->when($search, function ($query, $search) {
+                    $query->where('noOrder', 'like', "%$search%");
+                })
+                ->where('NpkUser', auth()->user()->npk)->paginate(20);
+
+
+
+        } else {
+            $apprs = OrderSegment::with(['mstrApprs.consumable.material.masterLineGroup', 'user'])
+                ->whereHas('mstrApprs', function ($q) {
+                    $q->where('status', 4);
+                })
+                ->when($search, function ($query, $search) {
+                    $query->where('noOrder', 'like', "%$search%");
+                })
+                ->where('NpkUser', auth()->user()->npk)->paginate(20);
+
         }
+
+
 
 
 
@@ -80,50 +104,61 @@ class ApprovalController extends Controller
     public function acc($id)
     {
 
+
         $date = date('Y-m-d');
 
         try {
-            $appr = MstrAppr::with(['user', 'consumable.material.masterLineGroup.group', 'consumable.material.masterLineGroup.leader', 'consumable.material.masterLineGroup.section', 'consumable.material.masterLineGroup.pjStock'])->findOrFail($id);
+            $appr = MstrAppr::with(['user', 'consumable.material.masterLineGroup.group', 'consumable.material.masterLineGroup.leader', 'consumable.material.masterLineGroup.section', 'consumable.material.masterLineGroup.pjStock'])->where('no_order', $id)->get();
 
-            if ($appr->status == 1) {
+            foreach ($appr as $item) {
 
-                $a = $appr->update([
-                    'status' => $appr->status + 1,
-                    'token' => Str::uuid()->toString(),
-                    'ApprSectDate' => $date
 
-                ]);
-                if ($a === true || $appr->consumable->material->masterLineGroup->leader->noHp !== null) {
-                    SendWa($appr->consumable->material->masterLineGroup->leader->noHp, $appr->consumable->material->masterLineGroup->leader->name, $appr->orderSegment->noOrder, $appr->user->name, $appr->token);
+                if ($item->status == 1) {
+
+
+                    $a = $item->update([
+                        'status' => $item->status + 1,
+                        'token' => Str::uuid()->toString(),
+                        'ApprSectDate' => $date
+
+                    ]);
+                    if ($a === true || $item->consumable->material->masterLineGroup->leader->noHp !== null) {
+                        SendWa($item->consumable->material->masterLineGroup->leader->noHp, $item->consumable->material->masterLineGroup->leader->name, $item->orderSegment->noOrder, $item->user->name, $item->token);
+                    }
+
+                } elseif ($item->status == 2) {
+
+
+
+                    $a = $item->update([
+                        'status' => $item->status + 1,
+                        'token' => Str::uuid()->toString(),
+                        'ApprDeptDate' => $date
+
+                    ]);
+
+                    if ($a === true || $item->consumable->material->masterLineGroup->leader->noHp !== null) {
+                        SendWa($item->consumable->material->masterLineGroup->pjStock->noHp, $item->consumable->material->masterLineGroup->leader->name, $item->orderSegment->noOrder, $item->user->name, $item->token);
+                    }
+
+
+                } elseif ($item->status == 3) {
+
+
+                    $a = $item->update([
+                        'status' => $item->status + 1,
+                        'token' => null,
+                        'ApprPjStokDate' => $date
+
+                    ]);
+                    $this->sapSend($item->no_order);
+
+
                 }
-
-            } elseif ($appr->status == 2) {
-
-                $a = $appr->update([
-                    'status' => $appr->status + 1,
-                    'token' => Str::uuid()->toString(),
-                    'ApprDeptDate' => $date
-
-                ]);
-
-                if ($a === true || $appr->consumable->material->masterLineGroup->leader->noHp !== null) {
-                    SendWa($appr->consumable->material->masterLineGroup->pjStock->noHp, $appr->consumable->material->masterLineGroup->leader->name, $appr->orderSegment->noOrder, $appr->user->name, $appr->token);
-                }
-
-
-            } elseif ($appr->status == 3) {
-
-
-                $a = $appr->update([
-                    'status' => $appr->status + 1,
-                    'token' => null,
-                    'ApprPjStokDate' => $date
-
-                ]);
-                $this->sapSend($appr->no_order);
-
 
             }
+
+
             Alert::success('Approve Success', 'Thanks for your have been Approved');
 
         } catch (Exception $e) {
@@ -137,13 +172,19 @@ class ApprovalController extends Controller
     }
     public function reject($id)
     {
-        $appr = MstrAppr::findOrFail($id);
-        try {
-            $appr->update([
-                'status' => 0,
-                'token' => null
 
-            ]);
+
+        try {
+            $appr = MstrAppr::where('no_order', $id)->get();
+
+            foreach ($appr as $item) {
+                $item->update([
+                    'status' => 0,
+                    'token' => null
+
+                ]);
+            }
+
             Alert::success('Reject Success', 'Request has been fully rejected');
 
         } catch (Exception $e) {
@@ -167,6 +208,7 @@ class ApprovalController extends Controller
 
     public function accNon(Request $request)
     {
+
         $token = $request->input('token');
         $date = date('Y-m-d');
 
@@ -206,6 +248,9 @@ class ApprovalController extends Controller
                     'ApprPjStokDate' => $date
 
                 ]);
+                $this->sapSend($appr->no_order);
+
+
 
 
 
@@ -221,11 +266,6 @@ class ApprovalController extends Controller
 
 
         return redirect()->route('home');
-
-
-
-
-
     }
 
     public function rejectNon(Request $request)

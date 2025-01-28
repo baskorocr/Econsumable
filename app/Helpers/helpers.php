@@ -80,7 +80,8 @@ function GenerateCustomID($segment)
     $code = "EC" . $date . $formattedSequence . '-' . $segment;
     $code = orderSegment::create([
 
-        'noOrder' => $code
+        'noOrder' => $code,
+        'NpkUser' => auth()->user()->npk,
     ]);
 
 

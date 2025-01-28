@@ -80,7 +80,7 @@ class TransactionController extends Controller
                     'no_order' => $generate,
                     'ConsumableId' => $consumable['id'],
                     'jumlah' => $consumable['quantity'],
-                    'NpkUser' => auth()->user()->npk,
+
                     'NpkDept' => $segment->masterLineGroup->leader->npk,
                     'NpkSect' => $segment->masterLineGroup->section->npk,
                     'NpkPj' => $segment->masterLineGroup->pjStock->npk ?: null,
@@ -90,20 +90,22 @@ class TransactionController extends Controller
                     'token' => Str::uuid()->toString()
 
                 ]);
-                $requestId->load('OrderSegment', 'user');
+                $requestId->load('OrderSegment');
+
 
 
 
                 if ($segment->masterLineGroup->section->noHp !== null) {
 
 
-                    SendWa($segment->masterLineGroup->section->noHp, $segment->masterLineGroup->section->name, $requestId->orderSegment->noOrder, $requestId->user->name, $requestId->token);
+                    SendWa($segment->masterLineGroup->section->noHp, $segment->masterLineGroup->section->name, $requestId->orderSegment->noOrder, $requestId->NpkSect, $requestId->token);
                 }
 
                 Alert::success('Transaction Success', 'Approval application is in progress, please check your dashboard periodically');
 
 
             } catch (\Exception $e) {
+                dd($e);
                 Alert::error('Transaction failed', $e->getMessage());
                 return redirect()->route('listLine');
             }

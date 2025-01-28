@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class OrderSegment extends Model
 {
-    
+
 
     use HasFactory;
 
@@ -24,6 +24,7 @@ class OrderSegment extends Model
     protected $fillable = [
         '_id',
         'noOrder',
+        'NpkUser'
 
     ];
 
@@ -38,6 +39,10 @@ class OrderSegment extends Model
             }
         });
     }
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'NpkUser', 'npk');
+    }
 
     protected static function generateCustomID()
     {
@@ -46,6 +51,6 @@ class OrderSegment extends Model
     }
     public function mstrApprs()
     {
-        return $this->hasMany(MstrAppr::class, 'no_order', 'noOrder');
+        return $this->hasMany(MstrAppr::class, 'no_order', '_id');
     }
 }

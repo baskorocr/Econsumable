@@ -4,37 +4,34 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 
-class MstrConsumable extends Model
+class SapFail extends Model
 {
     use HasFactory;
-
-    protected $table = 'mstr_consumables';
+    protected $table = 'sap_fails';
     protected $primaryKey = '_id';
 
     public $incrementing = false;
     protected $keyType = 'string';
 
     protected $fillable = [
-
-        'Cb_number',
-        'Cb_mtId',
-        'Cb_desc',
+        'idCb',
+        'idAppr',
+        'Code',
+        'Desc_fails'
 
     ];
 
-    public function material()
+
+    public function consumable()
     {
-        return $this->belongsTo(MstrMaterial::class, 'Cb_mtId', '_id');
+        return $this->belongsTo(MstrConsumable::class, 'idCb', '_id');
     }
 
-    public function Appr()
+    public function appr()
     {
-        return $this->belongsTo(MstrAppr::class, 'Cb_mtId', '_id');
+        return $this->belongsTo(MstrAppr::class, 'idAppr', '_id');
     }
-
-
 
     protected static function boot()
     {
@@ -46,10 +43,6 @@ class MstrConsumable extends Model
                 $model->{$model->getKeyName()} = self::generateCustomID();
             }
         });
-    }
-    public function sapFails()
-    {
-        return $this->hasMany(SapFail::class, 'idCb', '_id');
     }
 
     protected static function generateCustomID()

@@ -19,7 +19,6 @@ class MstrAppr extends Model
     protected $fillable = [
         'no_order',
         'ConsumableId',
-        'NpkUser',
         'NpkSect',
         'NpkDept',
         'NpkPj',
@@ -62,9 +61,25 @@ class MstrAppr extends Model
         return $this->hasOne(MstrConsumable::class, '_id', 'ConsumableId');
     }
 
+    public function sect()
+    {
+        return $this->belongsTo(User::class, 'NpkSect', 'npk');
+    }
+    public function dept()
+    {
+        return $this->belongsTo(User::class, 'NpkDept', 'npk');
+    }
+    public function pj()
+    {
+        return $this->belongsTo(User::class, 'NpkPj', 'npk');
+    }
+    public function sapFails()
+    {
+        return $this->hasMany(SapFail::class, 'idAppr', '_id');
+    }
     public function user()
     {
-        return $this->belongsTo(User::class, 'NpkUser', 'npk');
+        return $this->belongsTo(User::class, 'NpkPj', 'npk');
     }
 
 }
