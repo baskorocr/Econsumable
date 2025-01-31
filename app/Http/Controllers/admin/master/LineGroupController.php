@@ -26,20 +26,23 @@ class LineGroupController extends Controller
 
 
 
-        $lineGroups = MstrLineGroup::with(['plan', 'costCenter', 'line', 'group', 'sloc', 'leader', 'section', 'pjStock'])
+
+        $lineGroups = MstrLineGroup::with(['plan', 'costCenter', 'lines', 'group', 'sloc', 'leader', 'section', 'pjStock'])
+
             ->when($search, function ($query, $search) {
                 $query->where('Lg_code', 'like', "%$search%") // Kolom dari MstrLineGroup
                     ->orWhereHas('plan', function ($q) use ($search) {
                         $q->where('Pl_name', 'like', "%$search%");
                     })->orWhereHas('costCenter', function ($q) use ($search) {
                         $q->where('Cs_code', 'like', "%$search%");
-                    })->orWhereHas('line', function ($q) use ($search) {
+                    })->orWhereHas('lines', function ($q) use ($search) {
                         $q->where('Ln_name', 'like', "%$search%");
                     })->orWhereHas('sloc', function ($q) use ($search) {
                         $q->where('Tp_mtCode', 'like', "%$search%");
                     });
             })
             ->paginate(20);
+
 
 
 
@@ -69,7 +72,7 @@ class LineGroupController extends Controller
             'Lg_code' => 'required|string|max:255|',
             'Lg_plId' => 'required|string',
             'Lg_csId' => 'required|string',
-            'Lg_lineId' => 'required|string',
+
             'Lg_groupId' => 'required|string',
             'Lg_slocId' => 'required|string',
             'NpkLeader' => 'required|string|max:255',
@@ -83,7 +86,7 @@ class LineGroupController extends Controller
                 'Lg_code' => $request->Lg_code,
                 'Lg_plId' => $request->Lg_plId,
                 'Lg_csId' => $request->Lg_csId,
-                'Lg_lineId' => $request->Lg_lineId,
+
                 'Lg_groupId' => $request->Lg_groupId,
                 'Lg_slocId' => $request->Lg_slocId,
                 'NpkLeader' => $request->NpkLeader,
@@ -102,7 +105,8 @@ class LineGroupController extends Controller
 
     public function edit($id)
     {
-        $lineGroup = MstrLineGroup::with(['plan', 'costCenter', 'line', 'group', 'sloc', 'leader', 'section', 'pjStock'])->findOrFail($id);
+
+        $lineGroup = MstrLineGroup::with(['plan', 'costCenter', 'lines', 'group', 'sloc', 'leader', 'section', 'pjStock'])->findOrFail($id);
 
         $plans = MstrPlan::all();
         $costCenters = MstrCostCenter::all();
@@ -124,7 +128,7 @@ class LineGroupController extends Controller
             'Lg_code' => 'required|string ',
             'Lg_plId' => 'required|string',
             'Lg_csId' => 'required|string',
-            'Lg_lineId' => 'required|string',
+
             'Lg_groupId' => 'required|string',
             'Lg_slocId' => 'required|string',
             "NpkLeader" => "required|string",
@@ -142,7 +146,7 @@ class LineGroupController extends Controller
 
             $lineGroup->Lg_plId = $request->Lg_plId;
             $lineGroup->Lg_csId = $request->Lg_csId;
-            $lineGroup->Lg_lineId = $request->Lg_lineId;
+
             $lineGroup->Lg_groupId = $request->Lg_groupId;
             $lineGroup->Lg_slocId = $request->Lg_slocId;
             $lineGroup->NpkLeader = $request->NpkLeader;

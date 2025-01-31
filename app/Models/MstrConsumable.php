@@ -19,14 +19,16 @@ class MstrConsumable extends Model
     protected $fillable = [
 
         'Cb_number',
-        'Cb_mtId',
+        'Cb_lgId',
         'Cb_desc',
+        'Cb_type',
+        'Cb_IO'
 
     ];
 
-    public function material()
+    public function masterLineGroup()
     {
-        return $this->belongsTo(MstrMaterial::class, 'Cb_mtId', '_id');
+        return $this->belongsTo(MstrLineGroup::class, 'Cb_lgId', '_id');
     }
 
     public function Appr()

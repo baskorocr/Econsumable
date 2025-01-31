@@ -34,10 +34,7 @@
                             class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             {{ __('Cost Center') }}
                         </th>
-                        <th
-                            class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                            {{ __('Line') }}
-                        </th>
+
                         <th
                             class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             {{ __('Dept.Head') }}
@@ -67,8 +64,8 @@
                             <td class="px-6 py-4 text-gray-700 dark:text-gray-300">{{ $lineGroup->plan->Pl_name }}</td>
                             <td class="px-6 py-4 text-gray-700 dark:text-gray-300">
                                 {{ $lineGroup->costCenter->Cs_code }}</td>
-                            <td class="px-6 py-4 text-gray-700 dark:text-gray-300">{{ $lineGroup->line->Ln_name }}
-                            </td>
+
+
                             <td class="px-6 py-4 text-gray-700 dark:text-gray-300">
                                 {{ $lineGroup->leader->name ?? ' ' }}</td>
 

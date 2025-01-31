@@ -44,9 +44,10 @@ class MstrLineGroup extends Model
         return $this->belongsTo(MstrCostCenter::class, 'Lg_csId', '_id');
     }
 
-    public function line()
+
+    public function lines() // Gunakan plural untuk menunjukkan banyak data
     {
-        return $this->belongsTo(MstrLine::class, 'Lg_lineId', '_id');
+        return $this->hasMany(MstrLine::class, 'Ln_lgId', '_id');
     }
 
     public function group()
@@ -74,9 +75,9 @@ class MstrLineGroup extends Model
         return $this->belongsTo(User::class, 'NpkPjStock', 'npk');
     }
 
-    public function materials()
+    public function consumable()
     {
-        return $this->hasMany(MstrMaterial::class, 'Mt_lgId', '_id');
+        return $this->hasMany(MstrConsumable::class, 'Cb_lgId', '_id');
     }
 
     protected static function boot()

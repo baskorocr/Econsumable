@@ -31,7 +31,7 @@
                         </th>
                         <th
                             class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                            {{ __('Material Number') }}
+                            {{ __('Line Code') }}
                         </th>
 
 
@@ -41,18 +41,19 @@
                         </th>
                     </tr>
                 </thead>
+
                 <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
                     @foreach ($consumables as $consumable)
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
                             <td class="px-6 py-4 text-gray-700 dark:text-gray-300">{{ $consumable->Cb_number }}</td>
                             <td class="px-6 py-4 text-gray-700 dark:text-gray-300">{{ $consumable->Cb_desc }}</td>
                             <td class="px-6 py-4 text-gray-700 dark:text-gray-300">
-                                {{ $consumable->material->Mt_number ?? 'N/A' }}</td>
+                                {{ $consumable->masterLineGroup->Lg_code ?? 'N/A' }}</td>
 
                             <td class="px-6 py-4 flex justify-center items-center space-x-4">
                                 <button
                                     class="bg-yellow-500 hover:bg-yellow-600 dark:bg-yellow-600 dark:hover:bg-yellow-700 text-white px-4 py-2 rounded-md editConsumableBtn"
-                                    data-id="{{ $consumable->_id }}" data-no="{{ $consumable->Cb_number }}"
+                                    data-id="{{ $consumable->_id }}" data-no="{{ $consumable->Cb_number }} "
                                     data-desc="{{ $consumable->Cb_desc }}" data-mtid="{{ $consumable->Cb_mtId }}">
                                     {{ __('Edit') }}
                                 </button>
@@ -96,13 +97,27 @@
                             required>
                     </div>
                     <div>
-                        <label for="Cb_mtId"
-                            class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Material Number') }}</label>
-                        <select name="Cb_mtId" id="Cb_mtId"
+                        <label for="Cb_type"
+                            class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Consumable Type') }}</label>
+                        <input type="text" name="Cb_type" id="Cb_type"
+                            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                            placeholder="EX:PCE" required>
+                    </div>
+                    <div>
+                        <label for="Cb_IO"
+                            class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Consumable IO') }}</label>
+                        <input type="text" name="Cb_IO" id="Cb_IO"
                             class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
                             required>
-                            @foreach ($materials as $material)
-                                <option value="{{ $material->_id }}">{{ $material->Mt_desc }}</option>
+                    </div>
+                    <div>
+                        <label for="Cb_mtId"
+                            class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Line Group Code') }}</label>
+                        <select name="Cb_lgId" id="Cb_lgId"
+                            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                            required>
+                            @foreach ($lgs as $lg)
+                                <option value="{{ $lg->_id }}">{{ $lg->Lg_code }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -147,14 +162,14 @@
                         <select name="Cb_mtId" id="editCb_mtId"
                             class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
                             required>
-                            @foreach ($materials as $material)
-                                <option value="{{ $material->_id }}"
-                                    {{ $material->_id == old('Cb_mtId', $consumable->Cb_mtId) ? 'selected' : '' }}>
-                                    {{ $material->Mt_number }} - {{ $material->Mt_desc }}
+
+                            @foreach ($lgs as $lg)
+                                <option value="{{ $lg->_id }}" @selected($lg->_id == old('Cb_mtId'))>{{ $lg->Lg_code }}
                                 </option>
                             @endforeach
                         </select>
                     </div>
+
                     <div>
                         <label for="editCb_desc"
                             class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Description') }}</label>
@@ -179,67 +194,60 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const openCreateModalButton = document.getElementById('openCreateModal');
-            const createModal = document.getElementById('createConsumableModal');
-            const closeCreateModalButton = document.getElementById('closeCreateModal');
+        // Create modal open and close
+        const openCreateModalBtn = document.getElementById('openCreateModal');
+        const createModal = document.getElementById('createConsumableModal');
+        const closeCreateModalBtn = document.getElementById('closeCreateModal');
+        openCreateModalBtn.addEventListener('click', () => {
+            createModal.classList.remove('hidden');
+        });
+        closeCreateModalBtn.addEventListener('click', () => {
+            createModal.classList.add('hidden');
+        });
 
-            // Show Create Modal
-            openCreateModalButton.addEventListener('click', () => {
-                createModal.classList.remove('hidden');
+        // Edit modal open and close
+        const editModal = document.getElementById('editConsumableModal');
+        const closeEditModalBtn = document.getElementById('closeEditModal');
+
+        document.querySelectorAll('.editConsumableBtn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const consumableId = e.target.getAttribute('data-id');
+                const consumableNo = e.target.getAttribute('data-no');
+                const consumableDesc = e.target.getAttribute('data-desc');
+                const consumableMtid = e.target.getAttribute('data-mtid');
+
+                // Open the modal and populate the fields
+                document.getElementById('editConsumableId').value = consumableId;
+                document.getElementById('editCb_desc').value = consumableDesc;
+                document.getElementById('editCb_mtId').value = consumableMtid;
+
+                editModal.classList.remove('hidden');
             });
+        });
 
-            // Close Create Modal
-            closeCreateModalButton.addEventListener('click', () => {
-                createModal.classList.add('hidden');
-            });
+        closeEditModalBtn.addEventListener('click', () => {
+            editModal.classList.add('hidden');
+        });
 
-            // Edit modal functionality
-            const editButtons = document.querySelectorAll('.editConsumableBtn');
-            const editModal = document.getElementById('editConsumableModal');
-            const closeEditModalButton = document.getElementById('closeEditModal');
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        searchInput.addEventListener('input', function() {
+            const search = this.value;
+            const url = new URL(window.location.href);
+            url.searchParams.set('search', search);
+            window.history.pushState({}, '', url);
 
-            editButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const consumableId = this.getAttribute('data-id');
-                    const consumableDesc = this.getAttribute('data-desc');
-                    const consumableMtId = this.getAttribute('data-mtId');
-
-                    // Set the data in the edit modal
-                    document.getElementById('editConsumableId').value = consumableId;
-                    document.getElementById('editCb_desc').value = consumableDesc;
-                    document.getElementById('editCb_mtId').value = consumableMtId;
-
-                    // Set the form action to include the consumable id
-                    const formAction = document.getElementById('editConsumableForm').action.replace(
-                        ':id', consumableId);
-                    document.getElementById('editConsumableForm').action = formAction;
-
-                    editModal.classList.remove('hidden');
-                });
-            });
-
-            // Close Edit Modal
-            closeEditModalButton.addEventListener('click', () => {
-                editModal.classList.add('hidden');
-            });
-
-            searchInput.addEventListener('input', function() {
-                const search = this.value;
-                const url = new URL(window.location.href);
-                url.searchParams.set('search', search);
-                window.history.pushState({}, '', url);
-                fetch(url)
-                    .then(response => response.text())
-                    .then(html => {
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(html, 'text/html');
-                        const newTableBody = doc.querySelector('tbody');
-                        const newPagination = doc.querySelector('.mt-4');
-                        document.querySelector('tbody').innerHTML = newTableBody.innerHTML;
-                        document.querySelector('.mt-4').innerHTML = newPagination.innerHTML;
-                    });
-            });
+            // Fetch updated table content
+            fetch(url)
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    // Find the updated consumables table and replace the old one
+                    const updatedTable = doc.querySelector('table');
+                    document.querySelector('table').replaceWith(updatedTable);
+                })
+                .catch(error => console.error('Error fetching search results:', error));
         });
     </script>
 </x-app-layout>

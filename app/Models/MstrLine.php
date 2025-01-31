@@ -20,13 +20,15 @@ class MstrLine extends Model
 
     protected $fillable = [
         '_id',
-        'Ln_name'
+        'Ln_name',
+        'Ln_lgId'
     ];
 
 
-    public function lineGroups()
+
+    public function lineGroup()
     {
-        return $this->hasMany(MstrLineGroup::class, 'Lg_lineId', '_id');
+        return $this->belongsTo(MstrLineGroup::class, 'Ln_lgId', '_id');
     }
     protected static function boot()
     {

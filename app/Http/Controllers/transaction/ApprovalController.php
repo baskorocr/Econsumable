@@ -21,18 +21,20 @@ class ApprovalController extends Controller
         $search = $request->input('search');
 
 
-        if (auth()->user()->idRole == '2') {
+        if (auth()->user()->idRole == 2) {
 
-            // $apprs = MstrAppr::with(['orderSegment', 'consumable.material.masterLineGroup', 'user'])
-            //     ->when($search, function ($query, $search) {
-            //         $query->whereHas('orderSegment', function ($q) use ($search) {
-            //             $q->where('noOrder', 'like', "%$search%");
-            //         });
-            //     })->whereHas('user', function ($q) {
-            //         $q->where('NpkSect', auth()->user()->npk);
-            //     })
-            //     ->where('status', 1)->paginate(20);
-            $apprs = OrderSegment::with(['mstrApprs.consumable.material.masterLineGroup'])
+
+
+            // $apprs = MstrAppr::with(['consumable.masterLineGroup', 'orderSegment.user'])->where(
+            //     'status',
+            //     1
+            // )->where('NpkSect', auth()->user()->npk)->paginate(20);
+
+
+
+
+
+            $apprs = OrderSegment::with(['mstrApprs.consumable.masterLineGroup'])
                 ->whereHas('mstrApprs', function ($q) {
                     $q->where('NpkSect', auth()->user()->npk)->where('status', 1);
                 })
@@ -45,7 +47,7 @@ class ApprovalController extends Controller
 
 
         } elseif (auth()->user()->idRole == '3') {
-            $apprs = OrderSegment::with(['mstrApprs.consumable.material.masterLineGroup'])
+            $apprs = OrderSegment::with(['mstrApprs.consumable.masterLineGroup'])
                 ->whereHas('mstrApprs', function ($q) {
                     $q->where('NpkDept', auth()->user()->npk)->where('status', 2);
                 })
@@ -53,9 +55,13 @@ class ApprovalController extends Controller
                     $query->where('noOrder', 'like', "%$search%");
                 })
                 ->paginate(20);
+            // $apprs = MstrAppr::with(['consumable.masterLineGroup', 'orderSegment.user'])->where(
+            //     'status',
+            //     2
+            // )->where('NpkDept', auth()->user()->npk)->paginate(20);
 
         } elseif (auth()->user()->idRole == '4') {
-            $apprs = OrderSegment::with(['mstrApprs.consumable.material.masterLineGroup'])
+            $apprs = OrderSegment::with(['mstrApprs.consumable.masterLineGroup'])
                 ->whereHas('mstrApprs', function ($q) {
                     $q->where('NpkPj', auth()->user()->npk)->where('status', 3);
                 })
@@ -63,33 +69,26 @@ class ApprovalController extends Controller
                     $query->where('noOrder', 'like', "%$search%");
                 })
                 ->paginate(20);
+            // $apprs = MstrAppr::with(['consumable.masterLineGroup', 'orderSegment.user'])->where(
+            //     'status',
+            //     3
+            // )->where('NpkPj', auth()->user()->npk)->paginate(20);
 
         } elseif (auth()->user()->idRole == '5') {
 
 
-            $apprs = OrderSegment::with(['mstrApprs.consumable.material.masterLineGroup'])
-                ->whereHas('mstrApprs', function ($q) {
-                    $q->where('status', 4);
-                })
-                ->when($search, function ($query, $search) {
-                    $query->where('noOrder', 'like', "%$search%");
-                })
-                ->where('NpkUser', auth()->user()->npk)->paginate(20);
+            // $apprs = OrderSegment::with(['mstrApprs.consumable.material.masterLineGroup'])
+            //     ->whereHas('mstrApprs', function ($q) {
+            //         $q->where('status', 4);
+            //     })
+            //     ->when($search, function ($query, $search) {
+            //         $query->where('noOrder', 'like', "%$search%");
+            //     })
+            //     ->where('NpkUser', auth()->user()->npk)->paginate(20);
 
 
-
-        } else {
-            $apprs = OrderSegment::with(['mstrApprs.consumable.material.masterLineGroup', 'user'])
-                ->whereHas('mstrApprs', function ($q) {
-                    $q->where('status', 4);
-                })
-                ->when($search, function ($query, $search) {
-                    $query->where('noOrder', 'like', "%$search%");
-                })
-                ->where('NpkUser', auth()->user()->npk)->paginate(20);
 
         }
-
 
 
 
@@ -105,13 +104,22 @@ class ApprovalController extends Controller
     {
 
 
+
+
         $date = date('Y-m-d');
 
         try {
-            $appr = MstrAppr::with(['user', 'consumable.material.masterLineGroup.group', 'consumable.material.masterLineGroup.leader', 'consumable.material.masterLineGroup.section', 'consumable.material.masterLineGroup.pjStock'])->where('no_order', $id)->get();
+            $appr = MstrAppr::with([
+                'user',
+                'consumable.masterLineGroup.group',
+                'consumable.masterLineGroup.leader',
+                'consumable.masterLineGroup.section',
+                'consumable.masterLineGroup.pjStock'
+            ])->where('no_order', $id)->get();
+
 
             foreach ($appr as $item) {
-
+                $consumable = $item->consumable->masterLineGroup;
 
                 if ($item->status == 1) {
 
@@ -122,8 +130,17 @@ class ApprovalController extends Controller
                         'ApprSectDate' => $date
 
                     ]);
-                    if ($a === true || $item->consumable->material->masterLineGroup->leader->noHp !== null) {
-                        SendWa($item->consumable->material->masterLineGroup->leader->noHp, $item->consumable->material->masterLineGroup->leader->name, $item->orderSegment->noOrder, $item->user->name, $item->token);
+
+                    if ($a === true) {
+                        $noHp = $item->consumable->masterLineGroup->leader->noHp ?? null;
+
+
+                        if ($noHp !== null) {
+
+                            SendWa($consumable->leader->noHp, $consumable->leader->name, $item->orderSegment->noOrder, $item->user->name, $item->token);
+
+                        }
+
                     }
 
                 } elseif ($item->status == 2) {
@@ -137,8 +154,14 @@ class ApprovalController extends Controller
 
                     ]);
 
-                    if ($a === true || $item->consumable->material->masterLineGroup->leader->noHp !== null) {
-                        SendWa($item->consumable->material->masterLineGroup->pjStock->noHp, $item->consumable->material->masterLineGroup->leader->name, $item->orderSegment->noOrder, $item->user->name, $item->token);
+
+                    if ($a === true) {
+                        $noHp = $item->consumable->masterLineGroup->pjStock->noHp ?? null;
+                        if ($noHp !== null) {
+
+                            SendWa($consumable->pjStock->noHp, $consumable->pjStock->name, $item->orderSegment->noOrder, $item->user->name, $item->token);
+                        }
+
                     }
 
 
@@ -225,8 +248,8 @@ class ApprovalController extends Controller
                 ]);
 
 
-                if ($a === true || $appr->consumable->material->masterLineGroup->leader->noHp !== null) {
-                    SendWa($appr->consumable->material->masterLineGroup->leader->noHp, $appr->consumable->material->masterLineGroup->leader->name, $appr->orderSegment->noOrder, $appr->user->name, $appr->token);
+                if ($a === true || $appr->consumable->masterLineGroup->leader->noHp !== null) {
+                    SendWa($appr->consumable->masterLineGroup->leader->noHp, $appr->consumable->masterLineGroup->leader->name, $appr->orderSegment->noOrder, $appr->user->name, $appr->token);
                 }
 
             } elseif ($appr->status == 2) {
@@ -237,13 +260,13 @@ class ApprovalController extends Controller
 
                 ]);
 
-                if ($a === true || $appr->consumable->material->masterLineGroup->leader->noHp !== null) {
-                    SendWa($appr->consumable->material->masterLineGroup->pjStock->noHp, $appr->consumable->material->masterLineGroup->leader->name, $appr->orderSegment->noOrder, $appr->user->name, $appr->token);
+                if ($a === true || $appr->consumable->masterLineGroup->leader->noHp !== null) {
+                    SendWa($appr->consumable->masterLineGroup->pjStock->noHp, $appr->consumable->masterLineGroup->leader->name, $appr->orderSegment->noOrder, $appr->user->name, $appr->token);
                 }
 
             } elseif ($appr->status == 3) {
                 $a = $appr->update([
-                    'status' => $appr->status + 1,
+                    'status' => $appr->status,
                     'token' => null,
                     'ApprPjStokDate' => $date
 
@@ -293,14 +316,22 @@ class ApprovalController extends Controller
 
     public function sapSend($noOrder)
     {
+
         $approvals = MstrAppr::with([
             'orderSegment',
-            'consumable.material.masterLineGroup' => function ($query) {
-                $query->with(['plan', 'costCenter']);
+            'consumable.masterLineGroup' => function ($query) {
+                $query->with(['plan', 'costCenter', 'lines']);
             }
+
+
         ])->where('status', 4)
             ->where('no_order', $noOrder)
             ->get();
+        // foreach ($approvals as $approval) {
+        //     $approval->status = 3; // Set the status to 3
+        //     $approval->save(); // Save each individual model
+        // }
+
 
 
 
@@ -314,16 +345,22 @@ class ApprovalController extends Controller
 
         foreach ($approvals as $approval) {
             $sapPayload['LT_INPUT'][] = [
-                "MATERIAL" => $approval->consumable->material->Mt_number,
-                "PLANT_ASAL" => $approval->consumable->material->masterLineGroup->plan->Pl_code,
-                "SLOC_ASAL" => $approval->consumable->material->masterLineGroup->Lg_slocId,
+                "MATERIAL" => $approval->consumable->Cb_number,
+                "PLANT_ASAL" => $approval->consumable->masterLineGroup->plan->Pl_code,
+                "SLOC_ASAL" => $approval->consumable->masterLineGroup->Lg_slocId,
                 "QUANTITY" => $approval->jumlah,
-                "SATUAN" => "PCE", // Ubah ke satuan yang sesuai jika perlu
-                "COST_CENTER" => $approval->consumable->material->masterLineGroup->costCenter->Cs_code,
-                "ORDER_ORG" => $approval->orderSegment->noOrder
+                "SATUAN" => $approval->consumable->Cb_type, // Ubah ke satuan yang sesuai jika perlu
+                "COST_CENTER" => $approval->consumable->masterLineGroup->costCenter->Cs_code,
+                "ORDER_ORG" => $approval->orderSegment->noOrder,
+                "INTERNAL_ORDER" => $approval->consumable->Cb_IO,
+                "REASON" => $approval->lineFrom,
 
             ];
         }
+
+
+
+
 
         // Filter untuk menghapus elemen dengan QUANTITY = "0"
         // Validasi jika tidak ada data setelah filter
@@ -333,6 +370,8 @@ class ApprovalController extends Controller
                 'message' => 'Semua consumables memiliki quantity 0. Tidak ada data yang dikirim ke SAP.'
             ], 400);
         }
+
+        dd($sapPayload);
 
         // URL API SAP
         $sapApiUrl = "http://erpqas-dp.dharmap.com:8001/sap/zapi/ZMM_GI_SCRAP?sap-client=300";

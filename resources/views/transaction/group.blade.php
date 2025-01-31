@@ -23,7 +23,7 @@
                     <a href="{{ route('listLine', $line->_id) }}"
                         class="p-4 rounded-md shadow-md bg-violet-500 hover:bg-violet-600">
                         <div class="col-span-2 flex flex-col justify-center items-center">
-                            <h2 class="text-lg text-white font-semibold">{{ $line->Gr_name }}</h2>
+                            <h2 class="text-lg text-white font-semibold">{{ $line->group->Gr_name }}</h2>
 
                         </div>
                     </a>

@@ -10,9 +10,12 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('order_segments', function (Blueprint $table) {
+        Schema::create('mstr_lines', function (Blueprint $table) {
             $table->uuid('_id')->primary();
-            $table->string('noOrder');
+            $table->uuid('Ln_lgId');
+            $table->string('Ln_name');
+
+            $table->foreign('Ln_lgId')->references('_id')->on('mstr_line_groups')->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -22,6 +25,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('order_segments');
+        Schema::dropIfExists('mstr_lines');
     }
 };

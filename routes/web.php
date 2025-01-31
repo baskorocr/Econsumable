@@ -53,7 +53,7 @@ Route::group(['middleware' => ['role:1,2,3'], 'prefix' => 'AdminMaster'], functi
     Route::resource('/Sloc', SlocController::class);
     // Route::resource('/Type', TypeMtController::class);
     Route::resource('/LineGroup', LineGroupController::class);
-    Route::resource('/Material', MaterialController::class);
+    // Route::resource('/Material', MaterialController::class);
     Route::resource('/Consumable', ConsumableController::class);
     Route::get('/download-template', [MaterialController::class, 'downloadTemplate'])->name('download.file');
     Route::post('/upload-excel', [MaterialController::class, 'uploadExcel'])->name('upload.excel');
@@ -80,6 +80,7 @@ Route::get('/profile', [ProfileController::class, 'edit'])->middleware(['role:1,
 Route::patch('/profile', [ProfileController::class, 'update'])->middleware(['role:1,2,3,4,5'])->name('profile.update');
 Route::delete('/profile', [ProfileController::class, 'destroy'])->middleware(['role:1,2,3,4,5'])->name('profile.destroy');
 Route::get('/report', [ReportController::class, 'index'])->middleware(['role:1,2,3,4,5'])->name('index.report');
+Route::get('/get-lines', [ReportController::class, 'getLinesBySegment'])->middleware(['role:1,2,3,4,5'])->name('getLinesBySegment');
 
 
 

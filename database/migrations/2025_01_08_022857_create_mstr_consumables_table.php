@@ -13,12 +13,16 @@ return new class extends Migration {
         Schema::create('mstr_consumables', function (Blueprint $table) {
             $table->uuid('_id')->primary();
             $table->string('Cb_number');
-            $table->uuid('Cb_mtId');
+            $table->uuid('Cb_lgId');
+            $table->string('Cb_type');
+            $table->string('Cb_IO');
+
+            $table->foreign('Cb_lgId')->references('_id')->on('mstr_line_groups')->onUpdate('cascade')->onDelete('cascade');
 
             $table->string('Cb_desc');
             $table->timestamps();
 
-            $table->foreign('Cb_mtId')->references('_id')->on('mstr_materials')->onDelete('cascade')->onUpdate('cascade');
+
 
 
         });

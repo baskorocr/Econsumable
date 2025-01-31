@@ -16,7 +16,8 @@ class LinesController extends Controller
     public function indexGroup()
     {
 
-        $lines = MstrGroup::all();
+        $lines = MstrLineGroup::with('group')->get();
+
 
 
 
@@ -29,17 +30,19 @@ class LinesController extends Controller
     public function indexLine($id)
     {
 
-        $lg = MstrLineGroup::with('line')->where('Lg_groupId', $id)->get();
+
+        $lg = MstrLine::where('Ln_lgId', $id)->get();
 
 
         return view('transaction.line', compact('lg', 'id'));
     }
 
-    public function searchMaterial(Request $request)
+    public function searchMaterial($search, $id)
     {
 
-        $search = $request->input('search');
-        $id = $request->input('id'); // Ambil 'id' dari request
+        dd($search);
+        // $search = $request->input('search');
+        // $id = $request->input('id'); // Ambil 'id' dari request
 
         if (empty($search)) {
             // Jika tidak ada pencarian, ambil semua material berdasarkan mt_lgId
@@ -63,13 +66,29 @@ class LinesController extends Controller
     public function indexConsumable($lines, $material)
     {
 
+
         $id = $material;
 
 
 
         // $consumables = MstrConsumable::with(['material.masterLineGroup.plan', 'material.masterLineGroup.costCenter']) // Muat relasi hingga masterLineGroup
         //     ->where('Cb_mtId', $material)->get();
-        $materials = MstrMaterial::with(['masterLineGroup.plan', 'masterLineGroup.costCenter', 'consumables'])->where('Mt_lgId', $lines)->where('_id', $material)->get();
+        // $materials = MstrConsumable::with(['masterLineGroup.plan', 'masterLineGroup.costCenter', 'masterLineGroup.lines'])
+
+        //     ->whereHas('masterLineGroup.lines', function ($query) use ($material) {
+        //         $query->where('_id', $material);
+        //     })->where('Cb_lgId', $lines)
+        //     ->get();
+        // dd($materials);
+
+
+        // foreach ($materials as $material) {
+        //     dd($material->masterLineGroup->lines);
+        // }
+
+        $materials = MstrLine::with(['lineGroup.plan', 'lineGroup.costCenter', 'lineGroup.consumable'])->where('_id', $material)->first();
+
+
 
 
 
@@ -82,13 +101,15 @@ class LinesController extends Controller
     public function searchConsumable(Request $request)
     {
         $search = $request->input('search');
+
+
         $id = $request->input('id');
 
         if (empty($search)) {
             $materials = [];
         } else {
-            $materials = MstrConsumable::where('Cb_mtId', 'like', '%' . $id . '%')
-                ->where(function ($query) use ($search) {
+            $materials = MstrConsumable::
+                where(function ($query) use ($search) {
                     $query->where('Cb_number', 'like', '%' . $search . '%')
                         ->orWhere('Cb_desc', 'like', '%' . $search . '%');
                 })

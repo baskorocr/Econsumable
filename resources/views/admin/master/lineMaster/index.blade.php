@@ -92,6 +92,21 @@
                             class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
                             required>
                     </div>
+
+                    <div>
+                        <label for="Lg_plId"
+                            class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Select Group') }}</label>
+                        <select name="Lg_id[]" id="Lg_id"
+                            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                            required>
+                            @foreach ($lgs as $lg)
+                                <option value="{{ $lg->_id }}"
+                                    {{ $line->Ln_lgId == $lg->_id ? 'selected' : '' }}>
+                                    {{ $lg->Lg_code }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
 
                 <button type="button" id="addMoreLines"
@@ -170,7 +185,21 @@
                 const newLineField = document.createElement('div');
                 newLineField.innerHTML =
                     `<label for="nameLine" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Line Name') }}</label>
-                    <input type="text" name="nameLine[]" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600" required>`;
+                    <input type="text" name="nameLine[]" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600" required>
+                     <div>
+                        <label for="Lg_plId"
+                            class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Select Group') }}</label>
+                        <select name="Lg_id[]" id="Lg_id"
+                            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                            required>
+                            @foreach ($lgs as $lg)
+                                <option value="{{ $lg->_id }}"
+                                    {{ $line->Ln_lgId == $lg->_id ? 'selected' : '' }}>
+                                    {{ $lg->Lg_code }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>`;
                 lineFieldsContainer.appendChild(newLineField);
             });
 
@@ -206,6 +235,7 @@
             searchInput.addEventListener('input', function() {
                 const search = this.value;
                 const url = new URL(window.location.href);
+                console.log(url);
                 url.searchParams.set('search', search);
                 window.history.pushState({}, '', url);
                 fetch(url)

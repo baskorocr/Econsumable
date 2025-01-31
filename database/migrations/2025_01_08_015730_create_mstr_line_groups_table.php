@@ -15,7 +15,7 @@ return new class extends Migration {
             $table->string('Lg_code');
             $table->uuid('Lg_plId');
             $table->uuid('Lg_csId');
-            $table->uuid('Lg_lineId');
+
             $table->uuid('Lg_groupId');
             $table->uuid('Lg_slocId');
 
@@ -25,13 +25,13 @@ return new class extends Migration {
             $table->string('NpkPjStock');
 
 
-            $table->foreign('NpkLeader')->references('npk')->on('users');
-            $table->foreign('NpkSection')->references('npk')->on('users');
+            $table->foreign('NpkLeader')->references('npk')->on('users')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('NpkSection')->references('npk')->on('users')->onUpdate('cascade')->onDelete('cascade');
 
             $table->foreign('NpkPjStock')->references('npk')->on('users');
             $table->foreign('Lg_plId')->references('_id')->on('mstr_plans')->onUpdate('cascade')->onDelete('cascade');
             $table->foreign('Lg_csId')->references('_id')->on('mstr_cost_centers')->onUpdate('cascade')->onDelete('cascade');
-            $table->foreign('Lg_lineId')->references('_id')->on('mstr_lines')->onUpdate('cascade')->onDelete('cascade');
+
             $table->foreign('Lg_groupId')->references('_id')->on('mstr_groups')->onUpdate('cascade')->onDelete('cascade');
 
 

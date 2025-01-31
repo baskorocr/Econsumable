@@ -40,96 +40,97 @@
         <!-- Materials List -->
         <div class="p-4 rounded-md">
 
-            @if ($materials->isEmpty())
+            @if ($materials->count() == 0)
                 <div class="flex justify-center items-center">
                     <p class="text-lg font-semibold">Tidak ada data material yang tersedia.</p>
                 </div>
             @else
                 <ul class="space-y-4">
-                    @foreach ($materials as $material)
-                        <li class="p-4 rounded-md shadow">
-                            <!-- Collapse Header -->
-                            <button
-                                class="flex items-center justify-between w-full text-black text-xl font-bold toggle-collapse"
-                                type="button" data-target="#collapse-{{ $material->id }}">
-                                <span
-                                    class="collapse-icon text-xl font-bold bg-violet-500 hover:bg-violet-600 text-white rounded-md px-5 py-1">
-                                    +
-                                </span>
-                                <h3 class="text-black font-semibold text-center flex-1">
-                                    {{ $material->Mt_desc }}
-                                </h3>
-                            </button>
 
-                            <!-- Collapse Content -->
-                            <form action="{{ route('proses.store') }}" method="POST">
-                                @csrf
-                                <div id="collapse-{{ $material->id }}" class="collapse-content hidden mt-4">
-                                    @if ($material->consumables->isEmpty())
+
+                    <li class="p-4 rounded-md shadow">
+                        <!-- Collapse Header -->
+                        <button
+                            class="flex items-center justify-between w-full text-black text-xl font-bold toggle-collapse"
+                            type="button" data-target="#collapse-{{ $materials->_id }}">
+                            <span
+                                class="collapse-icon text-xl font-bold bg-violet-500 hover:bg-violet-600 text-white rounded-md px-5 py-1">
+                                +
+                            </span>
+                            <h3 class="text-black font-semibold text-center flex-1">
+                                {{ $materials->Ln_name }}
+                            </h3>
+                        </button>
+
+                        <!-- Collapse Content -->
+                        <form action="{{ route('proses.store') }}" method="POST">
+                            @csrf
+                            <div id="collapse-{{ $materials->_id }}" class="collapse-content hidden mt-4">
+
+                                @if ($materials->lineGroup->consumable->count() == 0)
+                                    <div class="flex bg-white p-4 rounded-md items-center justify-between mb-4 mt-5">
+                                        <p class="text-black text-center">
+                                            Tidak ada data yang ditemukan
+                                        </p>
+                                    </div>
+                                @else
+                                    <input type="hidden" name="idMt" value="{{ $materials->_id }}">
+                                    <input type="hidden" name="PlanCode"
+                                        value="{{ $materials->lineGroup->plan->Pl_code }}">
+                                    <input type="hidden" name="CsCode"
+                                        value="{{ $materials->lineGroup->costCenter->Cs_code }}">
+                                    <input type="hidden" name="SlocId" value="{{ $materials->lineGroup->Lg_slocId }}">
+
+
+                                    @foreach ($materials->lineGroup->consumable as $index => $consumable)
                                         <div
-                                            class="flex bg-white p-4 rounded-md items-center justify-between mb-4 mt-5">
-                                            <p class="text-black text-center">
-                                                Tidak ada data yang ditemukan
+                                            class="flex flex-col md:flex-row bg-violet-500 p-4 rounded-md items-center justify-between mb-4 mt-5">
+                                            <input type="hidden" name="consumables{{ $loop->iteration }}[id]"
+                                                value="{{ $consumable->_id }}">
+                                            <input type="hidden" name="consumables{{ $loop->iteration }}[Cb_number]"
+                                                value="{{ $consumable->Cb_number }}">
+
+                                            <!-- Consumable Description -->
+                                            <p class="text-white mb-2 md:mb-0">
+                                                {{ $consumable->Cb_number . ' ' . '( ' . $consumable->Cb_desc . ' )' }}.
                                             </p>
-                                        </div>
-                                    @else
-                                        <input type="hidden" name="idMt" value="{{ $material->_id }}">
-                                        <input type="hidden" name="PlanCode"
-                                            value="{{ $material->masterLineGroup->plan->Pl_code }}">
-                                        <input type="hidden" name="CsCode"
-                                            value="{{ $material->masterLineGroup->costCenter->Cs_code }}">
-                                        <input type="hidden" name="SlocId"
-                                            value="{{ $material->masterLineGroup->Lg_slocId }}">
-                                        @foreach ($material->consumables as $index => $consumable)
-                                            <div
-                                                class="flex flex-col md:flex-row bg-violet-500 p-4 rounded-md items-center justify-between mb-4 mt-5">
-                                                <input type="hidden" name="consumables{{ $loop->iteration }}[id]"
-                                                    value="{{ $consumable->_id }}">
-                                                <input type="hidden"
-                                                    name="consumables{{ $loop->iteration }}[Cb_number]"
-                                                    value="{{ $consumable->Cb_number }}">
 
-                                                <!-- Consumable Description -->
-                                                <p class="text-white mb-2 md:mb-0">
-                                                    {{ $consumable->Cb_number . ' ' . '( ' . $consumable->Cb_desc . ' )' }}.
-                                                </p>
+                                            <!-- Quantity Controls -->
+                                            <div class="flex items-center space-x-4">
+                                                <button type="button"
+                                                    class="bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600 decrement">
+                                                    -
+                                                </button>
 
-                                                <!-- Quantity Controls -->
-                                                <div class="flex items-center space-x-4">
-                                                    <button type="button"
-                                                        class="bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600 decrement">
-                                                        -
-                                                    </button>
+                                                <input type="number"
+                                                    name="consumables{{ $loop->iteration }}[quantity]" value="0"
+                                                    min="0"
+                                                    class="w-16 text-center bg-violet-500 text-white font-bold text-lg quantity-input">
 
-                                                    <input type="number"
-                                                        name="consumables{{ $loop->iteration }}[quantity]"
-                                                        value="0" min="0"
-                                                        class="w-16 text-center bg-violet-500 text-white font-bold text-lg quantity-input">
-
-                                                    <button type="button"
-                                                        class="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600 increment">
-                                                        +
-                                                    </button>
-                                                </div>
+                                                <button type="button"
+                                                    class="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600 increment">
+                                                    +
+                                                </button>
                                             </div>
-                                        @endforeach
-                                    @endif
-                                </div>
+                                        </div>
+                                    @endforeach
+                                @endif
+                            </div>
 
-                                <!-- Submit and Cancel Buttons -->
-                                <div class="mt-6 flex justify-end space-x-4">
-                                    <a href="{{ url()->previous() }}"
-                                        class="bg-red-500 text-white px-6 py-3 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300">
-                                        Cancel
-                                    </a>
-                                    <button type="submit"
-                                        class="bg-violet-500 text-white px-6 py-3 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300">
-                                        Proses
-                                    </button>
-                                </div>
-                            </form>
-                        </li>
-                    @endforeach
+                            <!-- Submit and Cancel Buttons -->
+                            <div class="mt-6 flex justify-end space-x-4">
+                                <a href="{{ url()->previous() }}"
+                                    class="bg-red-500 text-white px-6 py-3 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300">
+                                    Cancel
+                                </a>
+                                <button type="submit"
+                                    class="bg-violet-500 text-white px-6 py-3 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                                    Proses
+                                </button>
+                            </div>
+                        </form>
+                    </li>
+
                 </ul>
             @endif
         </div>
@@ -139,10 +140,10 @@
             <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">{{ __('Consumable Details') }}</h2>
             <form id="modalForm" action="{{ route('proses.store') }}" method="POST">
                 @csrf
-                <input type="hidden" name="idMt" value="{{ $material->_id }}">
-                <input type="hidden" name="PlanCode" value="{{ $material->masterLineGroup->plan->Pl_code }}">
-                <input type="hidden" name="CsCode" value="{{ $material->masterLineGroup->costCenter->Cs_code }}">
-                <input type="hidden" name="SlocId" value="{{ $material->masterLineGroup->Lg_slocId }}">
+                <input type="hidden" name="idMt" value="{{ $materials->_id }}">
+                <input type="hidden" name="PlanCode" value="{{ $materials->lineGroup->plan->Pl_code }}">
+                <input type="hidden" name="CsCode" value="{{ $materials->lineGroup->costCenter->Cs_code }}">
+                <input type="hidden" name="SlocId" value="{{ $materials->lineGroup->Lg_slocId }}">
 
                 <div id="modalContent">
                     <!-- Data will be populated here -->
@@ -206,8 +207,7 @@
                 const search = this.value.toLowerCase();
                 let id = '{{ $id }}';
 
-
-                if (search != '') {
+                if (search !== '') {
                     fetch(`{{ route('consumable.search') }}?search=${search}&id=${id}`)
                         .then(response => response.json())
                         .then(data => {
@@ -216,9 +216,6 @@
 
                             if (data.length > 0) {
                                 data.forEach((item, index) => {
-
-
-
                                     const div = document.createElement('div');
                                     div.classList.add('p-4', 'rounded-md', 'shadow-md',
                                         'bg-violet-500', 'hover:bg-violet-600', 'mb-4');
@@ -245,8 +242,7 @@
                                     const minusButton = document.createElement('button');
                                     minusButton.type = 'button';
                                     minusButton.classList.add('bg-red-500', 'text-white',
-                                        'px-4',
-                                        'py-2', 'rounded-full', 'hover:bg-red-600');
+                                        'px-4', 'py-2', 'rounded-full', 'hover:bg-red-600');
                                     minusButton.textContent = '-';
                                     quantityDiv.appendChild(minusButton);
 
@@ -256,15 +252,14 @@
                                     quantityInput.min = 0;
                                     quantityInput.classList.add('w-16', 'text-center',
                                         'bg-violet-500', 'text-white', 'font-bold',
-                                        'text-lg',
-                                        'quantity-input');
+                                        'text-lg', 'quantity-input');
                                     quantityDiv.appendChild(quantityInput);
 
                                     const plusButton = document.createElement('button');
                                     plusButton.type = 'button';
                                     plusButton.classList.add('bg-green-500', 'text-white',
-                                        'px-4',
-                                        'py-2', 'rounded-full', 'hover:bg-green-600');
+                                        'px-4', 'py-2', 'rounded-full', 'hover:bg-green-600'
+                                        );
                                     plusButton.textContent = '+';
                                     quantityDiv.appendChild(plusButton);
 
@@ -277,23 +272,22 @@
 
                                     // Add hidden input for consumable ID and quantity
                                     const consumableIndex =
-                                        `consumables${index + 1}`; // Use index to generate unique name for each consumable
+                                    `consumables${index + 1}`; // Use index to generate unique name for each consumable
+
                                     const hiddenQuantityInput = document.createElement('input');
                                     hiddenQuantityInput.type = 'hidden';
                                     hiddenQuantityInput.name = `${consumableIndex}[id]`;
                                     hiddenQuantityInput.value = item
-                                        ._id; // ID of the consumable
+                                    ._id; // ID of the consumable
                                     modalForm.appendChild(hiddenQuantityInput);
 
                                     const hiddenQuantitysInput = document.createElement(
-                                        'input');
+                                    'input');
                                     hiddenQuantitysInput.type = 'hidden';
                                     hiddenQuantitysInput.name = `${consumableIndex}[Cb_number]`;
                                     hiddenQuantitysInput.value = item
-                                        .Cb_number; // ID of the consumable
+                                    .Cb_number; // Cb_number of the consumable
                                     modalForm.appendChild(hiddenQuantitysInput);
-
-
 
                                     const hiddenQuantityValueInput = document.createElement(
                                         'input');
@@ -301,34 +295,39 @@
                                     hiddenQuantityValueInput.name =
                                         `${consumableIndex}[quantity]`;
                                     hiddenQuantityValueInput.value = quantityInput
-                                        .value; // Dynamically set quantity based on input
+                                    .value; // Dynamically set initial value
+                                    console.log('Initial Hidden Quantity:',
+                                        hiddenQuantityValueInput.value); // Debugging
                                     modalForm.appendChild(hiddenQuantityValueInput);
 
                                     // Event listeners for increment and decrement buttons
                                     minusButton.addEventListener('click', function() {
                                         let currentQuantity = parseInt(quantityInput
-                                            .value,
-                                            10);
+                                            .value, 10);
                                         if (currentQuantity > 0) {
                                             quantityInput.value = currentQuantity - 1;
+                                            console.log('Quantity after decrement:',
+                                                quantityInput.value); // Debugging
+                                            updateHiddenQuantity();
                                         }
-                                        updateHiddenQuantity();
                                     });
 
                                     plusButton.addEventListener('click', function() {
                                         let currentQuantity = parseInt(quantityInput
-                                            .value,
-                                            10);
+                                            .value, 10);
                                         quantityInput.value = currentQuantity + 1;
+                                        console.log('Quantity after increment:',
+                                            quantityInput.value); // Debugging
                                         updateHiddenQuantity();
                                     });
 
                                     // Update hidden quantity input value
                                     function updateHiddenQuantity() {
+                                        console.log('Updating hidden input with value:',
+                                            quantityInput.value); // Debugging
                                         hiddenQuantityValueInput.value = quantityInput.value;
                                     }
                                 });
-
                             } else {
                                 consumableModal.classList.add('hidden');
                                 const noResults = document.createElement('p');
@@ -336,8 +335,6 @@
                                 noResults.textContent = 'No matching consumables found.';
                                 modalContent.appendChild(noResults);
                             }
-
-
 
                             consumableModal.classList.remove('hidden');
                         });
@@ -350,6 +347,11 @@
             // Close modal
             closeModalButton.addEventListener('click', function() {
                 consumableModal.classList.add('hidden');
+            });
+            consumableModal.addEventListener('click', function(event) {
+                if (event.target === consumableModal) {
+                    consumableModal.classList.add('hidden');
+                }
             });
         });
     </script>

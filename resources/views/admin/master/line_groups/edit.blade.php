@@ -44,7 +44,7 @@
                         @endforeach
                     </select>
                 </div>
-                <div>
+                {{-- <div>
                     <label for="Lg_lineId"
                         class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Select Line') }}</label>
                     <select name="Lg_lineId" id="Lg_lineId"
@@ -56,7 +56,7 @@
                             </option>
                         @endforeach
                     </select>
-                </div>
+                </div> --}}
                 <div>
                     <label for="Lg_groupId"
                         class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Select Group') }}</label>

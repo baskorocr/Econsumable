@@ -24,10 +24,10 @@
                 </div>
             @else
                 @foreach ($lg as $lgs)
-                    <a href="{{ route('listConsumable', ['line' => $lgs->_id, 'material' => $lgs->_id]) }}"
+                    <a href="{{ route('listConsumable', ['line' => $lgs->Ln_lgId, 'material' => $lgs->_id]) }}"
                         class="p-4 rounded-md shadow-md bg-violet-500 hover:bg-violet-600">
                         <div class="col-span-2 flex flex-col justify-center items-center">
-                            <h2 class="text-lg text-white font-semibold">{{ $lgs->line->Ln_name }}</h2>
+                            <h2 class="text-lg text-white font-semibold">{{ $lgs->Ln_name }}</h2>
 
                         </div>
                     </a>

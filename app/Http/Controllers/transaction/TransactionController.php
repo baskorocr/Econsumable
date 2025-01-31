@@ -4,6 +4,7 @@ namespace App\Http\Controllers\transaction;
 
 use App\Http\Controllers\Controller;
 use App\Models\MstrAppr;
+use App\Models\MstrLine;
 use App\Models\MstrMaterial;
 use App\Models\OrderSegment;
 use Illuminate\Http\Request;
@@ -34,13 +35,6 @@ class TransactionController extends Controller
     public function store(Request $request)
     {
         $data = $request->all();
-        $filteredConsumables = [];
-
-
-
-        $segment = MstrMaterial::with(['masterLineGroup.group', 'masterLineGroup.leader', 'masterLineGroup.section', 'masterLineGroup.pjStock'])
-            ->findOrFail($request->idMt);
-
 
 
         // dd($segment->masterLineGroup->leader->npk);
@@ -49,44 +43,51 @@ class TransactionController extends Controller
                 unset($data[$key]);
             }
         }
-        // Output array setelah item dengan quantity 0 dihapus
 
 
-        // Cek jika consumables ada dalam request
-        foreach ($data as $key => $value) {
-            // Pastikan key adalah consumables dan memiliki quantity
-            if (strpos($key, 'consumables') !== false && isset($value['quantity']) && $value['quantity'] > 0) {
-                // Simpan consumable yang quantity-nya lebih besar dari 0
-                $filteredConsumables[$key] = $value;
-            }
+
+        $segment = MstrLine::with(['lineGroup.group', 'lineGroup.leader', 'lineGroup.section', 'lineGroup.pjStock'])
+            ->findOrFail($request->idMt);
+
+
+
+
+
+
+        $generate = GenerateCustomID($segment->lineGroup->group->Gr_segment);
+
+
+
+        $filteredData = array_filter($data, function ($consumable) {
+            return is_array($consumable) && isset($consumable['quantity']) && $consumable['quantity'] > 0;
+        });
+
+        if (empty($filteredData)) {
+            Alert::error('Warning', "Quantity Consumable is Empty");
+            return redirect()->back();
         }
-
-        $generate = GenerateCustomID($segment->masterLineGroup->group->Gr_segment);
-
-
 
 
 
         // Output hasil setelah filter
-        foreach ($filteredConsumables as $key => $consumable) {
+        foreach ($filteredData as $key => $consumable) {
 
-            // // Cek apakah quantity lebih dari 0
-            // if ($consumable['quantity'] > 0) {
-            //     // Lakukan sesuatu dengan data consumable
-            //     echo "ID: " . $consumable['id'] . " - Quantity: " . $consumable['quantity'] . "\n";
-            // }
+
+
             try {
                 $requestId = MstrAppr::create([
                     'no_order' => $generate,
                     'ConsumableId' => $consumable['id'],
                     'jumlah' => $consumable['quantity'],
 
-                    'NpkDept' => $segment->masterLineGroup->leader->npk,
-                    'NpkSect' => $segment->masterLineGroup->section->npk,
-                    'NpkPj' => $segment->masterLineGroup->pjStock->npk ?: null,
+                    'NpkDept' => $segment->lineGroup->leader?->npk ?? null,
+
+                    'NpkSect' => $segment->lineGroup->section?->npk ?? null,
+                    'NpkPj' => $segment->lineGroup->pjStock?->npk ?? null,
                     'ApprDeptDate' => null,
                     'ApprPjStokDate' => null,
                     'ApprSectDate' => null,
+                    'lineFrom' => $segment->Ln_name,
                     'token' => Str::uuid()->toString()
 
                 ]);
@@ -95,8 +96,7 @@ class TransactionController extends Controller
 
 
 
-                if ($segment->masterLineGroup->section->noHp !== null) {
-
+                if (isset($segment->masterLineGroup->section)) {
 
                     SendWa($segment->masterLineGroup->section->noHp, $segment->masterLineGroup->section->name, $requestId->orderSegment->noOrder, $requestId->NpkSect, $requestId->token);
                 }
@@ -115,7 +115,7 @@ class TransactionController extends Controller
 
 
 
-        return redirect()->route('listLine');
+        return redirect()->route('listGroup');
 
 
 

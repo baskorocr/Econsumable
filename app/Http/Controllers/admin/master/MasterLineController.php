@@ -6,6 +6,7 @@ use Illuminate\Support\Str;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\MstrLine;
+use App\Models\MstrLineGroup;
 use Exception;
 use RealRashid\SweetAlert\Facades\Alert;
 
@@ -18,10 +19,12 @@ class MasterLineController extends Controller
     public function index(Request $request)
     {
         $search = $request->get('search', '');
-        $lines = MstrLine::where('Ln_name', 'like', '%' . $search . '%')
+        $lines = MstrLine::with('lineGroup')->where('Ln_name', 'like', '%' . $search . '%')
             ->paginate(10);
+        $lgs = MstrLineGroup::all();
 
-        return view('admin.master.lineMaster.index', compact('lines', 'search'));
+
+        return view('admin.master.lineMaster.index', compact('lines', 'lgs', 'search'));
     }
 
     /**
@@ -37,16 +40,23 @@ class MasterLineController extends Controller
      */
     public function store(Request $request)
     {
+        dd($request->all());
         // Validate the input to ensure it's an array of line names
         $request->validate([
             'nameLine' => 'required|array',
             'nameLine.*' => 'required|string|max:255',
+
+            'Lg_id' => 'required|array',
+            'Lg_id.*' => 'required|string|max:255',
         ]);
 
         // Loop through each name in the 'nameLine' array and create a new Line
         try {
-            foreach ($request->nameLine as $name) {
-                MstrLine::create(['Ln_name' => $name]);
+            foreach ($request->nameLine as $index => $name) {
+                MstrLine::create([
+                    'Ln_name' => $name,
+                    'Ln_lgId' => $request->Lg_id[$index] ?? null, // Mengambil Lg_id yang sesuai berdasarkan index
+                ]);
             }
             Alert::success('Add Success', 'Data Line added successfully');
 

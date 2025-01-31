@@ -7,6 +7,7 @@ use Exception;
 use Illuminate\Http\Request;
 use App\Models\MstrMaterial;
 use App\Models\MstrConsumable;
+use App\Models\MstrLineGroup;
 use RealRashid\SweetAlert\Facades\Alert;
 
 
@@ -20,19 +21,18 @@ class ConsumableController extends Controller
 
         $search = $request->input('search', '');
 
-        $consumables = MstrConsumable::with('material', 'material.masterLineGroup')
-            ->when($search, function ($query, $search) {
-                $query->where('Cb_desc', 'like', "%$search%")
-                    ->orWhereHas('material', function ($q) use ($search) {
-                        $q->where('Mt_desc', 'like', "%$search%");
-                    })->orWhereHas('material', function ($q) use ($search) {
-                        $q->where('Mt_number', 'like', "%$search%");
-                    });
+        $consumables = MstrConsumable::with('masterLineGroup')
+            ->when(!empty($search), function ($query) use ($search) {
+                $query->where('Cb_desc', 'like', '%' . $search . '%')
+                    ->orWhere('Cb_number', 'like', '%' . $search . '%');
             })
             ->paginate(20);
 
-        $materials = MstrMaterial::all();
-        return view('admin.master.consumables.index', compact('consumables', 'search', 'materials'));
+
+        $lgs = MstrLineGroup::all();
+
+
+        return view('admin.master.consumables.index', compact('consumables', 'lgs', 'search', ));
     }
 
     public function create()
@@ -45,11 +45,16 @@ class ConsumableController extends Controller
     {
 
 
+
         $request->validate([
             'Cb_number' => 'required|string|max:255|',
-            'Cb_mtId' => 'required|string',
+            'Cb_type' => 'required|string|max:255|',
+            'Cb_IO' => 'required|string|max:255|',
             'Cb_desc' => 'required|string',
+            'Cb_lgId' => 'required|string',
         ]);
+
+
 
         try {
             MstrConsumable::create($request->all());

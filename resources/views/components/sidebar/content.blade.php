@@ -38,10 +38,10 @@
             <x-sidebar.sublink title="Role" href="{{ route('Role.index') }}" :active="request()->routeIs('Role.index')" />
             <x-sidebar.sublink title="Cost Center" href="{{ route('Cost.index') }}" :active="request()->routeIs('Cost.index')" />
             <x-sidebar.sublink title="Group Segment" href="{{ route('Group.index') }}" :active="request()->routeIs('Group.index')" />
-            <x-sidebar.sublink title="Sloc" href="{{ route('Sloc.index') }}" :active="request()->routeIs('Sloc.index')" />
+            {{-- <x-sidebar.sublink title="Sloc" href="{{ route('Sloc.index') }}" :active="request()->routeIs('Sloc.index')" /> --}}
             {{-- <x-sidebar.sublink title="Type" href="{{ route('Type.index') }}" :active="request()->routeIs('Type.index')" /> --}}
             <x-sidebar.sublink title="Line Group" href="{{ route('LineGroup.index') }}" :active="request()->routeIs('LineGroup.index')" />
-            <x-sidebar.sublink title="Material" href="{{ route('Material.index') }}" :active="request()->routeIs('Material.index')" />
+            {{-- <x-sidebar.sublink title="Material" href="{{ route('Material.index') }}" :active="request()->routeIs('Material.index')" /> --}}
             <x-sidebar.sublink title="Consumable" href="{{ route('Consumable.index') }}" :active="request()->routeIs('Consumable.index')" />
             {{-- <x-sidebar.sublink title="Icon button" href="{{ route('buttons.icon') }}" :active="request()->routeIs('buttons.icon')" />
         <x-sidebar.sublink title="Text with icon" href="{{ route('buttons.text-icon') }}" :active="request()->routeIs('buttons.text-icon')" /> --}}
