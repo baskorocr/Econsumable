@@ -1,19 +1,12 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('List Approval') }}
+            {{ __('List SAP Status') }}
         </h2>
     </x-slot>
 
     <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
-        @if (auth()->user()->idRole == 4)
-            <div class="flex justify-between mb-4">
-                <a href="" id="openCreateModal"
-                    class="inline-block bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-white px-4 py-2 rounded-md">
-                    {{ __('SAP Report error') }}
-                </a>
-            </div>
-        @endif
+
 
         <div class="overflow-x-auto">
             <table class="table-auto min-w-full text-center text-sm">
@@ -40,47 +33,44 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
-                    @foreach ($apprs as $appr)
+                    @foreach ($status as $st)
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
                             <td style="width: 13rem; height: 4rem;" class="px-6 py-4 text-gray-700 dark:text-gray-300">
                                 <div>
-                                    {{ $appr->noOrder }}
+                                    {{ $st->noOrder }}
                                 </div>
                             </td>
                             <td style="width: 13rem; height: 4rem;" class="px-6 py-4 text-gray-700 dark:text-gray-300">
                                 <div>
-                                    {{ $appr->user->name }}
+                                    {{ $st->user->name }}
                                 </div>
                             </td>
                             <td class="px-6 py-4 text-gray-700 dark:text-gray-300">
                                 <div>
                                     <button
                                         class="inline-block bg-purple-500 hover:bg-purple-600 dark:bg-purple-600 dark:hover:bg-purple-700 text-white px-4 py-2 rounded-md open-modal-btn"
-                                        data-id="{{ $appr->_id }}">
+                                        data-id="{{ $st->_id }}">
                                         {{ __('open') }}
                                     </button>
                                 </div>
                             </td>
 
-                            @if (auth()->user()->role->id === 2 || auth()->user()->role->id === 3 || auth()->user()->role->id === 4)
-                                <td class="px-6 py-4 flex justify-center items-center space-x-4">
-                                    <a href="{{ route('approvalConfirmation.acc', $appr->_id) }}"
-                                        class="bg-yellow-500 hover:bg-yellow-600 dark:bg-yellow-600 dark:hover:bg-yellow-700 text-white px-4 py-2 rounded-md ">
-                                        {{ __('Approve') }}
-                                    </a>
-                                    <a href="{{ route('approvalConfirmation.reject', $appr->_id) }}"
-                                        class="bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-white px-4 py-2 rounded-md ">
-                                        {{ __('Reject') }}
-                                    </a>
-                                </td>
-                            @endif
+
+                            <td class="px-6 py-4 flex justify-center items-center space-x-4">
+                                <a href="{{ route('approvalConfirmation.acc', $st->_id) }}"
+                                    class="bg-yellow-500 hover:bg-yellow-600 dark:bg-yellow-600 dark:hover:bg-yellow-700 text-white px-4 py-2 rounded-md ">
+                                    {{ __('send') }}
+                                </a>
+
+                            </td>
+
                         </tr>
                     @endforeach
                 </tbody>
             </table>
         </div>
         <div class="mt-4">
-            {{ $apprs->links() }}
+            {{ $status->links() }}
         </div>
 
         <!-- Modal -->
@@ -120,7 +110,7 @@
             const tableBody = document.getElementById('mstrApprsTableBody');
 
             // Ensure apprData is an array
-            const apprData = @json($apprs).data; // Pass all $apprs data to JS
+            const apprData = @json($status).data; // Pass all $apprs data to JS
 
             // Function to open modal and populate data
             openModalButtons.forEach((button) => {

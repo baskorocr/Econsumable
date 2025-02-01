@@ -71,7 +71,7 @@
 
                                 const h2Desc = document.createElement('h2');
                                 h2Desc.classList.add('text-lg', 'text-white', 'font-semibold');
-                                h2Desc.textContent = material.Mt_desc;
+                                h2Desc.textContent = material.Ln_name;
 
                                 const h2Number = document.createElement('h2');
                                 h2Number.classList.add('text-lg', 'text-white',

@@ -70,7 +70,7 @@ Route::group(['middleware' => ['role:1,2,3,4,5'], 'prefix' => 'list'], function 
 
 });
 
-Route::get('/appr/{id}', [ApprovalController::class, 'apprNon'])->name('appr.show');
+Route::get('/appr/{id}/{token}', [ApprovalController::class, 'apprNon'])->name('appr.show');
 Route::post('/acc', [ApprovalController::class, 'accNon'])->name('acc');
 Route::post('/reject', [ApprovalController::class, 'rejectNon'])->name('reject');
 
@@ -82,6 +82,10 @@ Route::delete('/profile', [ProfileController::class, 'destroy'])->middleware(['r
 Route::get('/report', [ReportController::class, 'index'])->middleware(['role:1,2,3,4,5'])->name('index.report');
 Route::get('/get-lines', [ReportController::class, 'getLinesBySegment'])->middleware(['role:1,2,3,4,5'])->name('getLinesBySegment');
 
+Route::group(['middleware' => ['role:4'], 'prefix' => 'sap'], function () {
+    Route::get('/status', [ApprovalController::class, 'indexStatus'])->name('sap.status');
+
+});
 
 
 

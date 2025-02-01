@@ -5,9 +5,9 @@ use App\Models\orderSegment;
 use App\Models\User;
 
 
-function SendWa($nomer, $name, $requestId, $pembuat, $token)
+function SendWa($nomer, $name, $requestId, $pembuat, $token, $no)
 {
-    $approveLink = config('app.url') . ":8000/appr/{$token}";
+    $approveLink = config('app.url') . ":8000/appr/{$no}/{$token}";
     $date = date('l, d F Y');
     header('Access-Control-Allow-Origin: *');
 

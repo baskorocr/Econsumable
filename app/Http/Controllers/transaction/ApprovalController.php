@@ -5,6 +5,7 @@ namespace App\Http\Controllers\transaction;
 use App\Http\Controllers\Controller;
 use App\Models\MstrAppr;
 use App\Models\OrderSegment;
+use App\Models\SapFail;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -99,14 +100,37 @@ class ApprovalController extends Controller
 
     }
 
+    public function indexStatus()
+    {
+        // $status = SapFail::with('mstrApprs.consumable.masterLineGroup')
+        //     ->whereHas('mstrApprs.consumable.masterLineGroup', function ($q) {
+        //         $q->where('NpkPjStock', auth()->user()->npk);
+        //     })->get();
+        $status = OrderSegment::with(['mstrApprs.sapFails', 'mstrApprs.consumable.masterLineGroup', 'user'])
+            ->whereHas(
+                'mstrApprs.consumable.masterLineGroup',
+                function ($e) {
+                    $e->where('NpkPjStock', auth()->user()->npk);
+                }
+            )->whereHas(
+                'mstrApprs',
+                function ($e) {
+                    $e->where('status', 0);
+                }
+            )
+            ->paginate(20);
+
+        return view('transaction.sapStatus', compact('status'));
+    }
+
 
     public function acc($id)
     {
 
-
-
-
         $date = date('Y-m-d');
+        $temp = 0;
+        $message = [];
+
 
         try {
             $appr = MstrAppr::with([
@@ -114,8 +138,10 @@ class ApprovalController extends Controller
                 'consumable.masterLineGroup.group',
                 'consumable.masterLineGroup.leader',
                 'consumable.masterLineGroup.section',
+                'consumable.masterLineGroup.lines',
                 'consumable.masterLineGroup.pjStock'
             ])->where('no_order', $id)->get();
+
 
 
             foreach ($appr as $item) {
@@ -131,13 +157,14 @@ class ApprovalController extends Controller
 
                     ]);
 
-                    if ($a === true) {
+
+                    if ($a === true && $temp == 0) {
                         $noHp = $item->consumable->masterLineGroup->leader->noHp ?? null;
 
 
                         if ($noHp !== null) {
 
-                            SendWa($consumable->leader->noHp, $consumable->leader->name, $item->orderSegment->noOrder, $item->user->name, $item->token);
+                            SendWa($consumable->leader->noHp, $consumable->leader->name, $item->orderSegment->noOrder, $item->user->name, $item->token, $item->no_order);
 
                         }
 
@@ -159,7 +186,7 @@ class ApprovalController extends Controller
                         $noHp = $item->consumable->masterLineGroup->pjStock->noHp ?? null;
                         if ($noHp !== null) {
 
-                            SendWa($consumable->pjStock->noHp, $consumable->pjStock->name, $item->orderSegment->noOrder, $item->user->name, $item->token);
+                            SendWa($consumable->pjStock->noHp, $consumable->pjStock->name, $item->orderSegment->noOrder, $item->user->name, $item->token, $item->no_order);
                         }
 
                     }
@@ -168,18 +195,39 @@ class ApprovalController extends Controller
                 } elseif ($item->status == 3) {
 
 
-                    $a = $item->update([
-                        'status' => $item->status + 1,
-                        'token' => null,
-                        'ApprPjStokDate' => $date
-
-                    ]);
-                    $this->sapSend($item->no_order);
+                    $message = $this->sapSend($item->no_order);
 
 
+                    if ($message == 'SUCCESS') {
+                        $item->update([
+                            'status' => $item->status + 1,
+                            'token' => null,
+                            'ApprPjStokDate' => $date
+
+                        ]);
+                        SapFail::create([
+                            'idAppr' => $item->_id,
+                            'Desc_message' => $message
+                        ]);
+
+                    } else {
+                        $item->update([
+                            'status' => 0,
+                            'token' => null,
+                            'ApprPjStokDate' => $date
+
+                        ]);
+                        SapFail::create([
+                            'idAppr' => $item->_id,
+                            'Desc_message' => $message
+                        ]);
+
+                    }
                 }
 
             }
+
+
 
 
             Alert::success('Approve Success', 'Thanks for your have been Approved');
@@ -221,10 +269,14 @@ class ApprovalController extends Controller
         return redirect()->route('approvalConfirmation.index')->with('success', 'Approval successfully.');
     }
 
-    public function apprNon($id)
+    public function apprNon($id, $token)
     {
-        $appr = MstrAppr::where('token', $id)->first();
-        $appr = $appr->token;
+
+        $appr = MstrAppr::where('no_order', $id)->where('token', $token)->first();
+
+        if ($appr == null) {
+            abort(403, "token has expired");
+        }
         return view('transaction.confimation', compact('appr'));
 
     }
@@ -233,51 +285,56 @@ class ApprovalController extends Controller
     {
 
         $token = $request->input('token');
+        $no_order = $request->input('no_order');
         $date = date('Y-m-d');
 
         try {
-            $appr = MstrAppr::where('token', $token)->first();
+            $item = MstrAppr::where('no_order', $no_order)->where('token', $token)->get();
 
 
-            if ($appr->status == 1) {
-                $a = $appr->update([
-                    'status' => $appr->status + 1,
-                    'token' => Str::uuid()->toString(),
-                    'ApprSectDate' => $date
+            foreach ($item as $appr) {
+                if ($appr->status == 1) {
+                    $a = $appr->update([
+                        'status' => $appr->status + 1,
+                        'token' => Str::uuid()->toString(),
+                        'ApprSectDate' => $date
 
-                ]);
+                    ]);
 
 
-                if ($a === true || $appr->consumable->masterLineGroup->leader->noHp !== null) {
-                    SendWa($appr->consumable->masterLineGroup->leader->noHp, $appr->consumable->masterLineGroup->leader->name, $appr->orderSegment->noOrder, $appr->user->name, $appr->token);
+                    if ($a === true || $appr->consumable->masterLineGroup->leader->noHp !== null) {
+                        SendWa($appr->consumable->masterLineGroup->leader->noHp, $appr->consumable->masterLineGroup->leader->name, $appr->orderSegment->noOrder, $appr->user->name, $appr->token, $appr->no_order);
+                    }
+
+                } elseif ($appr->status == 2) {
+                    $a = $appr->update([
+                        'status' => $appr->status + 1,
+                        'token' => Str::uuid()->toString(),
+                        'ApprDeptDate' => $date
+
+                    ]);
+
+                    if ($a === true || $appr->consumable->masterLineGroup->leader->noHp !== null) {
+                        SendWa($appr->consumable->masterLineGroup->pjStock->noHp, $appr->consumable->masterLineGroup->leader->name, $appr->orderSegment->noOrder, $appr->user->name, $appr->token, $appr->no_order);
+                    }
+
+                } elseif ($appr->status == 3) {
+                    $a = $appr->update([
+                        'status' => $appr->status,
+                        'token' => null,
+                        'ApprPjStokDate' => $date
+
+                    ]);
+                    $this->sapSend($appr->no_order);
+
+
+
+
+
                 }
-
-            } elseif ($appr->status == 2) {
-                $a = $appr->update([
-                    'status' => $appr->status + 1,
-                    'token' => Str::uuid()->toString(),
-                    'ApprDeptDate' => $date
-
-                ]);
-
-                if ($a === true || $appr->consumable->masterLineGroup->leader->noHp !== null) {
-                    SendWa($appr->consumable->masterLineGroup->pjStock->noHp, $appr->consumable->masterLineGroup->leader->name, $appr->orderSegment->noOrder, $appr->user->name, $appr->token);
-                }
-
-            } elseif ($appr->status == 3) {
-                $a = $appr->update([
-                    'status' => $appr->status,
-                    'token' => null,
-                    'ApprPjStokDate' => $date
-
-                ]);
-                $this->sapSend($appr->no_order);
-
-
-
-
-
             }
+
+
 
             Alert::success('Approve Success', 'Thanks for your have been Approved');
 
@@ -294,13 +351,22 @@ class ApprovalController extends Controller
     public function rejectNon(Request $request)
     {
         $token = $request->input('token');
-        $appr = MstrAppr::where('token', $token)->first();
-        try {
-            $appr->update([
-                'status' => 0,
-                'token' => null
+        $no_order = $request->input('no_order');
 
-            ]);
+        try {
+
+            $item = MstrAppr::where('no_order', $no_order)->where('token', $token)->get();
+
+
+
+            foreach ($item as $appr) {
+                $appr->update([
+                    'status' => 0,
+                    'token' => null
+
+                ]);
+            }
+
             Alert::success('Reject Success', 'Request has been fully rejected');
 
         } catch (Exception $e) {
@@ -317,21 +383,21 @@ class ApprovalController extends Controller
     public function sapSend($noOrder)
     {
 
-        $approvals = MstrAppr::with([
+        $approval = MstrAppr::with([
             'orderSegment',
             'consumable.masterLineGroup' => function ($query) {
                 $query->with(['plan', 'costCenter', 'lines']);
             }
 
 
-        ])->where('status', 4)
+        ])->where('status', 3)
             ->where('no_order', $noOrder)
-            ->get();
+            ->first();
+
         // foreach ($approvals as $approval) {
         //     $approval->status = 3; // Set the status to 3
         //     $approval->save(); // Save each individual model
         // }
-
 
 
 
@@ -343,20 +409,22 @@ class ApprovalController extends Controller
 
 
 
-        foreach ($approvals as $approval) {
-            $sapPayload['LT_INPUT'][] = [
-                "MATERIAL" => $approval->consumable->Cb_number,
-                "PLANT_ASAL" => $approval->consumable->masterLineGroup->plan->Pl_code,
-                "SLOC_ASAL" => $approval->consumable->masterLineGroup->Lg_slocId,
-                "QUANTITY" => $approval->jumlah,
-                "SATUAN" => $approval->consumable->Cb_type, // Ubah ke satuan yang sesuai jika perlu
-                "COST_CENTER" => $approval->consumable->masterLineGroup->costCenter->Cs_code,
-                "ORDER_ORG" => $approval->orderSegment->noOrder,
-                "INTERNAL_ORDER" => $approval->consumable->Cb_IO,
-                "REASON" => $approval->lineFrom,
 
-            ];
-        }
+        $sapPayload['LT_INPUT'][] = [
+            "MATERIAL" => $approval->consumable->Cb_number,
+            "PLANT_ASAL" => $approval->consumable->masterLineGroup->plan->Pl_code,
+            "SLOC_ASAL" => $approval->consumable->masterLineGroup->Lg_slocId,
+            "QUANTITY" => $approval->jumlah,
+            "SATUAN" => $approval->consumable->Cb_type, // Ubah ke satuan yang sesuai jika perlu
+            "COST_CENTER" => $approval->consumable->masterLineGroup->costCenter->Cs_code,
+            "ORDER_ORG" => $approval->orderSegment->noOrder,
+            "INTERNAL_ORDER" => $approval->consumable->Cb_IO,
+            "REASON" => $approval->lineFrom,
+
+        ];
+
+
+
 
 
 
@@ -371,7 +439,7 @@ class ApprovalController extends Controller
             ], 400);
         }
 
-        dd($sapPayload);
+
 
         // URL API SAP
         $sapApiUrl = "http://erpqas-dp.dharmap.com:8001/sap/zapi/ZMM_GI_SCRAP?sap-client=300";
@@ -393,11 +461,11 @@ class ApprovalController extends Controller
             // Mengambil respons dari API SAP
             $responseBody = json_decode($response->getBody(), true);
 
-            dd($responseBody);
-            return response()->json([
-                'success' => true,
-                'data' => $responseBody,
-            ]);
+            if ($responseBody['lt_message'][0]['message_gi'] === 'SUCCESS') {
+                return 'SUCCESS';
+            } else {
+                return $responseBody['lt_message'][0]['message_gi'];
+            }
 
         } catch (\Exception $e) {
             // Menangani error

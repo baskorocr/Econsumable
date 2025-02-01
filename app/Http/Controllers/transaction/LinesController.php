@@ -37,22 +37,24 @@ class LinesController extends Controller
         return view('transaction.line', compact('lg', 'id'));
     }
 
-    public function searchMaterial($search, $id)
+    public function searchMaterial(Request $request)
     {
 
-        dd($search);
-        // $search = $request->input('search');
-        // $id = $request->input('id'); // Ambil 'id' dari request
+
+
+        $search = $request->input('search');
+        $id = $request->input('id'); // Ambil 'id' dari request
+
 
         if (empty($search)) {
             // Jika tidak ada pencarian, ambil semua material berdasarkan mt_lgId
-            $materials = MstrMaterial::where('mt_lgId', $id)->get();
+            $materials = MstrLine::where('Ln_lgId', $id)->get();
         } else {
             // Jika ada pencarian, filter berdasarkan mt_number
-            $materials = MstrMaterial::where('mt_lgId', $id)
+            $materials = MstrLine::where('Ln_lgId', $id)
                 ->where(function ($query) use ($search) {
-                    $query->whereRaw('LOWER(mt_number) like ?', ['%' . strtolower($search) . '%'])
-                        ->orWhereRaw('MT_desc like ?', ['%' . strtolower($search) . '%']);
+                    $query->whereRaw('LOWER(Ln_name) like ?', ['%' . strtolower($search) . '%'])
+                        ->orWhereRaw('Ln_lgId like ?', ['%' . strtolower($search) . '%']);
                 })
                 ->get();
         }
@@ -112,7 +114,7 @@ class LinesController extends Controller
                 where(function ($query) use ($search) {
                     $query->where('Cb_number', 'like', '%' . $search . '%')
                         ->orWhere('Cb_desc', 'like', '%' . $search . '%');
-                })
+                })->limit(40)
                 ->get();
 
 
@@ -178,11 +180,18 @@ class LinesController extends Controller
     {
         $search = $request->input('search');
 
-        $lines = MstrLineGroup::with('group', 'line')
-            ->whereHas('group', function ($query) use ($search) {
-                $query->where('Gr_name', 'like', '%' . $search . '%');
-            })
-            ->get();
+
+        if (empty($search)) {
+            $lines = MstrLineGroup::with('group', 'lines')->get();
+
+        } else {
+            $lines = MstrLineGroup::with('group', 'lines')
+                ->whereHas('group', function ($query) use ($search) {
+                    $query->where('Gr_name', 'like', '%' . $search . '%');
+                })
+                ->get();
+        }
+
 
         return response()->json($lines);
     }

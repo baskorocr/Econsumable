@@ -49,11 +49,6 @@ class TransactionController extends Controller
         $segment = MstrLine::with(['lineGroup.group', 'lineGroup.leader', 'lineGroup.section', 'lineGroup.pjStock'])
             ->findOrFail($request->idMt);
 
-
-
-
-
-
         $generate = GenerateCustomID($segment->lineGroup->group->Gr_segment);
 
 
@@ -98,7 +93,7 @@ class TransactionController extends Controller
 
                 if (isset($segment->masterLineGroup->section)) {
 
-                    SendWa($segment->masterLineGroup->section->noHp, $segment->masterLineGroup->section->name, $requestId->orderSegment->noOrder, $requestId->NpkSect, $requestId->token);
+                    SendWa($segment->masterLineGroup->section->noHp, $segment->masterLineGroup->section->name, $requestId->orderSegment->noOrder, $requestId->NpkSect, $requestId->token, $requestId->no_order);
                 }
 
                 Alert::success('Transaction Success', 'Approval application is in progress, please check your dashboard periodically');

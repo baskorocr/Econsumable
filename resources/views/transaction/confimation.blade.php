@@ -18,7 +18,8 @@
         <div class="mt-8 flex justify-around">
             <form method="POST" action="{{ route('acc') }}">
                 @csrf
-                <input type="hidden" name="token" value="{{ $appr }}">
+                <input type="hidden" name="token" value="{{ $appr->token ?? '' }}">
+                <input type="hidden" name="no_order" value="{{ $appr->no_order }}">
                 <button type="submit" class="px-4 py-2 bg-green-500 text-white font-bold rounded hover:bg-green-600">
                     Approve
                 </button>

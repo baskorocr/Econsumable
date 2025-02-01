@@ -8,17 +8,17 @@ use Illuminate\Database\Eloquent\Model;
 class SapFail extends Model
 {
     use HasFactory;
-    protected $table = 'sap_fails';
+    protected $table = 'sap_status';
     protected $primaryKey = '_id';
 
     public $incrementing = false;
     protected $keyType = 'string';
 
     protected $fillable = [
-        'idCb',
+
         'idAppr',
-        'Code',
-        'Desc_fails'
+
+        'Desc_message'
 
     ];
 
@@ -28,7 +28,7 @@ class SapFail extends Model
         return $this->belongsTo(MstrConsumable::class, 'idCb', '_id');
     }
 
-    public function appr()
+    public function mstrApprs()
     {
         return $this->belongsTo(MstrAppr::class, 'idAppr', '_id');
     }

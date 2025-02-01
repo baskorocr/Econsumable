@@ -43,6 +43,7 @@
                 fetch(`{{ route('line.search') }}?search=${search}`)
                     .then(response => response.json())
                     .then(data => {
+                        console.log(data);
                         lineList.innerHTML = '';
 
                         if (data.length === 0) {
@@ -65,7 +66,7 @@
 
                                 const h2 = document.createElement('h2');
                                 h2.classList.add('text-lg', 'text-white', 'font-semibold');
-                                h2.textContent = line.line.Ln_name;
+                                h2.textContent = line.lines.Ln_name;
 
                                 const h5 = document.createElement('h5');
                                 h5.classList.add('text-lg', 'text-white', 'font-semibold');
