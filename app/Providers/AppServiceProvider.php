@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use App\Models\MstrAppr;
+use App\Models\OrderSegment;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\View;
 
@@ -24,7 +25,9 @@ class AppServiceProvider extends ServiceProvider
     {
         View::composer('*', function ($view) {
             $apprs = $this->count();
+            $orderSegments = $this->countOrderSegments();
             $view->with('apprCount', $apprs);
+            $view->with('orderSegmentCount', $orderSegments);
         });
     }
 
@@ -52,6 +55,32 @@ class AppServiceProvider extends ServiceProvider
         }
 
         return $apprs;
+    }
+
+    public function countOrderSegments(): int
+    {
+        $orderSegmentCount = 0;
+
+        // Pastikan auth()->user() tersedia sebelum mengaksesnya
+        if (auth()->check()) {
+            // Query untuk menghitung jumlah OrderSegment
+            $orderSegmentCount = OrderSegment::with([
+                'mstrApprs.sapFails' => function ($query) {
+                    $query->where('Desc_message', '!=', 'success');
+                },
+                'mstrApprs.consumable.masterLineGroup',
+                'user'
+            ])
+                ->whereHas('mstrApprs.sapFails', function ($query) {
+                    $query->where('Desc_message', '!=', 'success');
+                })
+                ->whereHas('mstrApprs.consumable.masterLineGroup', function ($query) {
+                    $query->where('NpkPjStock', auth()->user()->npk);
+                })
+                ->count();
+        }
+
+        return $orderSegmentCount;
     }
 
 }

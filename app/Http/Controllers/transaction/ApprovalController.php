@@ -48,6 +48,7 @@ class ApprovalController extends Controller
 
 
         } elseif (auth()->user()->idRole == '3') {
+
             $apprs = OrderSegment::with(['mstrApprs.consumable.masterLineGroup'])
                 ->whereHas('mstrApprs', function ($q) {
                     $q->where('NpkDept', auth()->user()->npk)->where('status', 2);
@@ -62,6 +63,7 @@ class ApprovalController extends Controller
             // )->where('NpkDept', auth()->user()->npk)->paginate(20);
 
         } elseif (auth()->user()->idRole == '4') {
+
             $apprs = OrderSegment::with(['mstrApprs.consumable.masterLineGroup'])
                 ->whereHas('mstrApprs', function ($q) {
                     $q->where('NpkPj', auth()->user()->npk)->where('status', 3);
@@ -102,23 +104,35 @@ class ApprovalController extends Controller
 
     public function indexStatus()
     {
-        // $status = SapFail::with('mstrApprs.consumable.masterLineGroup')
-        //     ->whereHas('mstrApprs.consumable.masterLineGroup', function ($q) {
-        //         $q->where('NpkPjStock', auth()->user()->npk);
-        //     })->get();
-        $status = OrderSegment::with(['mstrApprs.sapFails', 'mstrApprs.consumable.masterLineGroup', 'user'])
-            ->whereHas(
-                'mstrApprs.consumable.masterLineGroup',
-                function ($e) {
-                    $e->where('NpkPjStock', auth()->user()->npk);
-                }
-            )->whereHas(
-                'mstrApprs',
-                function ($e) {
-                    $e->where('status', 0);
-                }
-            )
-            ->paginate(20);
+
+        // $status = OrderSegment::with(['mstrApprs.sapFails', 'mstrApprs.consumable.masterLineGroup', 'user'])
+        //     ->whereHas(
+        //         'mstrApprs.consumable.masterLineGroup',
+        //         function ($e) {
+        //             $e->where('NpkPjStock', auth()->user()->npk);
+        //         }
+        //     )->whereHas(
+        //         'mstrApprs',
+        //         function ($e) {
+        //             $e->where('status', 0);
+        //         }
+        //     )->whereHas('mstrApprs.sapFails', function ($e) {
+        //         $e->where('Desc_message', 'FAILED');
+        //     })
+        //     ->get();
+
+        $status = OrderSegment::with([
+            'mstrApprs.sapFails' => function ($query) {
+                $query->where('Desc_message', '!=', 'success');
+            },
+            'mstrApprs.consumable.masterLineGroup',
+            'user'
+        ])->whereHas('mstrApprs.sapFails', function ($query) {
+            $query->where('Desc_message', '!=', 'success');
+        })->whereHas('mstrApprs.consumable.masterLineGroup', function ($query) {
+            $query->where('NpkPjStock', auth()->user()->npk);
+        })->paginate(20);
+
 
         return view('transaction.sapStatus', compact('status'));
     }

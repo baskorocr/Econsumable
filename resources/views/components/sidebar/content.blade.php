@@ -1,11 +1,18 @@
 <x-perfect-scrollbar as="nav" aria-label="main" class="flex flex-col flex-1 gap-4 px-3">
 
-
-    <x-sidebar.link title="Dashboard" href="{{ route('Admin.dashboard') }}" :isActive="request()->routeIs('Admin.dashboard')">
-        <x-slot name="icon">
-            <x-icons.dashboard class="flex-shrink-0 w-6 h-6" aria-hidden="true" />
-        </x-slot>
-    </x-sidebar.link>
+    @if (auth()->user()->role->id === 1 || auth()->user()->role->id === 2 || auth()->user()->role->id === 3)
+        <x-sidebar.link title="Dashboard" href="{{ route('Admin.dashboard') }}" :isActive="request()->routeIs('Admin.dashboard')">
+            <x-slot name="icon">
+                <x-icons.dashboard class="flex-shrink-0 w-6 h-6" aria-hidden="true" />
+            </x-slot>
+        </x-sidebar.link>
+    @else
+        <x-sidebar.link title="Dashboard" href="{{ route('page.dashboard') }}" :isActive="request()->routeIs('page.dashboard')">
+            <x-slot name="icon">
+                <x-icons.dashboard class="flex-shrink-0 w-6 h-6" aria-hidden="true" />
+            </x-slot>
+        </x-sidebar.link>
+    @endif
 
     @if (auth()->user()->role->id === 1 || auth()->user()->role->id === 5)
         <x-sidebar.link title="Create E-Consumable" href="{{ route('listGroup') }}" :isActive="request()->routeIs(' listGroup')">
@@ -66,6 +73,15 @@
             <x-fas-file-signature class="flex-shrink-0 w-6 h-6" aria-hidden="true" />
         </x-slot>
     </x-sidebar.link>
+    <x-sidebar.link title="SAP Error {{ $orderSegmentCount }}" href="{{ route('sap.status') }}" :isActive="request()->routeIs('sap.status')"
+        class="bg-red-500 text-white hover:bg-red-600 {{ request()->routeIs('sap.status') ? 'bg-red-700' : '' }}">
+
+        <x-slot name="icon">
+            <x-fas-file-signature class="flex-shrink-0 w-6 h-6" aria-hidden="true" />
+        </x-slot>
+    </x-sidebar.link>
+
+
 
 
 

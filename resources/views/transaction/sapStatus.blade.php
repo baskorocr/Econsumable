@@ -7,7 +7,6 @@
 
     <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
 
-
         <div class="overflow-x-auto">
             <table class="table-auto min-w-full text-center text-sm">
                 <thead class="bg-gray-100 dark:bg-gray-700">
@@ -24,12 +23,7 @@
                             class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             {{ __('Detail Approval') }}
                         </th>
-                        @if (auth()->user()->role->id === 2 || auth()->user()->role->id === 3 || auth()->user()->role->id === 4)
-                            <th
-                                class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                {{ __('Actions') }}
-                            </th>
-                        @endif
+
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
@@ -49,19 +43,10 @@
                                 <div>
                                     <button
                                         class="inline-block bg-purple-500 hover:bg-purple-600 dark:bg-purple-600 dark:hover:bg-purple-700 text-white px-4 py-2 rounded-md open-modal-btn"
-                                        data-id="{{ $st->_id }}">
+                                        data-id="{{ $st->_id }}" data-no-order="{{ $st->noOrder }}">
                                         {{ __('open') }}
                                     </button>
                                 </div>
-                            </td>
-
-
-                            <td class="px-6 py-4 flex justify-center items-center space-x-4">
-                                <a href="{{ route('approvalConfirmation.acc', $st->_id) }}"
-                                    class="bg-yellow-500 hover:bg-yellow-600 dark:bg-yellow-600 dark:hover:bg-yellow-700 text-white px-4 py-2 rounded-md ">
-                                    {{ __('send') }}
-                                </a>
-
                             </td>
 
                         </tr>
@@ -97,86 +82,112 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Send Form -->
+                <div class="px-6 py-4 border-t">
+                    <form action="" method="POST">
+                        @csrf
+                        <input type="hidden" name="order_id" id="order_id">
+                        <input type="hidden" name="no_order" id="no_order">
+                        <!-- You can add more hidden fields for necessary data -->
+                        <button type="submit"
+                            class="bg-yellow-500 hover:bg-yellow-600 dark:bg-yellow-600 dark:hover:bg-yellow-700 text-white px-4 py-2 rounded-md w-full">
+                            {{ __('Resend') }}
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Find all open modal buttons
             const openModalButtons = document.querySelectorAll('.open-modal-btn');
+            const openSendFormButtons = document.querySelectorAll('.open-send-form-btn');
             const modal = document.getElementById('mstrApprsModal');
             const closeModalButton = document.getElementById('closeMstrApprsModal');
             const tableBody = document.getElementById('mstrApprsTableBody');
+            const orderIdInput = document.getElementById('order_id');
+            const noOrderInput = document.getElementById('no_order');
 
             // Ensure apprData is an array
             const apprData = @json($status).data; // Pass all $apprs data to JS
 
-            // Function to open modal and populate data
+            // Open modal and populate data
             openModalButtons.forEach((button) => {
                 button.addEventListener('click', function() {
-                    const apprId = button.getAttribute('data-id'); // Get the id of the appr
-                    const appr = apprData.find(item => item._id ===
-                        apprId); // Find the appr data by id
+                    const apprId = button.getAttribute('data-id');
+                    const appr = apprData.find(item => item._id === apprId);
 
-                    console.log(appr);
                     if (appr) {
-                        // Access the mstr_apprs array
-                        const mstrApprs = appr.mstr_apprs; // This is an array
+                        const mstrApprs = appr.mstr_apprs;
 
-                        // Check if mstr_apprs is not empty and populate the modal with its data
                         if (mstrApprs.length > 0) {
                             let rows = '';
                             mstrApprs.forEach(item => {
-                                // Access consumable data
-                                const consumable = item.consumable;
-                                let statusDisplay;
-                                switch (item.status) {
-                                    case 1:
-                                        statusDisplay = 'Waiting for approval';
-                                        break;
-                                    case 2:
-                                    case 3:
-                                        statusDisplay = 'Partially approved';
-                                        break;
-                                    case 4:
-                                        statusDisplay = 'Fully approved';
-                                        break;
-                                    default:
-                                        statusDisplay =
-                                            'Unknown status'; // Fallback for any unexpected status
-                                }
 
-                                // Generate a row for each mstr_apprs item, including consumable data
-                                rows += `
-                                <tr>
-                                    <td class="px-4 py-2">${appr.noOrder}</td>
-                                    
-                                    <td class="px-4 py-2">${consumable.Cb_desc}</td>
-                                    <td class="px-4 py-2">${item.jumlah}</td>
-                                    <td class="px-4 py-2">${statusDisplay}</td>
-                                </tr>
-                            `;
+
+                                if (item.sap_fails && item.sap_fails.length > 0) {
+                                    console.log(item.sap_fails[0].Desc_message);
+                                    const consumable = item.consumable;
+                                    let statusDisplay;
+                                    switch (item.status) {
+                                        case 1:
+                                            statusDisplay = 'Waiting for approval';
+                                            break;
+                                        case 2:
+                                        case 3:
+                                            statusDisplay = 'Partially approved';
+                                            break;
+                                        case 4:
+                                            statusDisplay = 'Fully approved';
+                                            break;
+                                        default:
+                                            statusDisplay = item.sap_fails[0].Desc_message;
+                                    }
+
+                                    rows += `
+                                    <tr>
+                                        <td class="px-4 py-2">${appr.noOrder}</td>
+                                        <td class="px-4 py-2">${consumable.Cb_desc}</td>
+                                        <td class="px-4 py-2">${item.jumlah}</td>
+                                        <td class="px-4 py-2">${statusDisplay}</td>
+                                    </tr>
+                                    `;
+                                }
                             });
-                            tableBody.innerHTML = rows; // Add the rows to the modal's table body
+
+
+                            tableBody.innerHTML = rows;
+
                         } else {
                             tableBody.innerHTML =
-                                `<tr><td colspan="5" class="px-4 py-2 text-center">No data available</td></tr>`;
+                                `<tr><td colspan="4" class="px-4 py-2 text-center">No data available</td></tr>`;
                         }
 
-                        modal.classList.remove('hidden'); // Show the modal
-                    } else {
-                        console.error('Data not found for the selected ID');
+                        modal.classList.remove('hidden');
                     }
                 });
             });
 
-            // Close the modal when clicking the close button
+            // Open send form and populate data
+            openSendFormButtons.forEach((button) => {
+                button.addEventListener('click', function() {
+                    const apprId = button.getAttribute('data-id');
+                    const appr = apprData.find(item => item._id === apprId);
+
+                    if (appr) {
+                        orderIdInput.value = appr._id;
+                        noOrderInput.value = appr.noOrder;
+                    }
+                });
+            });
+
+            // Close modal
             closeModalButton.addEventListener('click', function() {
-                modal.classList.add('hidden'); // Hide the modal
+                modal.classList.add('hidden');
             });
         });
     </script>
-
 
 </x-app-layout>
