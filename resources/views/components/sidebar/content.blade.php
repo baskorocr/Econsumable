@@ -81,10 +81,9 @@
             </x-slot>
 
             <x-sidebar.sublink class="bg-red-500 text-white hover:bg-red-800"
-                title="SAP Error ({{ $orderSegmentCount }})" href="{{ route('MasterLine.index') }}"
-                :isActive="request()->routeIs('sap.status')" />
+                title="SAP Error ({{ $orderSegmentCount }})" href="{{ route('sap.status') }}" :isActive="request()->routeIs('sap.status')" />
             <x-sidebar.sublink class="bg-green-500 text-white hover:bg-green-800"
-                title="SSR ({{ $orderSegmentCount }})" href="{{ route('MasterLine.index') }}" :isActive="request()->routeIs('sap.status')" />
+                title="SSR ({{ $orderSegmentCount }})" href="{{ route('sap.status') }}" :isActive="request()->routeIs('sap.status')" />
 
 
         </x-sidebar.dropdown>
