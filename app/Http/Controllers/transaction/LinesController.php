@@ -42,6 +42,7 @@ class LinesController extends Controller
 
 
 
+
         $search = $request->input('search');
         $id = $request->input('id'); // Ambil 'id' dari request
 
@@ -73,6 +74,7 @@ class LinesController extends Controller
 
 
 
+
         // $consumables = MstrConsumable::with(['material.masterLineGroup.plan', 'material.masterLineGroup.costCenter']) // Muat relasi hingga masterLineGroup
         //     ->where('Cb_mtId', $material)->get();
         // $materials = MstrConsumable::with(['masterLineGroup.plan', 'masterLineGroup.costCenter', 'masterLineGroup.lines'])
@@ -88,7 +90,7 @@ class LinesController extends Controller
         //     dd($material->masterLineGroup->lines);
         // }
 
-        $materials = MstrLine::with(['lineGroup.plan', 'lineGroup.costCenter', 'lineGroup.consumable'])->where('_id', $material)->first();
+        $materials = MstrLine::with(['lineGroup.plan', 'lineGroup.costCenter', 'lineGroup.consumable'])->where('_id', $material)->where('Ln_lgId', $lines)->first();
 
 
 
@@ -106,15 +108,25 @@ class LinesController extends Controller
 
 
         $id = $request->input('id');
+        $lg = $request->input('lnGroup');
+
+
+
 
         if (empty($search)) {
             $materials = [];
         } else {
-            $materials = MstrConsumable::
-                where(function ($query) use ($search) {
+            $materials = MstrConsumable::with([
+                'masterLineGroup.lines' => function ($query) use ($id) {
+                    $query->where('_id', $id);
+                }
+            ])
+                ->where(function ($query) use ($search) {
                     $query->where('Cb_number', 'like', '%' . $search . '%')
                         ->orWhere('Cb_desc', 'like', '%' . $search . '%');
-                })->limit(40)
+                })
+                ->where('Cb_lgId', $lg) // Ensure $lg is properly defined
+                ->limit(40)
                 ->get();
 
 

@@ -8,7 +8,10 @@ use Illuminate\Http\Request;
 use App\Models\MstrMaterial;
 use App\Models\MstrConsumable;
 use App\Models\MstrLineGroup;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\MstrMaterialImport;
 use RealRashid\SweetAlert\Facades\Alert;
+
 
 
 class ConsumableController extends Controller
@@ -34,6 +37,8 @@ class ConsumableController extends Controller
 
         return view('admin.master.consumables.index', compact('consumables', 'lgs', 'search', ));
     }
+
+
 
     public function create()
     {
@@ -124,5 +129,42 @@ class ConsumableController extends Controller
         }
 
         return redirect()->route('Consumable.index')->with('success', 'Consumable deleted successfully.');
+    }
+
+    public function uploadExcel(Request $request)
+    {
+
+
+        $request->validate([
+            'excelFile' => 'required|file|mimes:xlsx,xls'
+        ]);
+
+
+
+        try {
+            // Import data
+            $import = new MstrMaterialImport;
+            Excel::import($import, $request->file('excelFile'));
+
+            // Get the status messages
+            $statusMessages = $import->getStatusMessages();
+
+            // Log the status messages
+            \Log::info('Import status: ' . json_encode($statusMessages));
+
+            // Check if all rows were successfully imported
+            $allSuccessful = !in_array(false, $statusMessages, true);
+
+
+            if ($allSuccessful) {
+                Alert::success('Success', 'Upload Consumable successfully.');
+                return back()->with('success', 'Data Excel berhasil diimpor.');
+            } else {
+                return back()->with('warning', 'Data Excel sebagian berhasil diimpor. Periksa log untuk detail.');
+            }
+        } catch (\Exception $e) {
+            \Log::error('Error during import: ' . $e->getMessage());
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
     }
 }

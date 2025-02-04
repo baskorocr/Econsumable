@@ -201,14 +201,17 @@
             const modalContent = document.getElementById('modalContent');
             const closeModalButton = document.getElementById('closeModal');
             const modalForm = document.getElementById('modalForm');
-
+            const urlPath = window.location.pathname.split('/'); // Memisahkan URL berdasarkan /
+            const transactionId = urlPath[2];
+            console.log(transactionId);
             // Search functionality
             searchInput.addEventListener('input', function() {
                 const search = this.value.toLowerCase();
                 let id = '{{ $id }}';
 
                 if (search !== '') {
-                    fetch(`{{ route('consumable.search') }}?search=${search}&id=${id}`)
+                    fetch(
+                            `{{ route('consumable.search') }}?search=${search}&id=${id}&lnGroup=${transactionId}`)
                         .then(response => response.json())
                         .then(data => {
                             modalContent.innerHTML = ''; // Clear previous modal content
@@ -259,7 +262,7 @@
                                     plusButton.type = 'button';
                                     plusButton.classList.add('bg-green-500', 'text-white',
                                         'px-4', 'py-2', 'rounded-full', 'hover:bg-green-600'
-                                        );
+                                    );
                                     plusButton.textContent = '+';
                                     quantityDiv.appendChild(plusButton);
 
@@ -272,21 +275,21 @@
 
                                     // Add hidden input for consumable ID and quantity
                                     const consumableIndex =
-                                    `consumables${index + 1}`; // Use index to generate unique name for each consumable
+                                        `consumables${index + 1}`; // Use index to generate unique name for each consumable
 
                                     const hiddenQuantityInput = document.createElement('input');
                                     hiddenQuantityInput.type = 'hidden';
                                     hiddenQuantityInput.name = `${consumableIndex}[id]`;
                                     hiddenQuantityInput.value = item
-                                    ._id; // ID of the consumable
+                                        ._id; // ID of the consumable
                                     modalForm.appendChild(hiddenQuantityInput);
 
                                     const hiddenQuantitysInput = document.createElement(
-                                    'input');
+                                        'input');
                                     hiddenQuantitysInput.type = 'hidden';
                                     hiddenQuantitysInput.name = `${consumableIndex}[Cb_number]`;
                                     hiddenQuantitysInput.value = item
-                                    .Cb_number; // Cb_number of the consumable
+                                        .Cb_number; // Cb_number of the consumable
                                     modalForm.appendChild(hiddenQuantitysInput);
 
                                     const hiddenQuantityValueInput = document.createElement(
@@ -295,7 +298,7 @@
                                     hiddenQuantityValueInput.name =
                                         `${consumableIndex}[quantity]`;
                                     hiddenQuantityValueInput.value = quantityInput
-                                    .value; // Dynamically set initial value
+                                        .value; // Dynamically set initial value
                                     console.log('Initial Hidden Quantity:',
                                         hiddenQuantityValueInput.value); // Debugging
                                     modalForm.appendChild(hiddenQuantityValueInput);

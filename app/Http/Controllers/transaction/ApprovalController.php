@@ -80,16 +80,25 @@ class ApprovalController extends Controller
         } elseif (auth()->user()->idRole == '5') {
 
 
-            // $apprs = OrderSegment::with(['mstrApprs.consumable.material.masterLineGroup'])
-            //     ->whereHas('mstrApprs', function ($q) {
-            //         $q->where('status', 4);
-            //     })
-            //     ->when($search, function ($query, $search) {
-            //         $query->where('noOrder', 'like', "%$search%");
-            //     })
-            //     ->where('NpkUser', auth()->user()->npk)->paginate(20);
+            $apprs = OrderSegment::with(['mstrApprs.consumable.masterLineGroup'])->where('NpkUser', auth()->user()->npk)
+
+                ->when($search, function ($query, $search) {
+                    $query->where('noOrder', 'like', "%$search%");
+                })
+                ->paginate(20);
 
 
+
+        } else {
+
+            dd("dsadsa");
+            $apprs = OrderSegment::with(['mstrApprs.consumable.masterLineGroup'])
+
+                ->when($search, function ($query, $search) {
+                    $query->where('noOrder', 'like', "%$search%");
+                })
+                ->get();
+            dd($apprs);
 
         }
 

@@ -56,7 +56,7 @@ Route::group(['middleware' => ['role:1,2,3'], 'prefix' => 'AdminMaster'], functi
     // Route::resource('/Material', MaterialController::class);
     Route::resource('/Consumable', ConsumableController::class);
     Route::get('/download-template', [MaterialController::class, 'downloadTemplate'])->name('download.file');
-    Route::post('/upload-excel', [MaterialController::class, 'uploadExcel'])->name('upload.excel');
+    Route::post('/upload-excel', [ConsumableController::class, 'uploadExcel'])->name('upload.excel');
     Route::get('/line/search', [LinesController::class, 'search'])->name('line.search');
     Route::get('/material/search', [LinesController::class, 'searchMaterial'])->name('material.search');
     Route::get('/consumable/search', [LinesController::class, 'searchConsumable'])->name('consumable.search');

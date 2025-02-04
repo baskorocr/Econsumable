@@ -7,10 +7,17 @@
 
     <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
         <div class="flex justify-between mb-4">
-            <button id="openCreateModal"
-                class="inline-block bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white px-4 py-2 rounded-md">
-                {{ __('Add New Consumable') }}
-            </button>
+            <div class="flex flex-wrap items-center space-x-4 md:space-x-6">
+                <button id="openCreateModal"
+                    class="inline-block bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white px-4 py-2 rounded-md">
+                    {{ __('Add New Consumable') }}
+                </button>
+                <button id="openUploadModal"
+                    class="inline-block bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-4 py-2 rounded-md">
+                    {{ __('Upload Excel') }}
+                </button>
+            </div>
+
 
             <!-- Search Input -->
             <input type="text" id="searchInput" value="{{ $search }}" placeholder="Search by name"
@@ -77,6 +84,43 @@
         <!-- Pagination Links -->
         <div class="mt-4">
             {{ $consumables->links() }}
+        </div>
+    </div>
+    <div id="uploadExcelModal" class="fixed inset-0 bg-gray-500 bg-opacity-50 hidden flex justify-center items-center">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-96">
+            <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">{{ __('Upload Excel File') }}</h2>
+
+            <div class="mb-4">
+                <a href="{{ route('download.file') }}"
+                    class="bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white px-6 py-2 rounded-md">
+                    {{ __('Download Template') }}
+                </a>
+            </div>
+            <form id="uploadExcelForm" method="POST" action="{{ route('upload.excel') }}"
+                enctype="multipart/form-data">
+                @csrf
+                <div class="space-y-4">
+                    <div>
+                        <label for="excelFile"
+                            class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Select File') }}</label>
+                        <input type="file" name="excelFile" id="excelFile" accept=".xlsx, .xls"
+                            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                            required>
+                    </div>
+
+                    <div class="flex justify-between">
+
+                        <button type="button" id="closeUploadModal"
+                            class="bg-gray-500 hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700 text-white px-4 py-2 rounded-md">
+                            {{ __('Close') }}
+                        </button>
+                        <button type="submit"
+                            class="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-6 py-2 rounded-md">
+                            {{ __('Upload') }}
+                        </button>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -158,13 +202,14 @@
                 <div class="space-y-4">
                     <div>
                         <label for="editCb_mtId"
-                            class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Material Number') }}</label>
+                            class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Pilih Line Group') }}</label>
                         <select name="Cb_mtId" id="editCb_mtId"
                             class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
                             required>
-
                             @foreach ($lgs as $lg)
-                                <option value="{{ $lg->_id }}" @selected($lg->_id == old('Cb_mtId'))>{{ $lg->Lg_code }}
+                                <option value="{{ $lg->id }}"
+                                    {{ $lg->id == (old('Cb_mtId') ?? $consumable->Cb_mtId) ? 'selected' : '' }}>
+                                    {{ $lg->Lg_code }}
                                 </option>
                             @endforeach
                         </select>
@@ -198,12 +243,14 @@
         const openCreateModalBtn = document.getElementById('openCreateModal');
         const createModal = document.getElementById('createConsumableModal');
         const closeCreateModalBtn = document.getElementById('closeCreateModal');
+
         openCreateModalBtn.addEventListener('click', () => {
             createModal.classList.remove('hidden');
         });
         closeCreateModalBtn.addEventListener('click', () => {
             createModal.classList.add('hidden');
         });
+
 
         // Edit modal open and close
         const editModal = document.getElementById('editConsumableModal');
@@ -230,6 +277,7 @@
         });
 
         // Search functionality
+        // Search functionality
         const searchInput = document.getElementById('searchInput');
         searchInput.addEventListener('input', function() {
             const search = this.value;
@@ -246,8 +294,53 @@
                     // Find the updated consumables table and replace the old one
                     const updatedTable = doc.querySelector('table');
                     document.querySelector('table').replaceWith(updatedTable);
+
+                    // Re-attach edit button event listeners
+                    document.querySelectorAll('.editConsumableBtn').forEach(button => {
+                        button.addEventListener('click', (e) => {
+                            const consumableId = e.target.getAttribute('data-id');
+                            const consumableNo = e.target.getAttribute('data-no');
+                            const consumableDesc = e.target.getAttribute('data-desc');
+                            const consumableMtid = e.target.getAttribute('data-mtid');
+
+                            // Open the modal and populate the fields
+                            document.getElementById('editConsumableId').value = consumableId;
+                            document.getElementById('editCb_desc').value = consumableDesc;
+                            document.getElementById('editCb_mtId').value = consumableMtid;
+
+                            editModal.classList.remove('hidden');
+                        });
+                    });
                 })
                 .catch(error => console.error('Error fetching search results:', error));
+        });
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Ambil elemen modal dan tombol
+            let uploadModal = document.getElementById("uploadExcelModal");
+            let openUploadButton = document.getElementById("openUploadModal");
+            let closeUploadButton = document.getElementById("closeUploadModal");
+
+            // Event untuk membuka modal
+            openUploadButton.addEventListener("click", function() {
+                uploadModal.classList.remove("hidden");
+                uploadModal.classList.add("flex");
+            });
+
+            // Event untuk menutup modal
+            closeUploadButton.addEventListener("click", function() {
+                uploadModal.classList.add("hidden");
+                uploadModal.classList.remove("flex");
+            });
+
+            // Event untuk menutup modal ketika klik di luar modal
+            uploadModal.addEventListener("click", function(event) {
+                if (event.target === uploadModal) {
+                    uploadModal.classList.add("hidden");
+                    uploadModal.classList.remove("flex");
+                }
+            });
         });
     </script>
 </x-app-layout>
