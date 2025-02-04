@@ -9,17 +9,11 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RoleMiddleware
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
-     * @param  mixed  ...$roles
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
         if (!Auth::check()) {
+            // Simpan URL yang ingin diakses sebelum redirect
+            session()->put('url.intended', $request->fullUrl());
             return redirect()->route('login');
         }
 

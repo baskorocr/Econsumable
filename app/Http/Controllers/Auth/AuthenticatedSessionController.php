@@ -54,6 +54,11 @@ class AuthenticatedSessionController extends Controller
         // Get authenticated user
         $user = auth()->user();
 
+        $intendedUrl = session()->pull('url.intended');
+
+        if ($intendedUrl) {
+            return redirect($intendedUrl);
+        }
 
 
         // Redirect based on user role
