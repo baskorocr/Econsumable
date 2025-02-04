@@ -9,7 +9,7 @@ use App\Models\MstrPlan;
 use App\Models\MstrCostCenter;
 use App\Models\MstrLine;
 use App\Models\MstrGroup;
-use App\Models\MstrSloc;
+
 use App\Models\User;
 use Exception;
 use RealRashid\SweetAlert\Facades\Alert;
@@ -27,7 +27,7 @@ class LineGroupController extends Controller
 
 
 
-        $lineGroups = MstrLineGroup::with(['plan', 'costCenter', 'lines', 'group', 'sloc', 'leader', 'section', 'pjStock'])
+        $lineGroups = MstrLineGroup::with(['plan', 'costCenter', 'lines', 'group', 'leader', 'section', 'pjStock'])
 
             ->when($search, function ($query, $search) {
                 $query->where('Lg_code', 'like', "%$search%") // Kolom dari MstrLineGroup
@@ -37,8 +37,6 @@ class LineGroupController extends Controller
                         $q->where('Cs_code', 'like', "%$search%");
                     })->orWhereHas('lines', function ($q) use ($search) {
                         $q->where('Ln_name', 'like', "%$search%");
-                    })->orWhereHas('sloc', function ($q) use ($search) {
-                        $q->where('Tp_mtCode', 'like', "%$search%");
                     });
             })
             ->paginate(20);
@@ -106,7 +104,7 @@ class LineGroupController extends Controller
     public function edit($id)
     {
 
-        $lineGroup = MstrLineGroup::with(['plan', 'costCenter', 'lines', 'group', 'sloc', 'leader', 'section', 'pjStock'])->findOrFail($id);
+        $lineGroup = MstrLineGroup::with(['plan', 'costCenter', 'lines', 'group', 'leader', 'section', 'pjStock'])->findOrFail($id);
 
         $plans = MstrPlan::all();
         $costCenters = MstrCostCenter::all();
@@ -115,9 +113,9 @@ class LineGroupController extends Controller
         $usersDepts = User::where('idRole', 3)->get();
         $pjs = User::where('idRole', 4)->get();
         $groups = MstrGroup::all();
-        $slocs = MstrSloc::all();
 
-        return view('admin.master.line_groups.edit', compact('lineGroup', 'usersSects', 'usersDepts', 'pjs', 'plans', 'costCenters', 'lines', 'groups', 'slocs'));
+
+        return view('admin.master.line_groups.edit', compact('lineGroup', 'usersSects', 'usersDepts', 'pjs', 'plans', 'costCenters', 'lines', 'groups', ));
     }
 
     public function update(Request $request, $id)
