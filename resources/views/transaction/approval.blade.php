@@ -6,14 +6,7 @@
     </x-slot>
 
     <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
-        @if (auth()->user()->idRole == 4)
-            <div class="flex justify-between mb-4">
-                <a href="" id="openCreateModal"
-                    class="inline-block bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-white px-4 py-2 rounded-md">
-                    {{ __('SAP Report error') }}
-                </a>
-            </div>
-        @endif
+
 
         <div class="overflow-x-auto">
             <table class="table-auto min-w-full text-center text-sm">

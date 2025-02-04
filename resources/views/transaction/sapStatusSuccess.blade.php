@@ -59,6 +59,7 @@
                         <thead class="bg-gray-100 dark:bg-gray-700">
                             <tr>
                                 <th class="px-4 py-2 text-gray-700 dark:text-gray-300">No Order</th>
+                                <th class="px-4 py-2 text-gray-700 dark:text-gray-300">Matdoc_gi</th>
                                 <th class="px-4 py-2 text-gray-700 dark:text-gray-300">Consumable Name</th>
                                 <th class="px-4 py-2 text-gray-700 dark:text-gray-300">Jumlah</th>
                                 <th class="px-4 py-2 text-gray-700 dark:text-gray-300">Status</th>
@@ -128,7 +129,7 @@
                                             statusDisplay = 'Partially approved';
                                             break;
                                         case 4:
-                                            statusDisplay = 'Fully approved';
+                                            statusDisplay = 'All Process Success';
                                             break;
                                         default:
                                             statusDisplay = item.sap_fails[0].Desc_message;
@@ -137,6 +138,7 @@
                                     rows += `
                 <tr>
                     <td class="px-4 py-2">${appr.noOrder}</td>
+                    <td class="px-4 py-2">${item.sap_fails[0].matdoc_gi}</td>
                     <td class="px-4 py-2">${consumable.Cb_desc || '-'}</td>
                     <td class="px-4 py-2">${item.jumlah || 0}</td>
                     <td class="px-4 py-2">${statusDisplay}</td>

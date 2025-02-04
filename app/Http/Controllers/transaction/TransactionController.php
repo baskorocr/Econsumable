@@ -37,12 +37,14 @@ class TransactionController extends Controller
         $data = $request->all();
 
 
+
         // dd($segment->masterLineGroup->leader->npk);
         foreach ($data as $key => $value) {
             if (is_array($value) && isset($value['quantity']) && $value['quantity'] == 0) {
                 unset($data[$key]);
             }
         }
+
 
 
 

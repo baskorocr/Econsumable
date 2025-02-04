@@ -137,7 +137,43 @@ class ApprovalController extends Controller
         })->paginate(20);
 
 
+
         return view('transaction.sapStatus', compact('status'));
+    }
+    public function indexStatusSuccess()
+    {
+
+        // $status = OrderSegment::with(['mstrApprs.sapFails', 'mstrApprs.consumable.masterLineGroup', 'user'])
+        //     ->whereHas(
+        //         'mstrApprs.consumable.masterLineGroup',
+        //         function ($e) {
+        //             $e->where('NpkPjStock', auth()->user()->npk);
+        //         }
+        //     )->whereHas(
+        //         'mstrApprs',
+        //         function ($e) {
+        //             $e->where('status', 0);
+        //         }
+        //     )->whereHas('mstrApprs.sapFails', function ($e) {
+        //         $e->where('Desc_message', 'FAILED');
+        //     })
+        //     ->get();
+
+        $status = OrderSegment::with([
+            'mstrApprs.sapFails' => function ($query) {
+                $query->where('Desc_message', 'SUCCESS');
+            },
+            'mstrApprs.consumable.masterLineGroup',
+            'user'
+        ])->whereHas('mstrApprs.sapFails', function ($query) {
+            $query->where('Desc_message', 'SUCCESS');
+        })->whereHas('mstrApprs.consumable.masterLineGroup', function ($query) {
+            $query->where('NpkPjStock', auth()->user()->npk);
+        })->paginate(20);
+
+
+
+        return view('transaction.sapStatusSuccess', compact('status'));
     }
 
     public function resend(Request $request)

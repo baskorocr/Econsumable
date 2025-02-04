@@ -195,166 +195,115 @@
                 }
             });
         });
+
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('searchInput');
             const consumableModal = document.getElementById('consumableModal');
             const modalContent = document.getElementById('modalContent');
             const closeModalButton = document.getElementById('closeModal');
             const modalForm = document.getElementById('modalForm');
-            const urlPath = window.location.pathname.split('/'); // Memisahkan URL berdasarkan /
-            const transactionId = urlPath[2];
-            console.log(transactionId);
+
             // Search functionality
             searchInput.addEventListener('input', function() {
                 const search = this.value.toLowerCase();
-                let id = '{{ $id }}';
 
                 if (search !== '') {
-                    fetch(
-                            `{{ route('consumable.search') }}?search=${search}&id=${id}&lnGroup=${transactionId}`
-                        )
-                        .then(response => response.json())
-                        .then(data => {
-                            modalContent.innerHTML = ''; // Clear previous modal content
-                            console.log(data);
+                    // Get all consumables from the main form
+                    const mainFormConsumables = Array.from(document.querySelectorAll(
+                        '.flex.flex-col.md\\:flex-row.bg-violet-500')).map(el => ({
+                        id: el.querySelector('input[name$="[id]"]').value,
+                        number: el.querySelector('input[name$="[Cb_number]"]').value,
+                        desc: el.querySelector('p').textContent.split('(')[1].split(')')[0]
+                            .trim(),
+                        quantityInput: el.querySelector('.quantity-input')
+                    }));
 
-                            if (data.length > 0) {
-                                data.forEach((item, index) => {
-                                    const div = document.createElement('div');
-                                    div.classList.add('p-4', 'rounded-md', 'shadow-md',
-                                        'bg-violet-500', 'hover:bg-violet-600', 'mb-4');
+                    // Filter consumables based on search
+                    const filteredConsumables = mainFormConsumables.filter(item =>
+                        item.number.toLowerCase().includes(search) ||
+                        item.desc.toLowerCase().includes(search)
+                    );
 
-                                    const h2 = document.createElement('h2');
-                                    h2.classList.add('text-lg', 'text-white', 'font-semibold');
-                                    h2.textContent = item.Cb_number;
+                    // Clear previous modal content
+                    modalContent.innerHTML = '';
 
-                                    const h5 = document.createElement('h5');
-                                    h5.classList.add('text-lg', 'text-white', 'font-semibold');
-                                    h5.textContent = `(${item.Cb_desc})`;
+                    if (filteredConsumables.length > 0) {
+                        filteredConsumables.forEach((item, index) => {
+                            const div = document.createElement('div');
+                            div.classList.add('p-4', 'rounded-md', 'shadow-md', 'bg-violet-500',
+                                'hover:bg-violet-600', 'mb-4');
+                            div.innerHTML = `
+                        <h2 class="text-lg text-white font-semibold">${item.number}</h2>
+                        <h5 class="text-lg text-white font-semibold">(${item.desc})</h5>
+                        <div class="mt-4">
+                            <label class="block text-sm text-white font-medium">Quantity</label>
+                            <div class="flex items-center mt-2">
+                                <button type="button" class="bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600 decrement">-</button>
+                                <input type="number" value="${item.quantityInput.value}" min="0" 
+                                    data-main-input-id="${item.id}"
+                                    class="w-16 text-center bg-violet-500 text-white font-bold text-lg quantity-input">
+                                <button type="button" class="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600 increment">+</button>
+                            </div>
+                        </div>
+                    `;
 
-                                    const formGroup = document.createElement('div');
-                                    formGroup.classList.add('mt-4');
+                            // Add increment/decrement handlers
+                            const quantityInput = div.querySelector('.quantity-input');
+                            div.querySelector('.decrement').addEventListener('click', () => {
+                                let value = parseInt(quantityInput.value);
+                                if (value > 0) quantityInput.value = value - 1;
+                            });
 
-                                    const label = document.createElement('label');
-                                    label.classList.add('block', 'text-sm', 'text-white',
-                                        'font-medium');
-                                    label.textContent = 'Quantity';
+                            div.querySelector('.increment').addEventListener('click', () => {
+                                let value = parseInt(quantityInput.value);
+                                quantityInput.value = value + 1;
+                            });
 
-                                    const quantityDiv = document.createElement('div');
-                                    quantityDiv.classList.add('flex', 'items-center', 'mt-2');
-
-                                    const minusButton = document.createElement('button');
-                                    minusButton.type = 'button';
-                                    minusButton.classList.add('bg-red-500', 'text-white',
-                                        'px-4', 'py-2', 'rounded-full', 'hover:bg-red-600');
-                                    minusButton.textContent = '-';
-                                    quantityDiv.appendChild(minusButton);
-
-                                    const quantityInput = document.createElement('input');
-                                    quantityInput.type = 'number';
-                                    quantityInput.value = 0; // Default value for quantity
-                                    quantityInput.min = 0;
-                                    quantityInput.classList.add('w-16', 'text-center',
-                                        'bg-violet-500', 'text-white', 'font-bold',
-                                        'text-lg', 'quantity-input');
-                                    quantityDiv.appendChild(quantityInput);
-
-                                    const plusButton = document.createElement('button');
-                                    plusButton.type = 'button';
-                                    plusButton.classList.add('bg-green-500', 'text-white',
-                                        'px-4', 'py-2', 'rounded-full', 'hover:bg-green-600'
-                                    );
-                                    plusButton.textContent = '+';
-                                    quantityDiv.appendChild(plusButton);
-
-                                    formGroup.appendChild(label);
-                                    formGroup.appendChild(quantityDiv);
-                                    div.appendChild(h2);
-                                    div.appendChild(h5);
-                                    div.appendChild(formGroup);
-                                    modalContent.appendChild(div);
-
-                                    // Add hidden input for consumable ID and quantity
-                                    const consumableIndex =
-                                        `consumables${index + 1}`; // Use index to generate unique name for each consumable
-
-                                    const hiddenQuantityInput = document.createElement('input');
-                                    hiddenQuantityInput.type = 'hidden';
-                                    hiddenQuantityInput.name = `${consumableIndex}[id]`;
-                                    hiddenQuantityInput.value = item
-                                        ._id; // ID of the consumable
-                                    modalForm.appendChild(hiddenQuantityInput);
-
-                                    const hiddenQuantitysInput = document.createElement(
-                                        'input');
-                                    hiddenQuantitysInput.type = 'hidden';
-                                    hiddenQuantitysInput.name = `${consumableIndex}[Cb_number]`;
-                                    hiddenQuantitysInput.value = item
-                                        .Cb_number; // Cb_number of the consumable
-                                    modalForm.appendChild(hiddenQuantitysInput);
-
-                                    const hiddenQuantityValueInput = document.createElement(
-                                        'input');
-                                    hiddenQuantityValueInput.type = 'hidden';
-                                    hiddenQuantityValueInput.name =
-                                        `${consumableIndex}[quantity]`;
-                                    hiddenQuantityValueInput.value = quantityInput
-                                        .value; // Dynamically set initial value
-                                    console.log('Initial Hidden Quantity:',
-                                        hiddenQuantityValueInput.value); // Debugging
-                                    modalForm.appendChild(hiddenQuantityValueInput);
-
-                                    // Event listeners for increment and decrement buttons
-                                    minusButton.addEventListener('click', function() {
-                                        let currentQuantity = parseInt(quantityInput
-                                            .value, 10);
-                                        if (currentQuantity > 0) {
-                                            quantityInput.value = currentQuantity - 1;
-                                            console.log('Quantity after decrement:',
-                                                quantityInput.value); // Debugging
-                                            updateHiddenQuantity();
-                                        }
-                                    });
-
-                                    plusButton.addEventListener('click', function() {
-                                        let currentQuantity = parseInt(quantityInput
-                                            .value, 10);
-                                        quantityInput.value = currentQuantity + 1;
-                                        console.log('Quantity after increment:',
-                                            quantityInput.value); // Debugging
-                                        updateHiddenQuantity();
-                                    });
-
-                                    // Update hidden quantity input value
-                                    function updateHiddenQuantity() {
-                                        console.log('Updating hidden input with value:',
-                                            quantityInput.value); // Debugging
-                                        hiddenQuantityValueInput.value = quantityInput.value;
-                                    }
-                                });
-                            } else {
-                                consumableModal.classList.add('hidden');
-                                const noResults = document.createElement('p');
-                                noResults.classList.add('text-white');
-                                noResults.textContent = 'No matching consumables found.';
-                                modalContent.appendChild(noResults);
-                            }
-
-                            consumableModal.classList.remove('hidden');
+                            modalContent.appendChild(div);
                         });
+
+                        consumableModal.classList.remove('hidden');
+                    } else {
+                        const noResults = document.createElement('p');
+                        noResults.classList.add('text-gray-600', 'text-center');
+                        noResults.textContent = 'No matching consumables found.';
+                        modalContent.appendChild(noResults);
+                        consumableModal.classList.remove('hidden');
+                    }
                 } else {
                     consumableModal.classList.add('hidden');
-                    console.log('dasds');
                 }
             });
 
-            // Close modal
+            // Replace form submission with direct quantity transfer
+            modalForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                // Transfer quantities from modal to main form
+                const modalInputs = modalContent.querySelectorAll('.quantity-input');
+                modalInputs.forEach(input => {
+                    const mainInputId = input.getAttribute('data-main-input-id');
+                    const mainFormContainer = document.querySelector(
+                        `input[value="${mainInputId}"]`).closest('.flex.flex-col.md\\:flex-row');
+                    const mainQuantityInput = mainFormContainer.querySelector('.quantity-input');
+                    mainQuantityInput.value = input.value;
+                });
+
+                // Close modal and clear search
+                consumableModal.classList.add('hidden');
+                searchInput.value = '';
+            });
+
+            // Close modal handlers
             closeModalButton.addEventListener('click', function() {
                 consumableModal.classList.add('hidden');
+                searchInput.value = '';
             });
+
             consumableModal.addEventListener('click', function(event) {
                 if (event.target === consumableModal) {
                     consumableModal.classList.add('hidden');
+                    searchInput.value = '';
                 }
             });
         });
