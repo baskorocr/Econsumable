@@ -63,10 +63,11 @@ Route::group(['middleware' => ['role:1,2,3'], 'prefix' => 'AdminMaster'], functi
 
 });
 
-Route::group(['middleware' => ['role:1,2,3,4,5'], 'prefix' => 'list'], function () {
+Route::group(['middleware' => ['role:1,2,3,4,'], 'prefix' => 'list'], function () {
     Route::get('/approvalConfirmation', [ApprovalController::class, 'index'])->name('approvalConfirmation.index');
     Route::get('/accConfirmation/{id}', [ApprovalController::class, 'acc'])->name('approvalConfirmation.acc');
     Route::get('/rejectConfirmation/{id}', [ApprovalController::class, 'reject'])->name('approvalConfirmation.reject');
+    Route::post('/resend', [ApprovalController::class, 'resend'])->name('sap.resend');
 
 });
 

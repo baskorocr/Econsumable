@@ -17,7 +17,7 @@ class SapFail extends Model
     protected $fillable = [
 
         'idAppr',
-
+        'matdoc_gi',
         'Desc_message'
 
     ];

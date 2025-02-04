@@ -6,7 +6,6 @@
     </x-slot>
 
     <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
-
         <div class="overflow-x-auto">
             <table class="table-auto min-w-full text-center text-sm">
                 <thead class="bg-gray-100 dark:bg-gray-700">
@@ -17,38 +16,26 @@
                         </th>
                         <th
                             class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                            {{ __('Request By ') }}
+                            {{ __('Request By') }}
                         </th>
                         <th
                             class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             {{ __('Detail Approval') }}
                         </th>
-
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
                     @foreach ($status as $st)
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
-                            <td style="width: 13rem; height: 4rem;" class="px-6 py-4 text-gray-700 dark:text-gray-300">
-                                <div>
-                                    {{ $st->noOrder }}
-                                </div>
+                            <td class="px-6 py-4 text-gray-700 dark:text-gray-300">{{ $st->noOrder }}</td>
+                            <td class="px-6 py-4 text-gray-700 dark:text-gray-300">{{ $st->user->name }}</td>
+                            <td class="px-6 py-4">
+                                <button
+                                    class="bg-purple-500 hover:bg-purple-600 dark:bg-purple-600 dark:hover:bg-purple-700 text-white px-4 py-2 rounded-md open-modal-btn"
+                                    data-id="{{ $st->_id }}" data-no-order="{{ $st->noOrder }}">
+                                    {{ __('Open') }}
+                                </button>
                             </td>
-                            <td style="width: 13rem; height: 4rem;" class="px-6 py-4 text-gray-700 dark:text-gray-300">
-                                <div>
-                                    {{ $st->user->name }}
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 text-gray-700 dark:text-gray-300">
-                                <div>
-                                    <button
-                                        class="inline-block bg-purple-500 hover:bg-purple-600 dark:bg-purple-600 dark:hover:bg-purple-700 text-white px-4 py-2 rounded-md open-modal-btn"
-                                        data-id="{{ $st->_id }}" data-no-order="{{ $st->noOrder }}">
-                                        {{ __('open') }}
-                                    </button>
-                                </div>
-                            </td>
-
                         </tr>
                     @endforeach
                 </tbody>
@@ -78,18 +65,16 @@
                             </tr>
                         </thead>
                         <tbody id="mstrApprsTableBody" class="divide-y divide-gray-200 dark:divide-gray-600">
-                            <!-- Data will be dynamically filled here -->
+                            <!-- Data dynamically inserted -->
                         </tbody>
                     </table>
                 </div>
 
                 <!-- Send Form -->
                 <div class="px-6 py-4 border-t">
-                    <form action="" method="POST">
+                    <form action="{{ route('sap.resend') }}" method="POST">
                         @csrf
-                        <input type="hidden" name="order_id" id="order_id">
                         <input type="hidden" name="no_order" id="no_order">
-                        <!-- You can add more hidden fields for necessary data -->
                         <button type="submit"
                             class="bg-yellow-500 hover:bg-yellow-600 dark:bg-yellow-600 dark:hover:bg-yellow-700 text-white px-4 py-2 rounded-md w-full">
                             {{ __('Resend') }}
@@ -103,17 +88,13 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const openModalButtons = document.querySelectorAll('.open-modal-btn');
-            const openSendFormButtons = document.querySelectorAll('.open-send-form-btn');
             const modal = document.getElementById('mstrApprsModal');
             const closeModalButton = document.getElementById('closeMstrApprsModal');
             const tableBody = document.getElementById('mstrApprsTableBody');
-            const orderIdInput = document.getElementById('order_id');
             const noOrderInput = document.getElementById('no_order');
 
-            // Ensure apprData is an array
-            const apprData = @json($status).data; // Pass all $apprs data to JS
+            const apprData = @json($status->items());
 
-            // Open modal and populate data
             openModalButtons.forEach((button) => {
                 button.addEventListener('click', function() {
                     const apprId = button.getAttribute('data-id');
@@ -121,16 +102,23 @@
 
                     if (appr) {
                         const mstrApprs = appr.mstr_apprs;
+                        console.log(appr);
+
+                        // Set nilai noOrder ke input
+
+                        noOrderInput.value = mstrApprs[0].no_order;
+
 
                         if (mstrApprs.length > 0) {
                             let rows = '';
                             mstrApprs.forEach(item => {
-
-
                                 if (item.sap_fails && item.sap_fails.length > 0) {
                                     console.log(item.sap_fails[0].Desc_message);
-                                    const consumable = item.consumable;
+
+                                    const consumable = item.consumable ||
+                                    {}; // Mencegah error jika consumable undefined
                                     let statusDisplay;
+
                                     switch (item.status) {
                                         case 1:
                                             statusDisplay = 'Waiting for approval';
@@ -147,47 +135,31 @@
                                     }
 
                                     rows += `
-                                    <tr>
-                                        <td class="px-4 py-2">${appr.noOrder}</td>
-                                        <td class="px-4 py-2">${consumable.Cb_desc}</td>
-                                        <td class="px-4 py-2">${item.jumlah}</td>
-                                        <td class="px-4 py-2">${statusDisplay}</td>
-                                    </tr>
-                                    `;
+                <tr>
+                    <td class="px-4 py-2">${appr.noOrder}</td>
+                    <td class="px-4 py-2">${consumable.Cb_desc || '-'}</td>
+                    <td class="px-4 py-2">${item.jumlah || 0}</td>
+                    <td class="px-4 py-2">${statusDisplay}</td>
+                </tr>
+                `;
                                 }
                             });
 
-
-                            tableBody.innerHTML = rows;
-
-                        } else {
-                            tableBody.innerHTML =
-                                `<tr><td colspan="4" class="px-4 py-2 text-center">No data available</td></tr>`;
+                            // Menambahkan ke tabel jika ada rows yang ditemukan
+                            const tableBody = document.getElementById('mstrApprsTableBody');
+                            if (tableBody) {
+                                tableBody.innerHTML = rows;
+                            }
                         }
-
                         modal.classList.remove('hidden');
                     }
+
                 });
             });
 
-            // Open send form and populate data
-            openSendFormButtons.forEach((button) => {
-                button.addEventListener('click', function() {
-                    const apprId = button.getAttribute('data-id');
-                    const appr = apprData.find(item => item._id === apprId);
-
-                    if (appr) {
-                        orderIdInput.value = appr._id;
-                        noOrderInput.value = appr.noOrder;
-                    }
-                });
-            });
-
-            // Close modal
             closeModalButton.addEventListener('click', function() {
                 modal.classList.add('hidden');
             });
         });
     </script>
-
 </x-app-layout>

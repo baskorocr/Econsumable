@@ -73,13 +73,22 @@
             <x-fas-file-signature class="flex-shrink-0 w-6 h-6" aria-hidden="true" />
         </x-slot>
     </x-sidebar.link>
-    <x-sidebar.link title="SAP Error {{ $orderSegmentCount }}" href="{{ route('sap.status') }}" :isActive="request()->routeIs('sap.status')"
-        class="bg-red-500 text-white hover:bg-red-600 {{ request()->routeIs('sap.status') ? 'bg-red-700' : '' }}">
 
-        <x-slot name="icon">
-            <x-fas-file-signature class="flex-shrink-0 w-6 h-6" aria-hidden="true" />
-        </x-slot>
-    </x-sidebar.link>
+    @if (auth()->user()->role->id === 4)
+        <x-sidebar.dropdown title="SAP Report Status" :active="Str::startsWith(request()->route()->uri(), 'MasterLine')">
+            <x-slot name="icon">
+                <x-heroicon-o-view-grid class="flex-shrink-0 w-6 h-6" aria-hidden="true" />
+            </x-slot>
+
+            <x-sidebar.sublink class="bg-red-500 text-white hover:bg-red-800"
+                title="SAP Error ({{ $orderSegmentCount }})" href="{{ route('MasterLine.index') }}"
+                :isActive="request()->routeIs('sap.status')" />
+            <x-sidebar.sublink class="bg-green-500 text-white hover:bg-green-800"
+                title="SSR ({{ $orderSegmentCount }})" href="{{ route('MasterLine.index') }}" :isActive="request()->routeIs('sap.status')" />
+
+
+        </x-sidebar.dropdown>
+    @endif
 
 
 
