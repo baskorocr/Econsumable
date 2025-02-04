@@ -40,7 +40,7 @@ Route::get('/', function () {
 // Route::get('register', [RegisteredUserController::class, 'create'])->middleware('role:1,2,3');
 
 
-Route::group(['middleware' => ['role:1,2,3'], 'prefix' => 'AdminMaster'], function () {
+Route::group(['middleware' => ['role:1,2,3,4'], 'prefix' => 'AdminMaster'], function () {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('Admin.dashboard');
     Route::resource('lines', MasterLineController::class);
     Route::resource('MasterLine', MasterLineController::class);
@@ -60,16 +60,13 @@ Route::group(['middleware' => ['role:1,2,3'], 'prefix' => 'AdminMaster'], functi
     Route::get('/line/search', [LinesController::class, 'search'])->name('line.search');
     Route::get('/material/search', [LinesController::class, 'searchMaterial'])->name('material.search');
     Route::get('/consumable/search', [LinesController::class, 'searchConsumable'])->name('consumable.search');
-
-});
-
-Route::group(['middleware' => ['role:1,2,3,4,'], 'prefix' => 'list'], function () {
     Route::get('/approvalConfirmation', [ApprovalController::class, 'index'])->name('approvalConfirmation.index');
     Route::get('/accConfirmation/{id}', [ApprovalController::class, 'acc'])->name('approvalConfirmation.acc');
     Route::get('/rejectConfirmation/{id}', [ApprovalController::class, 'reject'])->name('approvalConfirmation.reject');
-    Route::post('/resend', [ApprovalController::class, 'resend'])->name('sap.resend');
 
 });
+
+
 
 Route::get('/appr/{id}/{token}', [ApprovalController::class, 'apprNon'])->name('appr.show');
 Route::post('/acc', [ApprovalController::class, 'accNon'])->name('acc');
@@ -85,12 +82,13 @@ Route::get('/get-lines', [ReportController::class, 'getLinesBySegment'])->middle
 
 Route::group(['middleware' => ['role:4'], 'prefix' => 'sap'], function () {
     Route::get('/status', [ApprovalController::class, 'indexStatus'])->name('sap.status');
+    Route::post('/resend', [ApprovalController::class, 'resend'])->name('sap.resend');
 
 });
 
 
 
-Route::group(['middleware' => ['role:4,5'], 'prefix' => 'page'], function () {
+Route::group(['middleware' => ['role:5'], 'prefix' => 'page'], function () {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('page.dashboard');
 
 

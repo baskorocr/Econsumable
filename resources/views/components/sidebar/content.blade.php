@@ -1,6 +1,9 @@
 <x-perfect-scrollbar as="nav" aria-label="main" class="flex flex-col flex-1 gap-4 px-3">
 
-    @if (auth()->user()->role->id === 1 || auth()->user()->role->id === 2 || auth()->user()->role->id === 3)
+    @if (auth()->user()->role->id === 1 ||
+            auth()->user()->role->id === 2 ||
+            auth()->user()->role->id === 3 ||
+            auth()->user()->role->id === 3)
         <x-sidebar.link title="Dashboard" href="{{ route('Admin.dashboard') }}" :isActive="request()->routeIs('Admin.dashboard')">
             <x-slot name="icon">
                 <x-icons.dashboard class="flex-shrink-0 w-6 h-6" aria-hidden="true" />
@@ -29,11 +32,10 @@
 
 
 
-
-
-
-
-    @if (auth()->user()->role->id === 1 || auth()->user()->role->id === 2 || auth()->user()->role->id === 3)
+    @if (auth()->user()->role->id === 1 ||
+            auth()->user()->role->id === 2 ||
+            auth()->user()->role->id === 3 ||
+            auth()->user()->role->id === 4)
         <x-sidebar.dropdown title="Master Data" :active="Str::startsWith(request()->route()->uri(), 'MasterLine')">
             <x-slot name="icon">
                 <x-heroicon-o-view-grid class="flex-shrink-0 w-6 h-6" aria-hidden="true" />
@@ -53,6 +55,25 @@
             {{-- <x-sidebar.sublink title="Icon button" href="{{ route('buttons.icon') }}" :active="request()->routeIs('buttons.icon')" />
         <x-sidebar.sublink title="Text with icon" href="{{ route('buttons.text-icon') }}" :active="request()->routeIs('buttons.text-icon')" /> --}}
         </x-sidebar.dropdown>
+    @endif
+
+
+
+    @if (auth()->user()->role->id === 4)
+        <x-sidebar.dropdown title="SAP Report Status" :active="Str::startsWith(request()->route()->uri(), 'MasterLine')">
+            <x-slot name="icon">
+                <x-heroicon-o-view-grid class="flex-shrink-0 w-6 h-6" aria-hidden="true" />
+            </x-slot>
+
+            <x-sidebar.sublink class="bg-red-500 text-white hover:bg-red-800"
+                title="SAP Error ({{ $orderSegmentCount }})" href="{{ route('sap.status') }}" :isActive="request()->routeIs('sap.status')" />
+            <x-sidebar.sublink class="bg-green-500 text-white hover:bg-green-800"
+                title="SSR ({{ $orderSegmentCount }})" href="{{ route('sap.status') }}" :isActive="request()->routeIs('sap.status')" />
+
+
+        </x-sidebar.dropdown>
+    @endif
+    @if (auth()->user()->role->id === 1 || auth()->user()->role->id === 2 || auth()->user()->role->id === 3)
         <x-sidebar.link title="Register New User" href="{{ route('register') }}" :isActive="request()->routeIs('register')">
             <x-slot name="icon">
                 <x-fas-user-plus class="flex-shrink-0 w-6 h-6" aria-hidden="true" />
@@ -74,20 +95,7 @@
         </x-slot>
     </x-sidebar.link>
 
-    @if (auth()->user()->role->id === 4)
-        <x-sidebar.dropdown title="SAP Report Status" :active="Str::startsWith(request()->route()->uri(), 'MasterLine')">
-            <x-slot name="icon">
-                <x-heroicon-o-view-grid class="flex-shrink-0 w-6 h-6" aria-hidden="true" />
-            </x-slot>
 
-            <x-sidebar.sublink class="bg-red-500 text-white hover:bg-red-800"
-                title="SAP Error ({{ $orderSegmentCount }})" href="{{ route('sap.status') }}" :isActive="request()->routeIs('sap.status')" />
-            <x-sidebar.sublink class="bg-green-500 text-white hover:bg-green-800"
-                title="SSR ({{ $orderSegmentCount }})" href="{{ route('sap.status') }}" :isActive="request()->routeIs('sap.status')" />
-
-
-        </x-sidebar.dropdown>
-    @endif
 
 
 

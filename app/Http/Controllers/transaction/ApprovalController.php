@@ -91,14 +91,8 @@ class ApprovalController extends Controller
 
         } else {
 
-            dd("dsadsa");
-            $apprs = OrderSegment::with(['mstrApprs.consumable.masterLineGroup'])
 
-                ->when($search, function ($query, $search) {
-                    $query->where('noOrder', 'like', "%$search%");
-                })
-                ->get();
-            dd($apprs);
+            $apprs = OrderSegment::with(['mstrApprs.consumable.masterLineGroup'])->paginate(20);
 
         }
 

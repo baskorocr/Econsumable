@@ -22,9 +22,9 @@ class AuthenticatedSessionController extends Controller
             $user = auth()->user();
             if ($user->idRole == '1') {
                 return redirect()->route('Admin.dashboard');
-            } elseif (in_array($user->idRole, ['2', '3'])) {
+            } elseif (in_array($user->idRole, ['2', '3', '4'])) {
                 return redirect()->route('Admin.dashboard');
-            } elseif (in_array($user->idRole, ['4', '5'])) {
+            } elseif (in_array($user->idRole, ['5'])) {
                 return redirect()->route('page.dashboard');
             }
         }
