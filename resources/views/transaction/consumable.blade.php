@@ -57,7 +57,7 @@
                                 class="collapse-icon text-xl font-bold bg-violet-500 hover:bg-violet-600 text-white rounded-md px-5 py-1">
                                 +
                             </span>
-                            <h3 class="text-black font-semibold text-center flex-1">
+                            <h3 class="text-black dark:text-white font-semibold text-center flex-1">
                                 {{ $materials->Ln_name }}
                             </h3>
                         </button>
@@ -211,7 +211,8 @@
 
                 if (search !== '') {
                     fetch(
-                            `{{ route('consumable.search') }}?search=${search}&id=${id}&lnGroup=${transactionId}`)
+                            `{{ route('consumable.search') }}?search=${search}&id=${id}&lnGroup=${transactionId}`
+                        )
                         .then(response => response.json())
                         .then(data => {
                             modalContent.innerHTML = ''; // Clear previous modal content
