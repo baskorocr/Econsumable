@@ -81,9 +81,12 @@ Route::get('/report', [ReportController::class, 'index'])->middleware(['role:1,2
 Route::get('/get-lines', [ReportController::class, 'getLinesBySegment'])->middleware(['role:1,2,3,4,5'])->name('getLinesBySegment');
 
 Route::group(['middleware' => ['role:4'], 'prefix' => 'sap'], function () {
+    Route::get('/editAppr/{id}', [ApprovalController::class, 'editApprs'])->name('editAppr');
+    Route::PUT('/updateAppr', [ApprovalController::class, 'updateAppr'])->name('updateAppr');
     Route::get('/statusError', [ApprovalController::class, 'indexStatus'])->name('sap.status');
     Route::get('/statusSuccess', [ApprovalController::class, 'indexStatusSuccess'])->name('sap.success');
     Route::post('/resend', [ApprovalController::class, 'resend'])->name('sap.resend');
+    Route::post('/sap/print', [ApprovalController::class, 'printSelected'])->name('sap.print');
 
 });
 

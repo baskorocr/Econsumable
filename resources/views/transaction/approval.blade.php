@@ -8,6 +8,7 @@
     <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
 
 
+
         <div class="overflow-x-auto">
             <table class="table-auto min-w-full text-center text-sm">
                 <thead class="bg-gray-100 dark:bg-gray-700">
@@ -127,9 +128,12 @@
                         // Access the mstr_apprs array
                         const mstrApprs = appr.mstr_apprs; // This is an array
 
+
                         // Check if mstr_apprs is not empty and populate the modal with its data
                         if (mstrApprs.length > 0) {
                             let rows = '';
+                            const approvalAccUrl =
+                                '{{ route('editAppr', ':id') }}';
                             mstrApprs.forEach(item => {
                                 // Access consumable data
                                 const consumable = item.consumable;
@@ -158,6 +162,12 @@
                                     <td class="px-4 py-2">${consumable.Cb_desc}</td>
                                     <td class="px-4 py-2">${item.jumlah}</td>
                                     <td class="px-4 py-2">${statusDisplay}</td>
+                                   <td class="px-4 py-2">
+                    <a href="${approvalAccUrl.replace(':id', item._id)}"
+                        class="bg-yellow-500 hover:bg-yellow-600 dark:bg-yellow-600 dark:hover:bg-yellow-700 text-white px-4 py-2 rounded-md">
+                        edit
+                    </a>
+                </td>
                                 </tr>
                             `;
                             });

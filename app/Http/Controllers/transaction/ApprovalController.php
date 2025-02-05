@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use RealRashid\SweetAlert\Facades\Alert;
 use GuzzleHttp\Client;
+use Illuminate\Support\Arr;
+
 
 class ApprovalController extends Controller
 {
@@ -99,10 +101,26 @@ class ApprovalController extends Controller
 
 
 
-
         return view('transaction.approval', compact('apprs', 'search'));
 
 
+    }
+
+    public function editApprs($id)
+    {
+
+
+        $edit = MstrAppr::with('consumable')->findOrFail($id);
+
+
+        return view('transaction.editApprs', compact('edit'));
+
+
+    }
+
+    public function updateAppr(Request $request)
+    {
+        dd($request->all());
     }
 
     public function indexStatus()
@@ -169,7 +187,10 @@ class ApprovalController extends Controller
             $query->where('Desc_message', 'SUCCESS');
         })->whereHas('mstrApprs.consumable.masterLineGroup', function ($query) {
             $query->where('NpkPjStock', auth()->user()->npk);
-        })->paginate(20);
+        })->
+            whereHas('mstrApprs', function ($query) {
+                $query->where('status', 4);
+            })->paginate(20);
 
 
 
@@ -657,5 +678,35 @@ class ApprovalController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function printSelected(Request $request)
+    {
+        $selectedOrders = json_decode($request->selected_orders, true);
+
+        // Cek jika array tidak kosong
+        if (!empty($selectedOrders)) {
+            // Ambil data dari database berdasarkan nilai checkbox yang dipilih
+
+            $orders = OrderSegment::with([
+                'mstrApprs.sapFails' => function ($query) {
+                    $query->where('Desc_message', 'SUCCESS');
+                },
+                'mstrApprs.consumable.masterLineGroup',
+                'mstrApprs.dept',
+                'user'
+            ])->whereHas('mstrApprs.sapFails', function ($query) {
+                $query->where('Desc_message', 'SUCCESS');
+            })->whereHas('mstrApprs.consumable.masterLineGroup', function ($query) {
+                $query->where('NpkPjStock', auth()->user()->npk);
+            })->
+                whereHas('mstrApprs', function ($query) {
+                    $query->where('status', 4);
+                })->whereIn('_id', $selectedOrders)->get();
+
+
+            // Lakukan sesuatu dengan hasilnya
+            return view('transaction.print', compact('orders'));
+        }
     }
 }

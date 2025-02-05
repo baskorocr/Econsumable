@@ -3,13 +3,32 @@
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
             {{ __('List SAP Status Success') }}
         </h2>
+
     </x-slot>
 
     <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+        <div class="flex flex-wrap items-center space-x-4 md:space-x-6">
+            <form id="printForm" action="{{ route('sap.print') }}" method="POST" target="_blank">
+                @csrf
+                <input hidden name="selected_orders" id="selectedOrders">
+            </form>
+
+            <button id="mass-print" type="submit"
+                class="inline-block bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white px-4 py-2 rounded-md">
+                {{ __('Print') }}
+            </button>
+
+
+        </div>
+
+
         <div class="overflow-x-auto">
             <table class="table-auto min-w-full text-center text-sm">
                 <thead class="bg-gray-100 dark:bg-gray-700">
                     <tr>
+                        <th class="px-4 py-3">
+                            <input type="checkbox" id="select-all">
+                        </th>
                         <th
                             class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             {{ __('No Order') }}
@@ -27,6 +46,9 @@
                 <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
                     @foreach ($status as $st)
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                            <td class="px-4 py-4">
+                                <input type="checkbox" class="select-item" value="{{ $st->_id }}">
+                            </td>
                             <td class="px-6 py-4 text-gray-700 dark:text-gray-300">{{ $st->noOrder }}</td>
                             <td class="px-6 py-4 text-gray-700 dark:text-gray-300">{{ $st->user->name }}</td>
                             <td class="px-6 py-4">
@@ -73,13 +95,10 @@
 
                 <!-- Send Form -->
                 <div class="px-6 py-4 border-t">
-                    <form action="{{ route('sap.resend') }}" method="POST">
+                    <form action="#" method="POST">
                         @csrf
                         <input type="hidden" name="no_order" id="no_order">
-                        <button type="submit"
-                            class="bg-yellow-500 hover:bg-yellow-600 dark:bg-yellow-600 dark:hover:bg-yellow-700 text-white px-4 py-2 rounded-md w-full">
-                            {{ __('Resend') }}
-                        </button>
+
                     </form>
                 </div>
             </div>
@@ -164,4 +183,31 @@
             });
         });
     </script>
+
+    <script>
+        document.getElementById('select-all').addEventListener('click', function() {
+            let checkboxes = document.querySelectorAll('.select-item');
+            checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+        });
+
+        document.getElementById('mass-print').addEventListener('click', function(event) {
+            event.preventDefault(); // Mencegah submit form langsung
+
+            let selectedOrders = [];
+            document.querySelectorAll('.select-item:checked').forEach(item => {
+                selectedOrders.push(item.value);
+            });
+
+            if (selectedOrders.length > 0) {
+                // Masukkan data ke input hidden
+                document.getElementById('selectedOrders').value = JSON.stringify(selectedOrders);
+
+                // Submit form
+                document.getElementById('printForm').submit();
+            } else {
+                alert('No orders selected for printing.');
+            }
+        });
+    </script>
+
 </x-app-layout>
