@@ -63,6 +63,7 @@ Route::group(['middleware' => ['role:1,2,3,4'], 'prefix' => 'AdminMaster'], func
     Route::get('/approvalConfirmation', [ApprovalController::class, 'index'])->name('approvalConfirmation.index');
     Route::get('/accConfirmation/{id}', [ApprovalController::class, 'acc'])->name('approvalConfirmation.acc');
     Route::get('/rejectConfirmation/{id}', [ApprovalController::class, 'reject'])->name('approvalConfirmation.reject');
+    Route::post('/massApprove', [ApprovalController::class, 'massApprove'])->name('massApprove');
 
 });
 
@@ -87,6 +88,7 @@ Route::group(['middleware' => ['role:4'], 'prefix' => 'sap'], function () {
     Route::get('/statusSuccess', [ApprovalController::class, 'indexStatusSuccess'])->name('sap.success');
     Route::post('/resend', [ApprovalController::class, 'resend'])->name('sap.resend');
     Route::post('/sap/print', [ApprovalController::class, 'printSelected'])->name('sap.print');
+    Route::post('/mass-reject', [ApprovalController::class, 'massReject'])->name('massReject');
 
 });
 

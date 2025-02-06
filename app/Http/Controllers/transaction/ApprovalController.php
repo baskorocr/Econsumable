@@ -206,6 +206,130 @@ class ApprovalController extends Controller
         return view('transaction.sapStatusSuccess', compact('status', 'search'));
     }
 
+    public function massApprove(Request $request)
+    {
+        $selectedOrders = json_decode($request->selected_orders, true);
+        $date = date('Y-m-d');
+        $temp = 0;
+        $message = [];
+
+
+        if (!empty($selectedOrders)) {
+            // Ambil data dari database berdasarkan nilai checkbox yang dipilih
+
+            try {
+                // Changed to whereIn to handle array of order numbers
+                $appr = MstrAppr::with([
+                    'user',
+                    'consumable.masterLineGroup.group',
+                    'consumable.masterLineGroup.leader',
+                    'consumable.masterLineGroup.section',
+                    'consumable.masterLineGroup.lines',
+                    'consumable.masterLineGroup.pjStock',
+                    'consumable.masterLineGroup.plan',
+                    'consumable.masterLineGroup.costCenter',
+                    'orderSegment',
+                ])
+                    ->whereIn('no_order', $selectedOrders)
+                    ->get();
+
+
+                foreach ($appr as $item) {
+                    $consumable = $item->consumable->masterLineGroup;
+
+                    if ($item->status == 1) {
+                        $a = $item->update([
+                            'status' => $item->status + 1,
+                            'token' => Str::uuid()->toString(),
+                            'ApprSectDate' => $date
+                        ]);
+
+                        if ($a === true && $temp == 0) {
+                            $noHp = $item->consumable->masterLineGroup->leader->noHp ?? null;
+
+                            if ($noHp !== null) {
+                                SendWa($consumable->leader->noHp, $consumable->leader->name, $item->orderSegment->noOrder, $item->user->name, $item->token, $item->no_order);
+                            }
+                        }
+                    } elseif ($item->status == 2) {
+                        $a = $item->update([
+                            'status' => $item->status + 1,
+                            'token' => Str::uuid()->toString(),
+                            'ApprDeptDate' => $date
+                        ]);
+
+                        if ($a === true) {
+                            $noHp = $item->consumable->masterLineGroup->pjStock->noHp ?? null;
+                            if ($noHp !== null) {
+                                SendWa($consumable->pjStock->noHp, $consumable->pjStock->name, $item->orderSegment->noOrder, $item->user->name, $item->token, $item->no_order);
+                            }
+                        }
+                    } elseif ($item->status == 3) {
+                        $message = $this->sapSend($item, $item->orderSegment);
+
+                        if ($message['lt_message'][0]['message_gi'] === 'SUCCESS') {
+                            $item->update([
+                                'status' => $item->status + 1,
+                                'token' => null,
+                                'ApprPjStokDate' => $date
+                            ]);
+
+                            SapFail::create([
+                                'idAppr' => $item->_id,
+                                'matdoc_gi' => $message['lt_message'][0]['matdoc_gi'],
+                                'Desc_message' => $message['lt_message'][0]['message_gi']
+                            ]);
+                        } else {
+                            $item->update([
+                                'status' => 0,
+                                'token' => null,
+                                'ApprPjStokDate' => $date
+                            ]);
+
+                            SapFail::create([
+                                'idAppr' => $item->_id,
+                                'Desc_message' => $message['lt_message'][0]['message_gi']
+                            ]);
+                        }
+                    }
+                }
+
+                Alert::success('Approve Success', 'You can give information about that to user request for check periodically');
+            } catch (Exception $e) {
+                dd($e);
+                Alert::error('Approve failed', $e->getMessage());
+            }
+
+
+
+            // Lakukan sesuatu dengan hasilnya
+            return redirect()->back();
+        }
+    }
+
+    public function massReject(Request $request)
+    {
+        $selectedOrders = json_decode($request->input('selected_orders'));
+        $date = date('Y-m-d');
+
+        try {
+            $apprs = MstrAppr::whereIn('no_order', $selectedOrders)->get();
+
+            foreach ($apprs as $appr) {
+                $appr->update([
+                    'status' => 0, // Set to rejected status
+                    'token' => null,
+
+                ]);
+            }
+
+            Alert::success('Reject Success', 'Selected orders have been rejected');
+        } catch (Exception $e) {
+            Alert::error('Reject failed', $e->getMessage());
+        }
+
+        return redirect()->route('approvalConfirmation.index');
+    }
 
 
 

@@ -101,7 +101,7 @@
 
             <center id="top">
                 <div class="info">
-                    <h2>ELMR</h2>
+                    <h2>E-CONSUMABLE</h2>
                     PT Dharma Polimetal Tbk
                 </div>
             </center>
