@@ -6,6 +6,21 @@
     </x-slot>
 
     <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+        <div class="flex justify-between mb-4">
+            <!-- Search Bar -->
+            <div class="flex items-center space-x-2">
+                <input type="text" id="search" placeholder="Search No Order"
+                    class="px-4 py-2 border rounded-md dark:text-black">
+            </div>
+
+            <!-- Date Filter -->
+            <div class="flex items-center space-x-2">
+                <input type="date" id="start_date" class="px-4 py-2 border rounded-md dark:text-black">
+                <input type="date" id="end_date" class="px-4 py-2 border rounded-md dark:text-black">
+                <button id="filter_date"
+                    class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md">Filter</button>
+            </div>
+        </div>
         <div class="overflow-x-auto">
             <table class="table-auto min-w-full text-center text-sm">
                 <thead class="bg-gray-100 dark:bg-gray-700">
@@ -161,5 +176,110 @@
                 modal.classList.add('hidden');
             });
         });
+    </script>
+    <script>
+        document.getElementById('searchInput').addEventListener('input', function() {
+            const search = this.value;
+            const url = new URL(window.location.href);
+            url.searchParams.set('search', search);
+
+            fetch(url, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const updatedTable = doc.querySelector('table');
+                    const updatedPagination = doc.querySelector('.mt-4');
+
+                    if (updatedTable && updatedPagination) {
+                        document.querySelector('table').replaceWith(updatedTable);
+                        document.querySelector('.mt-4').replaceWith(updatedPagination);
+                    }
+
+                    // Rebind the open modal button event
+                    bindOpenModalEvent();
+                })
+                .catch(error => console.error('Error fetching search results:', error));
+        });
+
+        function bindOpenModalEvent() {
+            const openModalButtons = document.querySelectorAll('.open-modal-btn');
+            const modal = document.getElementById('mstrApprsModal');
+            const closeModalButton = document.getElementById('closeMstrApprsModal');
+            const tableBody = document.getElementById('mstrApprsTableBody');
+            const noOrderInput = document.getElementById('no_order');
+
+            const apprData = @json($status->items());
+
+
+            openModalButtons.forEach((button) => {
+                button.addEventListener('click', function() {
+                    const apprId = button.getAttribute('data-id');
+                    const appr = apprData.find(item => item._id === apprId);
+
+                    if (appr) {
+                        const mstrApprs = appr.mstr_apprs;
+                        console.log(appr);
+
+                        // Set nilai noOrder ke input
+                        noOrderInput.value = mstrApprs[0].no_order;
+
+                        if (mstrApprs.length > 0) {
+                            let rows = '';
+                            mstrApprs.forEach(item => {
+                                if (item.sap_fails && item.sap_fails.length > 0) {
+                                    console.log(item.sap_fails[0].Desc_message);
+
+                                    const consumable = item.consumable || {};
+                                    let statusDisplay;
+
+                                    switch (item.status) {
+                                        case 1:
+                                            statusDisplay = 'Waiting for approval';
+                                            break;
+                                        case 2:
+                                        case 3:
+                                            statusDisplay = 'Partially approved';
+                                            break;
+                                        case 4:
+                                            statusDisplay = 'All Process Success';
+                                            break;
+                                        default:
+                                            statusDisplay = item.sap_fails[0].Desc_message;
+                                    }
+
+                                    rows += `
+                                <tr>
+                                    <td class="px-4 py-2">${appr.noOrder}</td>
+                                    <td class="px-4 py-2">${item.sap_fails[0].matdoc_gi}</td>
+                                    <td class="px-4 py-2">${consumable.Cb_desc || '-'}</td>
+                                    <td class="px-4 py-2">${item.jumlah || 0}</td>
+                                    <td class="px-4 py-2">${statusDisplay}</td>
+                                </tr>
+                            `;
+                                }
+                            });
+
+                            if (tableBody) {
+                                tableBody.innerHTML = rows;
+                            }
+                        }
+                        modal.classList.remove('hidden');
+                    }
+                });
+            });
+
+
+            closeModalButton.addEventListener('click', function() {
+                modal.classList.add('hidden');
+            });
+        }
+
+        // Initial binding
+        bindOpenModalEvent();
     </script>
 </x-app-layout>

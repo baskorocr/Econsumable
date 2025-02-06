@@ -12,6 +12,7 @@ use Illuminate\Support\Str;
 use RealRashid\SweetAlert\Facades\Alert;
 use GuzzleHttp\Client;
 use Illuminate\Support\Arr;
+use Carbon\Carbon;
 
 
 class ApprovalController extends Controller
@@ -158,26 +159,23 @@ class ApprovalController extends Controller
 
         return view('transaction.sapStatus', compact('status'));
     }
-    public function indexStatusSuccess()
+    public function indexStatusSuccess(Request $request)
     {
+        $search = $request->input('search', '');
+        $fromDate = $request->input('from_date');
+        $toDate = $request->input('to_date');
 
-        // $status = OrderSegment::with(['mstrApprs.sapFails', 'mstrApprs.consumable.masterLineGroup', 'user'])
-        //     ->whereHas(
-        //         'mstrApprs.consumable.masterLineGroup',
-        //         function ($e) {
-        //             $e->where('NpkPjStock', auth()->user()->npk);
-        //         }
-        //     )->whereHas(
-        //         'mstrApprs',
-        //         function ($e) {
-        //             $e->where('status', 0);
-        //         }
-        //     )->whereHas('mstrApprs.sapFails', function ($e) {
-        //         $e->where('Desc_message', 'FAILED');
-        //     })
-        //     ->get();
+        // Pastikan format tanggal valid
+        if ($fromDate && $toDate) {
+            try {
+                $fromDate = Carbon::parse($fromDate)->startOfDay();
+                $toDate = Carbon::parse($toDate)->endOfDay();
+            } catch (\Exception $e) {
+                return redirect()->back()->with('error', 'Format tanggal tidak valid.');
+            }
+        }
 
-        $status = OrderSegment::with([
+        $query = OrderSegment::with([
             'mstrApprs.sapFails' => function ($query) {
                 $query->where('Desc_message', 'SUCCESS');
             },
@@ -187,15 +185,29 @@ class ApprovalController extends Controller
             $query->where('Desc_message', 'SUCCESS');
         })->whereHas('mstrApprs.consumable.masterLineGroup', function ($query) {
             $query->where('NpkPjStock', auth()->user()->npk);
-        })->
-            whereHas('mstrApprs', function ($query) {
-                $query->where('status', 4);
-            })->paginate(20);
+        })->whereHas('mstrApprs', function ($query) {
+            $query->where('status', 4);
+        });
 
+        // Filter berdasarkan tanggal `created_at` dari `mstrApprs`
+        if ($fromDate && $toDate) {
+            $query->whereHas('mstrApprs', function ($query) use ($fromDate, $toDate) {
+                $query->whereBetween('created_at', [$fromDate, $toDate]);
+            });
+        }
 
+        // Filter berdasarkan search (noOrder)
+        if ($search) {
+            $query->where('noOrder', 'like', "%{$search}%");
+        }
 
-        return view('transaction.sapStatusSuccess', compact('status'));
+        $status = $query->paginate(20);
+
+        return view('transaction.sapStatusSuccess', compact('status', 'search'));
     }
+
+
+
 
     public function resend(Request $request)
     {

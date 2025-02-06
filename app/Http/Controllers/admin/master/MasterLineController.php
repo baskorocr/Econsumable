@@ -40,7 +40,7 @@ class MasterLineController extends Controller
      */
     public function store(Request $request)
     {
-        dd($request->all());
+
         // Validate the input to ensure it's an array of line names
         $request->validate([
             'nameLine' => 'required|array',

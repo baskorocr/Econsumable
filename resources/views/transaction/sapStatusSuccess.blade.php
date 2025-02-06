@@ -7,40 +7,52 @@
     </x-slot>
 
     <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
-        <div class="flex flex-wrap items-center space-x-4 md:space-x-6">
-            <form id="printForm" action="{{ route('sap.print') }}" method="POST" target="_blank">
-                @csrf
-                <input hidden name="selected_orders" id="selectedOrders">
-            </form>
+        <div class="flex justify-between items-center">
+            <!-- Print Button & Search (Left) -->
+            <div class="flex items-center space-x-4">
+                <form id="printForm" action="{{ route('sap.print') }}" method="POST" target="_blank">
+                    @csrf
+                    <input hidden name="selected_orders" id="selectedOrders">
+                </form>
 
-            <button id="mass-print" type="submit"
-                class="inline-block bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white px-4 py-2 rounded-md">
-                {{ __('Print') }}
-            </button>
+                <button id="mass-print" type="submit"
+                    class="bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white px-4 py-2 rounded-md">
+                    {{ __('Print') }}
+                </button>
 
+                <input type="text" id="searchInput" value="{{ $search }}" placeholder="Search by name"
+                    class="w-2 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600">
 
+            </div>
+
+            <!-- Filter Date (Right) -->
+            <div class="flex items-center space-x-4">
+                <input type="date" id="fromDate"
+                    class="border-gray-300 rounded-md shadow-sm dark:bg-gray-700 dark:text-white">
+                <input type="date" id="toDate"
+                    class="border-gray-300 rounded-md shadow-sm dark:bg-gray-700 dark:text-white">
+                <button id="filterBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md">
+                    Filter
+                </button>
+            </div>
         </div>
+
 
 
         <div class="overflow-x-auto">
             <table class="table-auto min-w-full text-center text-sm">
                 <thead class="bg-gray-100 dark:bg-gray-700">
                     <tr>
-                        <th class="px-4 py-3">
-                            <input type="checkbox" id="select-all">
-                        </th>
+                        <th class="px-4 py-3"><input type="checkbox" id="select-all"></th>
                         <th
                             class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                            {{ __('No Order') }}
-                        </th>
+                            {{ __('No Order') }}</th>
                         <th
                             class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                            {{ __('Request By') }}
-                        </th>
+                            {{ __('Request By') }}</th>
                         <th
                             class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                            {{ __('Detail Approval') }}
-                        </th>
+                            {{ __('Detail Approval') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
@@ -208,6 +220,165 @@
                 alert('No orders selected for printing.');
             }
         });
+
+        document.getElementById('searchInput').addEventListener('input', function() {
+            const search = this.value;
+            const url = new URL(window.location.href);
+            url.searchParams.set('search', search);
+
+            fetch(url, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const updatedTable = doc.querySelector('table');
+                    const updatedPagination = doc.querySelector('.mt-4');
+
+                    if (updatedTable && updatedPagination) {
+                        document.querySelector('table').replaceWith(updatedTable);
+                        document.querySelector('.mt-4').replaceWith(updatedPagination);
+                    }
+
+                    // Rebind the open modal button event
+                    bindOpenModalEvent();
+                })
+                .catch(error => console.error('Error fetching search results:', error));
+        });
+
+        // Function to bind the event again after search
+        function bindOpenModalEvent() {
+            const openModalButtons = document.querySelectorAll('.open-modal-btn');
+            const modal = document.getElementById('mstrApprsModal');
+            const closeModalButton = document.getElementById('closeMstrApprsModal');
+            const tableBody = document.getElementById('mstrApprsTableBody');
+            const noOrderInput = document.getElementById('no_order');
+
+            const apprData = @json($status->items());
+
+
+            openModalButtons.forEach((button) => {
+                button.addEventListener('click', function() {
+                    const apprId = button.getAttribute('data-id');
+                    const appr = apprData.find(item => item._id === apprId);
+
+                    if (appr) {
+                        const mstrApprs = appr.mstr_apprs;
+                        console.log(appr);
+
+                        // Set nilai noOrder ke input
+                        noOrderInput.value = mstrApprs[0].no_order;
+
+                        if (mstrApprs.length > 0) {
+                            let rows = '';
+                            mstrApprs.forEach(item => {
+                                if (item.sap_fails && item.sap_fails.length > 0) {
+                                    console.log(item.sap_fails[0].Desc_message);
+
+                                    const consumable = item.consumable || {};
+                                    let statusDisplay;
+
+                                    switch (item.status) {
+                                        case 1:
+                                            statusDisplay = 'Waiting for approval';
+                                            break;
+                                        case 2:
+                                        case 3:
+                                            statusDisplay = 'Partially approved';
+                                            break;
+                                        case 4:
+                                            statusDisplay = 'All Process Success';
+                                            break;
+                                        default:
+                                            statusDisplay = item.sap_fails[0].Desc_message;
+                                    }
+
+                                    rows += `
+                                <tr>
+                                    <td class="px-4 py-2">${appr.noOrder}</td>
+                                    <td class="px-4 py-2">${item.sap_fails[0].matdoc_gi}</td>
+                                    <td class="px-4 py-2">${consumable.Cb_desc || '-'}</td>
+                                    <td class="px-4 py-2">${item.jumlah || 0}</td>
+                                    <td class="px-4 py-2">${statusDisplay}</td>
+                                </tr>
+                            `;
+                                }
+                            });
+
+                            if (tableBody) {
+                                tableBody.innerHTML = rows;
+                            }
+                        }
+                        modal.classList.remove('hidden');
+                    }
+                });
+            });
+            document.getElementById('select-all').addEventListener('click', function() {
+                let checkboxes = document.querySelectorAll('.select-item');
+                checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+            });
+
+            // Mass Print Listener
+            document.getElementById('mass-print').addEventListener('click', function(event) {
+                event.preventDefault(); // Mencegah submit form langsung
+
+                let selectedOrders = [];
+                document.querySelectorAll('.select-item:checked').forEach(item => {
+                    selectedOrders.push(item.value);
+                });
+
+                if (selectedOrders.length > 0) {
+                    // Masukkan data ke input hidden
+                    document.getElementById('selectedOrders').value = JSON.stringify(selectedOrders);
+
+                    // Submit form
+                    document.getElementById('printForm').submit();
+                } else {
+                    alert('No orders selected for printing.');
+                }
+            });
+
+            closeModalButton.addEventListener('click', function() {
+                modal.classList.add('hidden');
+            });
+        }
+
+        // Initial binding
+        bindOpenModalEvent();
     </script>
+    <script>
+        document.getElementById('filterBtn').addEventListener('click', function() {
+            const fromDate = document.getElementById('fromDate').value;
+            const toDate = document.getElementById('toDate').value;
+            const url = new URL(window.location.href);
+
+            if (fromDate) url.searchParams.set('from_date', fromDate);
+            if (toDate) url.searchParams.set('to_date', toDate);
+
+            fetch(url, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const updatedTable = doc.querySelector('table');
+                    const updatedPagination = doc.querySelector('.mt-4');
+
+                    if (updatedTable && updatedPagination) {
+                        document.querySelector('table').replaceWith(updatedTable);
+                        document.querySelector('.mt-4').replaceWith(updatedPagination);
+                    }
+                    bindOpenModalEvent();
+                })
+                .catch(error => console.error('Error fetching filtered results:', error));
+        });
+    </script>
+
 
 </x-app-layout>
