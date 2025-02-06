@@ -24,11 +24,11 @@
             </x-slot>
         </x-sidebar.link>
     @endif
-    <x-sidebar.link title="Reports" href="{{ route('index.report') }}" :isActive="request()->routeIs(' index.report')">
+    {{-- <x-sidebar.link title="Reports" href="{{ route('index.report') }}" :isActive="request()->routeIs(' index.report')">
         <x-slot name="icon">
             <x-heroicon-o-chart-pie class="flex-shrink-0 w-6 h-6" aria-hidden="true" />
         </x-slot>
-    </x-sidebar.link>
+    </x-sidebar.link> --}}
 
 
 
