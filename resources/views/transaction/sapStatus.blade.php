@@ -1,24 +1,26 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('List SAP Status Success') }}
+            {{ __('List SAP Status Fails') }}
         </h2>
     </x-slot>
 
     <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
-        <div class="flex justify-between mb-4">
+        <div class="flex flex-col md:flex-row justify-between mb-4">
             <!-- Search Bar -->
-            <div class="flex items-center space-x-2">
+            <div class="flex items-center space-x-2 mb-2 md:mb-0">
                 <input type="text" id="search" placeholder="Search No Order"
-                    class="px-4 py-2 border rounded-md dark:text-black">
+                    class="px-4 py-2 border rounded-md dark:text-black w-full md:w-auto">
             </div>
 
             <!-- Date Filter -->
             <div class="flex items-center space-x-2">
-                <input type="date" id="start_date" class="px-4 py-2 border rounded-md dark:text-black">
-                <input type="date" id="end_date" class="px-4 py-2 border rounded-md dark:text-black">
+                <input type="date" id="start_date"
+                    class="px-4 py-2 border rounded-md dark:text-black w-full md:w-auto">
+                <input type="date" id="end_date"
+                    class="px-4 py-2 border rounded-md dark:text-black w-full md:w-auto">
                 <button id="filter_date"
-                    class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md">Filter</button>
+                    class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md w-full md:w-auto">Filter</button>
             </div>
         </div>
         <div class="overflow-x-auto">
@@ -63,7 +65,7 @@
         <!-- Modal -->
         <div id="mstrApprsModal"
             class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
-            <div class="bg-white dark:bg-gray-900 rounded-lg shadow-lg w-3/4">
+            <div class="bg-white dark:bg-gray-900 rounded-lg shadow-lg w-11/12 md:w-3/4">
                 <div class="flex justify-between items-center border-b px-6 py-4">
                     <h3 class="text-lg font-medium text-gray-700 dark:text-gray-200">Master Approval Data</h3>
                     <button id="closeMstrApprsModal"
@@ -99,6 +101,7 @@
             </div>
         </div>
     </div>
+
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {

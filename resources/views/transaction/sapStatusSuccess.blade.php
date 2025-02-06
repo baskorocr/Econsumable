@@ -3,13 +3,12 @@
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
             {{ __('List SAP Status Success') }}
         </h2>
-
     </x-slot>
 
     <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
-        <div class="flex justify-between items-center">
+        <div class="flex flex-col md:flex-row justify-between items-center mb-4">
             <!-- Print Button & Search (Left) -->
-            <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-4 mb-2 md:mb-0">
                 <form id="printForm" action="{{ route('sap.print') }}" method="POST" target="_blank">
                     @csrf
                     <input hidden name="selected_orders" id="selectedOrders">
@@ -21,8 +20,7 @@
                 </button>
 
                 <input type="text" id="searchInput" value="{{ $search }}" placeholder="Search by name"
-                    class="w-2 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600">
-
+                    class="w-full md:w-64 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600">
             </div>
 
             <!-- Filter Date (Right) -->
@@ -36,8 +34,6 @@
                 </button>
             </div>
         </div>
-
-
 
         <div class="overflow-x-auto">
             <table class="table-auto min-w-full text-center text-sm">
@@ -82,7 +78,7 @@
         <!-- Modal -->
         <div id="mstrApprsModal"
             class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
-            <div class="bg-white dark:bg-gray-900 rounded-lg shadow-lg w-3/4">
+            <div class="bg-white dark:bg-gray-900 rounded-lg shadow-lg w-11/12 md:w-3/4">
                 <div class="flex justify-between items-center border-b px-6 py-4">
                     <h3 class="text-lg font-medium text-gray-700 dark:text-gray-200">Master Approval Data</h3>
                     <button id="closeMstrApprsModal"
@@ -110,12 +106,12 @@
                     <form action="#" method="POST">
                         @csrf
                         <input type="hidden" name="no_order" id="no_order">
-
                     </form>
                 </div>
             </div>
         </div>
     </div>
+
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
