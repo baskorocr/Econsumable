@@ -526,10 +526,10 @@ class ApprovalController extends Controller
 
                     }
                 }
-                if ($appr->status == 4) {
+                if ($item->status == 4) {
 
                     Alert::success('Approve Success', 'Please Check request on menu SAP, for see status request');
-                } elseif ($appr->status == 0) {
+                } elseif ($item->status == 0) {
                     Alert::error('SAP ERROR', 'Please check the request on E-Consumable System (SAP Status) to see the request status.');
 
                 } else {
@@ -543,7 +543,7 @@ class ApprovalController extends Controller
 
 
         } catch (Exception $e) {
-
+            dd($e);
             Alert::error('Approve failed', $e->getMessage());
             return redirect()->route('approvalConfirmation.index');
 
