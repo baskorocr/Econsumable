@@ -69,11 +69,11 @@ Route::group(['middleware' => ['role:1,2,3,4'], 'prefix' => 'AdminMaster'], func
 
 
 
-Route::get('/appr/{id}/{token}', [ApprovalController::class, 'apprNon'])->name('appr.show');
-Route::post('/acc', [ApprovalController::class, 'accNon'])->name('acc');
-Route::post('/reject', [ApprovalController::class, 'rejectNon'])->name('reject');
-
-
+Route::middleware(['web'])->group(function () {
+    Route::get('/appr/{id}/{token}', [ApprovalController::class, 'apprNon'])->name('appr.show');
+    Route::post('/acc', [ApprovalController::class, 'accNon'])->name('acc');
+    Route::post('/reject', [ApprovalController::class, 'rejectNon'])->name('reject');
+});
 
 Route::get('/profile', [ProfileController::class, 'edit'])->middleware(['role:1,2,3,4,5'])->name('profile.edit');
 Route::patch('/profile', [ProfileController::class, 'update'])->middleware(['role:1,2,3,4,5'])->name('profile.update');

@@ -1,4 +1,6 @@
 <x-guest-layout class="">
+
+
     <div style="margin-bottom: 17rem; margin-top: 6rem;"
         class="max-w-md mx-auto mt-10 lg:mb-10 p-6 bg-white shadow-md rounded-lg">
         <!-- Bagian Atas: Judul -->

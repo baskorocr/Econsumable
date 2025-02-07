@@ -262,17 +262,21 @@
                     const approvalAccUrl = '{{ route('editAppr', ':id') }}'.replace(':id', item._id);
 
                     return `
+                    
                         <tr>
                             <td class="px-4 py-2">${appr.noOrder}</td>
                             <td class="px-4 py-2">${consumable.Cb_desc}</td>
                             <td class="px-4 py-2">${item.jumlah}</td>
                             <td class="px-4 py-2">${statusDisplay}</td>
                             <td class="px-4 py-2">
+                                @if (auth()->user()->idRole == 4)
                                 <a href="${approvalAccUrl}" class="bg-yellow-500 hover:bg-yellow-600 dark:bg-yellow-600 dark:hover:bg-yellow-700 text-white px-4 py-2 rounded-md">
                                     edit
                                 </a>
+                                 @endif
                             </td>
                         </tr>
+                       
                     `;
                 }).join('');
             }
