@@ -126,6 +126,7 @@
                         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                             <thead class="bg-gray-100 dark:bg-gray-700">
                                 <tr>
+
                                     <th
                                         class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
                                         No Order</th>
@@ -138,6 +139,11 @@
                                     <th
                                         class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
                                         Status</th>
+                                    @if (auth()->user()->idRole == 4)
+                                        <th
+                                            class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
+                                            Action</th>
+                                    @endif
                                 </tr>
                             </thead>
                             <tbody id="mstrApprsTableBody" class="divide-y divide-gray-200 dark:divide-gray-700">

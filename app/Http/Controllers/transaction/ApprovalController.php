@@ -121,7 +121,12 @@ class ApprovalController extends Controller
 
     public function updateAppr(Request $request)
     {
-        dd($request->all());
+        $appr = MstrAppr::findOrFail($request->_id);
+
+        $appr->update([
+            'jumlah' => $request->qty
+        ]);
+        return redirect()->route('approvalConfirmation.index');
     }
 
     public function indexStatus(Request $request)
