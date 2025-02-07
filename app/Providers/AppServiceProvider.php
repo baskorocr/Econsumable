@@ -35,20 +35,57 @@ class AppServiceProvider extends ServiceProvider
     {
         $apprs = 0;
 
+
+
         // Pastikan auth()->user() tersedia sebelum mengaksesnya
         if (auth()->check()) {
             $roleId = auth()->user()->idRole;
 
 
+
+
             switch ($roleId) {
                 case '2':
-                    $apprs = MstrAppr::where('status', 1)->count();
+                    $apprs = OrderSegment::with([
+                        'mstrApprs',
+                        'mstrApprs.consumable.masterLineGroup',
+                        'user'
+                    ])
+                        ->whereHas('mstrApprs', function ($query) {
+                            $query->where('status', 1);
+                        })
+                        ->whereHas('mstrApprs.consumable.masterLineGroup', function ($query) {
+                            $query->where('NpkPjStock', auth()->user()->npk);
+                        })
+                        ->count();
                     break;
                 case '3':
-                    $apprs = MstrAppr::where('status', 2)->count();
+                    $apprs = OrderSegment::with([
+                        'mstrApprs',
+                        'mstrApprs.consumable.masterLineGroup',
+                        'user'
+                    ])
+                        ->whereHas('mstrApprs', function ($query) {
+                            $query->where('status', 2);
+                        })
+                        ->whereHas('mstrApprs.consumable.masterLineGroup', function ($query) {
+                            $query->where('NpkPjStock', auth()->user()->npk);
+                        })
+                        ->count();
                     break;
                 case '4':
-                    $apprs = MstrAppr::where('status', 3)->count();
+                    $apprs = OrderSegment::with([
+                        'mstrApprs',
+                        'mstrApprs.consumable.masterLineGroup',
+                        'user'
+                    ])
+                        ->whereHas('mstrApprs', function ($query) {
+                            $query->where('status', 3);
+                        })
+                        ->whereHas('mstrApprs.consumable.masterLineGroup', function ($query) {
+                            $query->where('NpkPjStock', auth()->user()->npk);
+                        })
+                        ->count();
 
                     break;
             }
@@ -78,7 +115,11 @@ class AppServiceProvider extends ServiceProvider
                     $query->where('NpkPjStock', auth()->user()->npk);
                 })
                 ->count();
+
+
         }
+
+
 
         return $orderSegmentCount;
     }
