@@ -307,7 +307,7 @@ class ApprovalController extends Controller
 
                 Alert::success('Approve Success', 'You can give information about that to user request for check periodically');
             } catch (Exception $e) {
-                dd($e);
+
                 Alert::error('Approve failed', $e->getMessage());
             }
 
@@ -526,23 +526,24 @@ class ApprovalController extends Controller
 
                     }
                 }
+                if ($appr->status == 4) {
+
+                    Alert::success('Approve Success', 'Please Check request on menu SAP, for see status request');
+                } elseif ($appr->status == 0) {
+                    Alert::error('SAP ERROR', 'Please check the request on E-Consumable System (SAP Status) to see the request status.');
+
+                } else {
+                    Alert::success('Approve Success', 'Thanks for your have been Approved');
+                }
 
             }
 
 
-            if ($appr->status == 4) {
 
-                Alert::success('Approve Success', 'Pleas Check request on menu SAP, for see status request');
-            } elseif ($appr->status == 0) {
-                dd("Dsadsa");
-
-            } else {
-                Alert::success('Approve Success', 'Thanks for your have been Approved');
-            }
 
 
         } catch (Exception $e) {
-            dd($e);
+
             Alert::error('Approve failed', $e->getMessage());
             return redirect()->route('approvalConfirmation.index');
 
