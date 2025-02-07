@@ -124,41 +124,52 @@ class ApprovalController extends Controller
         dd($request->all());
     }
 
-    public function indexStatus()
+    public function indexStatus(Request $request)
     {
+        $search = $request->input('search', '');
+        $fromDate = $request->input('from_date');
+        $toDate = $request->input('to_date');
 
-        // $status = OrderSegment::with(['mstrApprs.sapFails', 'mstrApprs.consumable.masterLineGroup', 'user'])
-        //     ->whereHas(
-        //         'mstrApprs.consumable.masterLineGroup',
-        //         function ($e) {
-        //             $e->where('NpkPjStock', auth()->user()->npk);
-        //         }
-        //     )->whereHas(
-        //         'mstrApprs',
-        //         function ($e) {
-        //             $e->where('status', 0);
-        //         }
-        //     )->whereHas('mstrApprs.sapFails', function ($e) {
-        //         $e->where('Desc_message', 'FAILED');
-        //     })
-        //     ->get();
-
-        $status = OrderSegment::with([
+        $statusQuery = OrderSegment::with([
             'mstrApprs.sapFails' => function ($query) {
                 $query->where('Desc_message', '!=', 'SUCCESS');
             },
             'mstrApprs.consumable.masterLineGroup',
             'user'
-        ])->whereHas('mstrApprs.sapFails', function ($query) {
-            $query->where('Desc_message', '!=', 'SUCCESS');
-        })->whereHas('mstrApprs.consumable.masterLineGroup', function ($query) {
-            $query->where('NpkPjStock', auth()->user()->npk);
-        })->paginate(20);
+        ])
+            ->whereHas('mstrApprs.sapFails', function ($query) {
+                $query->where('Desc_message', '!=', 'SUCCESS');
+            })
+            ->whereHas('mstrApprs.consumable.masterLineGroup', function ($query) {
+                $query->where('NpkPjStock', auth()->user()->npk);
+            });
 
+        // Apply search filter for 'noOrder' inside 'sapFails'
+        if ($search) {
+            $statusQuery->whereHas('mstrApprs.sapFails', function ($query) use ($search) {
+                $query->where('noOrder', 'like', '%' . $search . '%');
+            });
+        }
 
+        // Apply date filters based on 'mstrApprs' related model's date fields
+        if ($fromDate) {
+            $statusQuery->whereHas('mstrApprs', function ($query) use ($fromDate) {
+                $query->whereDate('created_at', '>=', $fromDate); // Replace 'created_at' with the actual date field if different
+            });
+        }
+        if ($toDate) {
+            $statusQuery->whereHas('mstrApprs', function ($query) use ($toDate) {
+                $query->whereDate('created_at', '<=', $toDate); // Replace 'created_at' with the actual date field if different
+            });
+        }
 
-        return view('transaction.sapStatus', compact('status'));
+        // Paginate the results
+        $status = $statusQuery->paginate(20);
+
+        return view('transaction.sapStatus', compact('status', 'search', 'fromDate', 'toDate'));
     }
+
+
     public function indexStatusSuccess(Request $request)
     {
         $search = $request->input('search', '');
@@ -335,6 +346,8 @@ class ApprovalController extends Controller
 
     public function resend(Request $request)
     {
+
+        $no_orders = explode(',', $request->input('no_order'));
         $date = date('Y-m-d');
 
         $apprs = MstrAppr::with([
@@ -351,8 +364,7 @@ class ApprovalController extends Controller
             },
             'orderSegment',
 
-        ])->where('no_order', $request->no_order)->where('status', 0)->get();
-
+        ])->whereIn('no_order', $no_orders)->where('status', 0)->get();
 
         foreach ($apprs as $fail) {
             $message = $this->sapSend($fail, $fail->orderSegment);
@@ -835,10 +847,24 @@ class ApprovalController extends Controller
                 $query->where('Desc_message', 'SUCCESS');
             })->whereHas('mstrApprs.consumable.masterLineGroup', function ($query) {
                 $query->where('NpkPjStock', auth()->user()->npk);
-            })->
-                whereHas('mstrApprs', function ($query) {
-                    $query->where('status', 4);
-                })->whereIn('_id', $selectedOrders)->get();
+            })->whereHas('mstrApprs', function ($query) {
+                $query->where('status', 4);
+            })->whereIn('_id', $selectedOrders)->get();
+
+            // Hapus MstrApprs yang memiliki sapFails kosong
+            $orders->transform(function ($order) {
+                $order->setRelation('mstrApprs', $order->mstrApprs->filter(function ($mstrAppr) {
+                    return $mstrAppr->sapFails->isNotEmpty();
+                }));
+                return $order;
+            });
+
+            // Hapus OrderSegment jika semua mstrApprs sudah terhapus
+            $orders = $orders->filter(function ($order) {
+                return $order->mstrApprs->isNotEmpty();
+            });
+            // Konversi ke Collection lagi jika diperlukan
+            $orders = collect($orders);
 
 
             // Lakukan sesuatu dengan hasilnya

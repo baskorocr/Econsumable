@@ -115,7 +115,7 @@
                         Date &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
                         {{ $order->mstrApprs[$index]->created_at }}<br>
                         No Pro &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
-                        {{ $order->mstrApprs[$index]->sapFails[0]->matdoc_gi }}<br>
+                        {{ $order->mstrApprs[0]->sapFails[0]->matdoc_gi }}<br>
                     </p>
                 </div>
             </div>

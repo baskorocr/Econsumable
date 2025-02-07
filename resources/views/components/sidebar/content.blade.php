@@ -3,7 +3,7 @@
     @if (auth()->user()->role->id === 1 ||
             auth()->user()->role->id === 2 ||
             auth()->user()->role->id === 3 ||
-            auth()->user()->role->id === 3)
+            auth()->user()->role->id === 4)
         <x-sidebar.link title="Dashboard" href="{{ route('Admin.dashboard') }}" :isActive="request()->routeIs('Admin.dashboard')">
             <x-slot name="icon">
                 <x-icons.dashboard class="flex-shrink-0 w-6 h-6" aria-hidden="true" />
