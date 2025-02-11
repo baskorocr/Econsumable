@@ -38,19 +38,14 @@ class ApprovalController extends Controller
 
 
 
-            $apprs = OrderSegment::with([
-                'mstrApprs' => function ($query) {
-                    $query->orderBy('created_at', 'desc');
-                },
-                'mstrApprs.consumable.masterLineGroup'
-            ])
+            $apprs = OrderSegment::with(['mstrApprs.consumable.masterLineGroup'])
                 ->whereHas('mstrApprs', function ($q) {
                     $q->where('NpkSect', auth()->user()->npk)->where('status', 1);
                 })
                 ->when($search, function ($query, $search) {
                     $query->where('noOrder', 'like', "%$search%");
                 })
-                ->orderBy('mstrApprs.created_at', 'desc')->paginate(20);
+                ->orderBy('created_at', 'desc')->paginate(20);
 
 
 
@@ -64,7 +59,7 @@ class ApprovalController extends Controller
                 ->when($search, function ($query, $search) {
                     $query->where('noOrder', 'like', "%$search%");
                 })
-                ->paginate(20);
+                ->orderBy('created_at', 'desc')->paginate(20);
             // $apprs = MstrAppr::with(['consumable.masterLineGroup', 'orderSegment.user'])->where(
             //     'status',
             //     2
@@ -72,19 +67,14 @@ class ApprovalController extends Controller
 
         } elseif (auth()->user()->idRole == '4') {
 
-            $apprs = OrderSegment::with([
-                'mstrApprs' => function ($query) {
-                    $query->orderBy('created_at', 'desc');
-                },
-                'mstrApprs.consumable.masterLineGroup'
-            ])
+            $apprs = OrderSegment::with(['mstrApprs.consumable.masterLineGroup'])
                 ->whereHas('mstrApprs', function ($q) {
                     $q->where('NpkPj', auth()->user()->npk)->where('status', 3);
                 })
                 ->when($search, function ($query, $search) {
                     $query->where('noOrder', 'like', "%$search%");
                 })
-                ->paginate(20);
+                ->orderBy('created_at', 'desc')->paginate(20);
             // $apprs = MstrAppr::with(['consumable.masterLineGroup', 'orderSegment.user'])->where(
             //     'status',
             //     3
@@ -103,19 +93,14 @@ class ApprovalController extends Controller
                 ->when($search, function ($query, $search) {
                     $query->where('noOrder', 'like', "%$search%");
                 })
-                ->paginate(20);
+                ->orderBy('created_at', 'desc')->paginate(20);
 
 
 
         } else {
 
 
-            $apprs = OrderSegment::with([
-                'mstrApprs' => function ($query) {
-                    $query->orderBy('created_at', 'desc');
-                },
-                'mstrApprs.consumable.masterLineGroup'
-            ])->paginate(20);
+            $apprs = OrderSegment::with(['mstrApprs.consumable.masterLineGroup'])->orderBy('created_at', 'desc')->paginate(20);
 
         }
 

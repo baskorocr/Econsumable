@@ -15,7 +15,7 @@ class OrderSegment extends Model
     protected $table = 'order_segments';
     protected $primaryKey = '_id'; // Explicitly define the primary key
     public $incrementing = false;  // Disable auto-incrementing
-    public $timestamps = false;   // Disable timestamps
+    // Disable timestamps
     protected $keyType = 'string';
 
     // Set key type as string
