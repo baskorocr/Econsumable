@@ -21,12 +21,12 @@
 
                 <button id="mass-print" type="button"
                     class="w-full sm:w-auto bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white px-4 py-2 rounded-md">
-                    {{ __('Select Approve') }}
+                    {{ __('Mass Approve') }}
                 </button>
 
                 <button id="mass-reject" type="button"
                     class="w-full sm:w-auto bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-white px-4 py-2 rounded-md">
-                    {{ __('Select Reject') }}
+                    {{ __('Mass Reject') }}
                 </button>
             </div>
 
