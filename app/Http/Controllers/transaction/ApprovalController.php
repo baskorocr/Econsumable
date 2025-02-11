@@ -424,7 +424,7 @@ class ApprovalController extends Controller
 
         try {
             $appr = MstrAppr::with([
-                'user',
+
                 'consumable.masterLineGroup.group',
                 'consumable.masterLineGroup.leader',
                 'consumable.masterLineGroup.section',
@@ -432,7 +432,7 @@ class ApprovalController extends Controller
                 'consumable.masterLineGroup.pjStock',
                 'consumable.masterLineGroup.plan',
                 'consumable.masterLineGroup.costCenter',
-                'orderSegment',
+                'orderSegment.user',
 
             ])->where('no_order', $id)->get();
 
@@ -461,7 +461,7 @@ class ApprovalController extends Controller
 
                         if ($noHp !== null) {
 
-                            SendWa($consumable->leader->noHp, $consumable->leader->name, $item->orderSegment->noOrder, $item->user->name, $item->token, $item->no_order);
+                            SendWa($consumable->leader->noHp, $consumable->leader->name, $item->orderSegment->noOrder, $item->orderSegment->user->name, $item->token, $item->no_order);
 
                         }
 
@@ -483,7 +483,7 @@ class ApprovalController extends Controller
                         $noHp = $item->consumable->masterLineGroup->pjStock->noHp ?? null;
                         if ($noHp !== null) {
 
-                            SendWa($consumable->pjStock->noHp, $consumable->pjStock->name, $item->orderSegment->noOrder, $item->user->name, $item->token, $item->no_order);
+                            SendWa($consumable->pjStock->noHp, $consumable->pjStock->name, $item->orderSegment->noOrder, $item->orderSegment->user->name, $item->token, $item->no_order);
                         }
 
                     }
@@ -613,8 +613,9 @@ class ApprovalController extends Controller
                 'consumable.masterLineGroup.pjStock',
                 'consumable.masterLineGroup.plan',
                 'consumable.masterLineGroup.costCenter',
-                'orderSegment',
+                'orderSegment.user',
             ])->where('no_order', $no_order)->where('token', $token)->get();
+
 
             foreach ($item as $appr) {
                 if ($appr->status == 1) {
@@ -625,7 +626,7 @@ class ApprovalController extends Controller
                     ]);
 
                     if ($a === true || $appr->consumable->masterLineGroup->leader->noHp !== null) {
-                        SendWa($appr->consumable->masterLineGroup->leader->noHp, $appr->consumable->masterLineGroup->leader->name, $appr->orderSegment->noOrder, $appr->user->name, $appr->token, $appr->no_order);
+                        SendWa($appr->consumable->masterLineGroup->leader->noHp, $appr->consumable->masterLineGroup->leader->name, $appr->orderSegment->noOrder, $appr->orderSegment->user->name, $appr->token, $appr->no_order);
                     }
                 } elseif ($appr->status == 2) {
                     $a = $appr->update([
@@ -635,7 +636,7 @@ class ApprovalController extends Controller
                     ]);
 
                     if ($a === true || $appr->consumable->masterLineGroup->leader->noHp !== null) {
-                        SendWa($appr->consumable->masterLineGroup->pjStock->noHp, $appr->consumable->masterLineGroup->leader->name, $appr->orderSegment->noOrder, $appr->user->name, $appr->token, $appr->no_order);
+                        SendWa($appr->consumable->masterLineGroup->pjStock->noHp, $appr->consumable->masterLineGroup->leader->name, $appr->orderSegment->noOrder, $appr->orderSegment->user->name, $appr->token, $appr->no_order);
                     }
                 } elseif ($appr->status == 3) {
                     $message = $this->sapSend($appr, $appr->orderSegment);
@@ -870,7 +871,6 @@ class ApprovalController extends Controller
         // Cek jika array tidak kosong
         if (!empty($selectedOrders)) {
             // Ambil data dari database berdasarkan nilai checkbox yang dipilih
-
             $orders = OrderSegment::with([
                 'mstrApprs.sapFails' => function ($query) {
                     $query->where('Desc_message', 'SUCCESS');
@@ -886,11 +886,16 @@ class ApprovalController extends Controller
                 $query->where('status', 4);
             })->whereIn('_id', $selectedOrders)->get();
 
-            // Hapus MstrApprs yang memiliki sapFails kosong
+            // Hapus MstrApprs yang memiliki sapFails kosong dan ubah indexing menjadi numerik
             $orders->transform(function ($order) {
-                $order->setRelation('mstrApprs', $order->mstrApprs->filter(function ($mstrAppr) {
+                // Filter mstrApprs yang memiliki sapFails yang tidak kosong
+                $filteredApprs = $order->mstrApprs->filter(function ($mstrAppr) {
                     return $mstrAppr->sapFails->isNotEmpty();
-                }));
+                });
+
+                // Ubah indexing menjadi numerik
+                $order->setRelation('mstrApprs', $filteredApprs->values());
+
                 return $order;
             });
 
@@ -898,12 +903,15 @@ class ApprovalController extends Controller
             $orders = $orders->filter(function ($order) {
                 return $order->mstrApprs->isNotEmpty();
             });
+
             // Konversi ke Collection lagi jika diperlukan
             $orders = collect($orders);
+
 
 
             // Lakukan sesuatu dengan hasilnya
             return view('transaction.print', compact('orders'));
         }
     }
+
 }

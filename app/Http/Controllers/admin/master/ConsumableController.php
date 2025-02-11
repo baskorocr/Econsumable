@@ -91,21 +91,27 @@ class ConsumableController extends Controller
     public function update(Request $request, $id)
     {
 
+
+
         try {
 
-            $consumable = MstrConsumable::findOrFail($id);
+
             $request->validate([
-                'Cb_number' => 'required|string|max:255|unique:mstr_consumables,Cb_number,' . $consumable->Cb_number . ',Cb_number',
+                'Cb_number' => 'required|string|max:255|',
                 'Cb_mtId' => 'required|string',
                 'Cb_desc' => 'required|string',
             ]);
+            $consumable = MstrConsumable::findOrFail($request->Cb_number);
 
-
-            $consumable->update($request->all());
+            $consumable->update([
+                'Cb_desc' => $request->Cb_desc,
+                'Cb_lgId' => $request->Cb_lgId,
+            ]);
             Alert::success('Update Success', 'Data Consumable has been successfully updated');
 
 
         } catch (Exception $e) {
+            dd($e);
 
             Alert::error('update failed', $e->getMessage());
             return redirect()->route('Consumable.index');

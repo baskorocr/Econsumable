@@ -25,10 +25,11 @@ return new class extends Migration {
             $table->string('NpkPjStock');
 
 
-            $table->foreign('NpkLeader')->references('npk')->on('users')->onUpdate('cascade')->onDelete('cascade');
-            $table->foreign('NpkSection')->references('npk')->on('users')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('NpkLeader')->references('npk')->on('users')->onUpdate('cascade')->onDelete('set null');
+            $table->foreign('NpkSection')->references('npk')->on('users')->onUpdate('cascade')->onDelete('set null');
 
-            $table->foreign('NpkPjStock')->references('npk')->on('users');
+            $table->foreign('NpkPjStock')->references('npk')->on('users')->onUpdate('cascade')->onDelete('set null');
+            ;
             $table->foreign('Lg_plId')->references('_id')->on('mstr_plans')->onUpdate('cascade')->onDelete('cascade');
             $table->foreign('Lg_csId')->references('_id')->on('mstr_cost_centers')->onUpdate('cascade')->onDelete('cascade');
 

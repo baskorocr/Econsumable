@@ -61,7 +61,7 @@
                                 <button
                                     class="bg-yellow-500 hover:bg-yellow-600 dark:bg-yellow-600 dark:hover:bg-yellow-700 text-white px-4 py-2 rounded-md editConsumableBtn"
                                     data-id="{{ $consumable->_id }}" data-no="{{ $consumable->Cb_number }} "
-                                    data-desc="{{ $consumable->Cb_desc }}" data-mtid="{{ $consumable->Cb_mtId }}">
+                                    data-desc="{{ $consumable->Cb_desc }}" data-mtid="{{ $consumable->Cb_lgId }}">
                                     {{ __('Edit') }}
                                 </button>
 
@@ -207,10 +207,7 @@
                             class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
                             required>
                             @foreach ($lgs as $lg)
-                                <option value="{{ $lg->id }}"
-                                    {{ $lg->id == (old('Cb_mtId') ?? $consumable->Cb_mtId) ? 'selected' : '' }}>
-                                    {{ $lg->Lg_code }}
-                                </option>
+                                <option value="{{ $lg->_id }}">{{ $lg->Lg_code }}</option>
                             @endforeach
                         </select>
                     </div>

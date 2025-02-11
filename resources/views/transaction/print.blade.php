@@ -113,7 +113,9 @@
                         By &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {{ $order->user->name }}<br>
                         NPK &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {{ $order->user->npk }}<br>
                         Date &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
-                        {{ $order->mstrApprs[$index]->created_at }}<br>
+
+                        {{ $order->mstrApprs[0]->created_at }}<br>
+
                         No Pro &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
                         {{ $order->mstrApprs[0]->sapFails[0]->matdoc_gi }}<br>
                     </p>
@@ -151,8 +153,8 @@
 
                 <div id="legalcopy">
                     <p class="legal">
-                        Document for: <strong>{{ $order->mstrApprs[$index]->lineFrom }}</strong><br>
-                        Approved By: <strong>{{ $order->mstrApprs[$index]->dept->name }}</strong><br>
+                        Document for: <strong>{{ $order->mstrApprs[0]->lineFrom }}</strong><br>
+                        Approved By: <strong>{{ $order->mstrApprs[0]->dept->name }}</strong><br>
                         Print Count: <strong>{{ $index + 1 }}</strong>
                     </p>
                 </div>
