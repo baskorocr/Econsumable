@@ -105,7 +105,7 @@ class ConsumableController extends Controller
 
             $consumable->update([
                 'Cb_desc' => $request->Cb_desc,
-                'Cb_lgId' => $request->Cb_lgId,
+                'Cb_lgId' => $request->Cb_mtId,
             ]);
             Alert::success('Update Success', 'Data Consumable has been successfully updated');
 

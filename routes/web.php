@@ -60,12 +60,19 @@ Route::group(['middleware' => ['role:1,2,3,4'], 'prefix' => 'AdminMaster'], func
     Route::get('/line/search', [LinesController::class, 'search'])->name('line.search');
     Route::get('/material/search', [LinesController::class, 'searchMaterial'])->name('material.search');
     Route::get('/consumable/search', [LinesController::class, 'searchConsumable'])->name('consumable.search');
+
+
+});
+
+Route::group(['middleware' => ['role:1,2,3,4,5']], function () {
     Route::get('/approvalConfirmation', [ApprovalController::class, 'index'])->name('approvalConfirmation.index');
     Route::get('/accConfirmation/{id}', [ApprovalController::class, 'acc'])->name('approvalConfirmation.acc');
     Route::get('/rejectConfirmation/{id}', [ApprovalController::class, 'reject'])->name('approvalConfirmation.reject');
     Route::post('/massApprove', [ApprovalController::class, 'massApprove'])->name('massApprove');
 
+
 });
+
 
 
 
