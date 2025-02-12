@@ -1,5 +1,8 @@
-<x-guest-layout>
-    <x-auth-card>
+<x-app-layout>
+    <x-slot name="header">
+
+    </x-slot>
+    <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
         <!-- Validation Errors -->
         <x-auth-validation-errors class="mb-4" :errors="$errors" />
 
@@ -15,8 +18,8 @@
                             <x-fas-book-open-reader aria-hidden="true" class="w-5 h-5" />
                         </x-slot>
 
-                        <x-form.input withicon id="npk" class="block w-full" type="text" name="npk" required
-                            autofocus placeholder="{{ __('NPK') }}" />
+                        <x-form.input withicon id="npk" class="block w-full" type="text" name="npk"
+                            required autofocus placeholder="{{ __('NPK') }}" />
                     </x-form.input-with-icon-wrapper>
                 </div>
                 <!-- Name -->
@@ -104,12 +107,12 @@
                     <x-button class="justify-center w-full gap-2">
                         <x-heroicon-o-user-add class="w-6 h-6" aria-hidden="true" />
 
-                        <span>{{ __('Register') }}</span>
+                        <span>{{ __('Add User') }}</span>
                     </x-button>
                 </div>
 
 
             </div>
         </form>
-    </x-auth-card>
-</x-guest-layout>
+    </div>
+</x-app-layout>

@@ -46,6 +46,11 @@
                                 </th>
                                 <th scope="col"
                                     class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
+                                    {{ __('No') }}
+                                </th>
+                                </th>
+                                <th scope="col"
+                                    class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
                                     {{ __('No Order') }}
                                 </th>
                                 <th scope="col"
@@ -65,10 +70,13 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                            @foreach ($apprs as $appr)
+                            @foreach ($apprs as $index => $appr)
                                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
                                     <td class="px-4 py-4 whitespace-nowrap">
                                         <input type="checkbox" class="select-item" value="{{ $appr->_id }}">
+                                    </td>
+                                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
+                                        {{ $index + 1 }}
                                     </td>
                                     <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
                                         {{ $appr->noOrder }}
