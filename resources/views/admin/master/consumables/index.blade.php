@@ -152,7 +152,7 @@
                             class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Consumable IO') }}</label>
                         <input type="text" name="Cb_IO" id="Cb_IO"
                             class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
-                            required>
+                            placeholder="EX: 1102000687" required>
                     </div>
                     <div>
                         <label for="Cb_mtId"
