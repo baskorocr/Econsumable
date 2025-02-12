@@ -40,7 +40,13 @@
             searchInput.addEventListener('input', function() {
                 const search = this.value.toLowerCase();
 
-                fetch(`{{ route('line.search') }}?search=${search}`)
+                fetch(`{{ route('listGroup') }}?search=${encodeURIComponent(search)}`, {
+                        method: "GET",
+                        headers: {
+                            "X-Requested-With": "XMLHttpRequest",
+                            "Accept": "application/json"
+                        }
+                    })
                     .then(response => response.json())
                     .then(data => {
                         console.log(data);
@@ -64,22 +70,20 @@
                                 div.classList.add('col-span-2', 'flex', 'flex-col',
                                     'justify-center', 'items-center');
 
-                                const h2 = document.createElement('h2');
-                                h2.classList.add('text-lg', 'text-white', 'font-semibold');
-                                h2.textContent = line.lines.Ln_name;
-
                                 const h5 = document.createElement('h5');
                                 h5.classList.add('text-lg', 'text-white', 'font-semibold');
-                                h5.textContent = `(${line.group.Gr_name})`;
+                                h5.textContent = `${line.group.Gr_name}`;
 
-                                div.appendChild(h2);
                                 div.appendChild(h5);
                                 link.appendChild(div);
                                 lineList.appendChild(link);
                             });
                         }
-                    });
+                    })
+                    .catch(error => console.error('Error fetching data:', error));
             });
         });
     </script>
+
+
 </x-app-layout>

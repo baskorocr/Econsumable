@@ -13,57 +13,66 @@ use App\Models\MstrGroup;
 
 class LinesController extends Controller
 {
-    public function indexGroup()
+    public function indexGroup(Request $request)
     {
+        if ($request->ajax()) {
+            $search = $request->input('search');
 
+            // Query awal dengan relasi 'group'
+            $query = MstrLineGroup::with('group');
+
+            // Jika ada pencarian, filter berdasarkan nama grup
+            if (!empty($search)) {
+                $query->whereHas('group', function ($q) use ($search) {
+                    $q->whereRaw('LOWER(Gr_name) LIKE ?', ['%' . strtolower($search) . '%']);
+                });
+            }
+
+            // Kembalikan JSON untuk AJAX
+            return response()->json($query->get());
+        }
+
+        // Jika bukan AJAX, ambil semua data dan tampilkan view
         $lines = MstrLineGroup::with('group')->get();
-
-
-
-
         return view('transaction.group', compact('lines'));
+
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function indexLine($id)
+    public function indexLine(Request $request, $id)
     {
+        // Jika request adalah AJAX, kembalikan JSON
+        if ($request->ajax()) {
+            $search = $request->input('search');
 
+            // Query awal untuk mencari berdasarkan Ln_lgId
+            $query = MstrLine::where('Ln_lgId', $id);
 
+            // Jika ada pencarian, tambahkan kondisi tambahan
+            if (!empty($search)) {
+                $query->where(function ($q) use ($search) {
+                    $q->whereRaw('LOWER(Ln_name) LIKE ?', ['%' . strtolower($search) . '%'])
+                        ->orWhereRaw('Ln_lgId LIKE ?', ['%' . strtolower($search) . '%']);
+                });
+            }
+
+            // Ambil hasil query
+            $materials = $query->get();
+
+            // Kembalikan dalam format JSON untuk AJAX
+            return response()->json($materials);
+        }
+
+        // Jika request bukan AJAX, tampilkan view
         $lg = MstrLine::where('Ln_lgId', $id)->get();
-
-
         return view('transaction.line', compact('lg', 'id'));
     }
 
-    public function searchMaterial(Request $request)
-    {
 
 
 
-
-        $search = $request->input('search');
-        $id = $request->input('id'); // Ambil 'id' dari request
-
-
-        if (empty($search)) {
-            // Jika tidak ada pencarian, ambil semua material berdasarkan mt_lgId
-            $materials = MstrLine::where('Ln_lgId', $id)->get();
-        } else {
-            // Jika ada pencarian, filter berdasarkan mt_number
-            $materials = MstrLine::where('Ln_lgId', $id)
-                ->where(function ($query) use ($search) {
-                    $query->whereRaw('LOWER(Ln_name) like ?', ['%' . strtolower($search) . '%'])
-                        ->orWhereRaw('Ln_lgId like ?', ['%' . strtolower($search) . '%']);
-                })
-                ->get();
-        }
-
-
-
-        return response()->json($materials);
-    }
 
 
     public function indexConsumable($lines, $material)
@@ -188,24 +197,6 @@ class LinesController extends Controller
         return redirect()->route('MasterLine.index')->with('success', 'Line deleted successfully.');
     }
 
-    public function search(Request $request)
-    {
-        $search = $request->input('search');
 
-
-        if (empty($search)) {
-            $lines = MstrLineGroup::with('group', 'lines')->get();
-
-        } else {
-            $lines = MstrLineGroup::with('group', 'lines')
-                ->whereHas('group', function ($query) use ($search) {
-                    $query->where('Gr_name', 'like', '%' . $search . '%');
-                })
-                ->get();
-        }
-
-
-        return response()->json($lines);
-    }
 
 }

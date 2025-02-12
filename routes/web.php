@@ -57,8 +57,8 @@ Route::group(['middleware' => ['role:1,2,3,4'], 'prefix' => 'AdminMaster'], func
     Route::resource('/Consumable', ConsumableController::class);
     Route::get('/download-template', [MaterialController::class, 'downloadTemplate'])->name('download.file');
     Route::post('/upload-excel', [ConsumableController::class, 'uploadExcel'])->name('upload.excel');
-    Route::get('/line/search', [LinesController::class, 'search'])->name('line.search');
-    Route::get('/material/search', [LinesController::class, 'searchMaterial'])->name('material.search');
+
+
     Route::get('/consumable/search', [LinesController::class, 'searchConsumable'])->name('consumable.search');
 
 
@@ -113,6 +113,7 @@ Route::group(['middleware' => ['role:1,5'], 'prefix' => 'Transaction'], function
     Route::get('/{line}/{material}', [LinesController::class, 'indexConsumable'])->name('listConsumable');
     // Route::post('/sapSend', [ApprovalController::class, 'sapSend'])->name('sapSend');
     Route::resource('/proses', TransactionController::class);
+
 
 });
 

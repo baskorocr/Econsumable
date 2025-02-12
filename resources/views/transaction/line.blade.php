@@ -40,13 +40,28 @@
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('searchInput');
             const materialList = document.getElementById('materialList');
-            const id = '{{ $id }}';
-            searchInput.addEventListener('input', function() {
-                const search = this.value.toLowerCase();
+            const id = "{{ $id }}"; // Pastikan id dari Blade diterima dengan benar
 
-                // Ensure this route matches the correct URL in your web.php
-                fetch(`{{ route('material.search') }}?search=${search}&id=${id}`)
-                    .then(response => response.json()) // Expecting JSON response
+            searchInput.addEventListener('input', function() {
+                const search = this.value.trim().toLowerCase();
+
+                // Display loading indicator
+                materialList.innerHTML = '<p class="text-gray-500">Loading...</p>';
+
+                // Gunakan fetch untuk AJAX request ke Laravel
+                fetch(`/Transaction/${id}/line?search=${encodeURIComponent(search)}`, {
+                        method: "GET",
+                        headers: {
+                            "X-Requested-With": "XMLHttpRequest",
+                            "Accept": "application/json"
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
+                        }
+                        return response.json(); // Convert response ke JSON
+                    })
                     .then(data => {
                         materialList.innerHTML = '';
 
@@ -60,8 +75,7 @@
                         } else {
                             data.forEach(material => {
                                 const link = document.createElement('a');
-                                link.href =
-                                    `{{ url('Transaction') }}/${material.Mt_lgId}/${material._id}`;
+                                link.href = `/Transaction/${material.Ln_lgId}/${material._id}`;
                                 link.classList.add('p-4', 'rounded-md', 'shadow-md',
                                     'bg-violet-500', 'hover:bg-violet-600');
 
@@ -76,20 +90,22 @@
                                 const h2Number = document.createElement('h2');
                                 h2Number.classList.add('text-lg', 'text-white',
                                     'font-semibold');
-                                h2Number.textContent = material
-                                    .Mt_number; // Add this line for Mt_number
+                                h2Number.textContent = material.Mt_number;
 
                                 div.appendChild(h2Desc);
-                                div.appendChild(h2Number); // Append Mt_number
+                                div.appendChild(h2Number);
                                 link.appendChild(div);
                                 materialList.appendChild(link);
                             });
                         }
                     })
-                    .catch(error => console.error('Error fetching materials:',
-                        error)); // Added error handling
+                    .catch(error => {
+                        console.error("Error fetching data:", error);
+                        materialList.innerHTML = '<p class="text-gray-500">Error loading data.</p>';
+                    });
             });
         });
     </script>
+
 
 </x-app-layout>
