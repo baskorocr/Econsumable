@@ -9,25 +9,53 @@
         <!-- Controls Section -->
         <div class="flex flex-col md:flex-row md:justify-between md:items-center space-y-4 md:space-y-0 mb-6">
             <div class="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
-                <form id="printForm" action="{{ route('massApprove') }}" method="POST">
-                    @csrf
-                    <input hidden name="selected_orders" id="selectedOrders">
-                </form>
+                @if (auth()->user()->idRole === 1 ||
+                        auth()->user()->idRole === 2 ||
+                        auth()->user()->idRole === 3 ||
+                        auth()->user()->idRole === 4)
+                    <form id="printForm" action="{{ route('massApprove') }}" method="POST">
+                        @csrf
+                        <input hidden name="selected_orders" id="selectedOrders">
+                    </form>
 
-                <form id="rejectForm" action="{{ route('massReject') }}" method="POST">
-                    @csrf
-                    <input hidden name="selected_orders" id="selectedOrdersReject">
-                </form>
+                    <form id="rejectForm" action="{{ route('massReject') }}" method="POST">
+                        @csrf
+                        <input hidden name="selected_orders" id="selectedOrdersReject">
+                    </form>
 
-                <button id="mass-print" type="button"
-                    class="w-full sm:w-auto bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white px-4 py-2 rounded-md">
-                    {{ __('Mass Approve') }}
-                </button>
+                    <button id="mass-print" type="button"
+                        class="w-full sm:w-auto bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white px-4 py-2 rounded-md">
+                        {{ __('Mass Approve') }}
+                    </button>
 
-                <button id="mass-reject" type="button"
-                    class="w-full sm:w-auto bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-white px-4 py-2 rounded-md">
-                    {{ __('Mass Reject') }}
-                </button>
+                    <button id="mass-reject" type="button"
+                        class="w-full sm:w-auto bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-white px-4 py-2 rounded-md">
+                        {{ __('Mass Reject') }}
+                    </button>
+                @else
+                    <div hidden>
+                        <form id="printForm" action="{{ route('massApprove') }}" method="POST">
+                            @csrf
+                            <input hidden name="selected_orders" id="selectedOrders">
+                        </form>
+
+                        <form id="rejectForm" action="{{ route('massReject') }}" method="POST">
+                            @csrf
+                            <input hidden name="selected_orders" id="selectedOrdersReject">
+                        </form>
+
+                        <button id="mass-print" type="button"
+                            class="w-full sm:w-auto bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white px-4 py-2 rounded-md">
+                            {{ __('Mass Approve') }}
+                        </button>
+
+                        <button id="mass-reject" type="button"
+                            class="w-full sm:w-auto bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-white px-4 py-2 rounded-md">
+                            {{ __('Mass Reject') }}
+                        </button>
+                    </div>
+                @endif
+
             </div>
 
             <input type="text" id="searchInput" value="{{ $search }}" placeholder="Search by name"

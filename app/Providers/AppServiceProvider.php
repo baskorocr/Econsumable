@@ -88,6 +88,7 @@ class AppServiceProvider extends ServiceProvider
                         ->count();
 
                     break;
+
             }
         }
 
