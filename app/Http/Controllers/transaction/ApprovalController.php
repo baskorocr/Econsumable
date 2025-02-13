@@ -100,7 +100,15 @@ class ApprovalController extends Controller
         } else {
 
 
-            $apprs = OrderSegment::with(['mstrApprs.consumable.masterLineGroup'])->orderBy('created_at', 'desc')->paginate(20);
+            $apprs = OrderSegment::with(['mstrApprs.consumable.masterLineGroup'])
+                ->whereHas('mstrApprs', function ($q) {
+                    $q->whereNull('ApprSectDate')
+                        ->whereNull('ApprDeptDate')
+                        ->whereNull('ApprPjStokDate');
+                })
+                ->orderBy('created_at', 'desc')
+                ->paginate(20);
+
 
         }
 
@@ -258,14 +266,33 @@ class ApprovalController extends Controller
                 foreach ($appr as $item) {
                     $consumable = $item->consumable->masterLineGroup;
 
-                    if ($item->status == 1) {
+                    if (auth()->user()->idRole == 1 && $item->status == 1) {
+
+
+                        $a = $item->update([
+                            'status' => 3,
+                            'token' => Str::uuid()->toString(),
+                            'ApprDeptDate' => $date,
+                            'ApprSectDate' => $date,
+
+                        ]);
+
+
+                        if ($a === true) {
+                            $noHp = $item->consumable->masterLineGroup->pjStock->noHp ?? null;
+                            if ($noHp !== null) {
+                                SendWa($consumable->pjStock->noHp, $consumable->pjStock->name, $item->orderSegment->noOrder, $item->user->name, $item->token, $item->no_order);
+                            }
+                        }
+
+                    } elseif ($item->status == 1) {
                         $a = $item->update([
                             'status' => $item->status + 1,
                             'token' => Str::uuid()->toString(),
                             'ApprSectDate' => $date
                         ]);
 
-                        if ($a === true && $temp == 0) {
+                        if ($a === true && $temp === 0) {
                             $noHp = $item->consumable->masterLineGroup->leader->noHp ?? null;
 
                             if ($noHp !== null) {
@@ -314,6 +341,7 @@ class ApprovalController extends Controller
                         }
                     }
                 }
+
 
                 Alert::success('Approve Success', 'You can give information about that to user request for check periodically');
             } catch (Exception $e) {

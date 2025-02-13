@@ -227,6 +227,7 @@
                             document.querySelector('.mt-4').replaceWith(updatedPagination);
                         }
 
+
                         initializeModal();
                     })
                     .catch(error => console.error('Error fetching search results:', error));
