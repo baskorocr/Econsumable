@@ -12,8 +12,14 @@
             <div class="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
                 <input type="text" id="searchInput" value="{{ $search }}" placeholder="Search by no order"
                     class="w-full md:w-64 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600">
-
-                <div class="flex items-center gap-2 w-full md:w-auto">
+                <select name="status" id="statusFilter"
+                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                    required>
+                    <option value="">Pilih </option>
+                    <option value="0">Error</option>
+                    <option value="5">Cancel</option>
+                </select>
+                <div class="flex flex-col md:flex-row items-center gap-2 w-full md:w-auto">
                     <input type="date" id="fromDate"
                         class="border-gray-300 rounded-md shadow-sm dark:bg-gray-700 dark:text-white w-full md:w-auto px-3 py-2">
                     <input type="date" id="toDate"
@@ -27,8 +33,23 @@
                     class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md w-full md:w-auto">
                     Filter
                 </button>
-
-
+                <form id="printForm" action="{{ route('error.status') }}" method="GET" class="w-full md:w-auto">
+                    @csrf
+                    <input type="hidden" name="selected_orders" id="selectedOrders">
+                    <button id="mass-print" type="submit"
+                        class="bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white px-4 py-2 rounded-md w-full md:w-auto">
+                        {{ __('Download') }}
+                    </button>
+                </form>
+                <form id="printFormCancel" action="{{ route('cancel.status') }}" method="GET"
+                    class="w-full md:w-auto">
+                    @csrf
+                    <input type="hidden" name="cancel" id="cancelOrders">
+                    <button id="mass-cancel" type="submit"
+                        class="bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-white px-4 py-2 rounded-md w-full md:w-auto">
+                        {{ __('Cancel') }}
+                    </button>
+                </form>
             </div>
         </div>
 
@@ -37,6 +58,7 @@
             <table class="table-auto w-full text-center text-sm">
                 <thead class="bg-gray-100 dark:bg-gray-700">
                     <tr>
+                        <th class="px-4 py-3"><input type="checkbox" id="select-all"></th>
                         <th class="px-4 py-3">No Order</th>
                         <th class="px-4 py-3">Request By</th>
                         <th class="px-4 py-3">Detail Approval</th>
@@ -45,6 +67,8 @@
                 <tbody>
                     @foreach ($status as $st)
                         <tr>
+                            <td class="px-4 py-3"><input type="checkbox" class="select-item"
+                                    value="{{ $st->_id }}"></td>
                             <td class="px-4 py-3">{{ $st->noOrder }}</td>
                             <td class="px-4 py-3">{{ $st->user->name }}</td>
                             <td class="px-4 py-3">
@@ -100,6 +124,7 @@
             </div>
         </div>
     </div>
+
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -293,6 +318,163 @@
             bindModalEvents();
         });
     </script>
+
+    <script>
+        document.getElementById('select-all').addEventListener('click', function() {
+            let checkboxes = document.querySelectorAll('.select-item');
+            checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+        });
+        document.getElementById('mass-print').addEventListener('click', function(event) {
+            event.preventDefault(); // Mencegah submit form langsung
+
+            let selectedOrders = [];
+            document.querySelectorAll('.select-item:checked').forEach(item => {
+                selectedOrders.push(item.value);
+            });
+
+            if (selectedOrders.length > 0) {
+                // Masukkan data ke input hidden
+                document.getElementById('selectedOrders').value = JSON.stringify(selectedOrders);
+
+                // Submit form
+                document.getElementById('printForm').submit();
+            } else {
+                alert('No orders selected for download.');
+            }
+        });
+        document.getElementById("mass-cancel").addEventListener("click", function(e) {
+            e.preventDefault(); // Mencegah submit otomatis
+
+            let selectedOrders = [];
+            document.querySelectorAll('.select-item:checked').forEach(item => {
+                selectedOrders.push(item.value);
+            });
+            console.log(selectedOrders);
+
+            if (selectedOrders.length > 0) {
+
+                // Masukkan data ke input hidden
+                document.getElementById('cancelOrders').value = JSON.stringify(selectedOrders);
+
+                // Submit form
+                document.getElementById('printFormCancel').submit();
+            } else {
+                alert('No orders selected for download.');
+            }
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const statusFilter = document.getElementById('statusFilter');
+            statusFilter.addEventListener('change', function() {
+                const statusValue = this.value;
+                console.log(statusValue);
+                const url = new URL(window.location.href);
+                url.searchParams.set('status', statusValue);
+                updateTableContent(url); // Update the table after the status filter is set
+            });
+
+            function updateTableContent(url) {
+                fetch(url, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => response.text())
+                    .then(html => {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const updatedTable = doc.querySelector('table');
+                        const updatedPagination = doc.querySelector('.mt-4');
+
+                        if (updatedTable && updatedPagination) {
+                            document.querySelector('table').replaceWith(updatedTable);
+                            document.querySelector('.mt-4').replaceWith(updatedPagination);
+                        }
+
+                        // Rebind event modal
+                        bindModalEvents();
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+
+            function bindModalEvents() {
+                const openModalButtons = document.querySelectorAll('.open-modal-btn');
+                const modal = document.getElementById('mstrApprsModal');
+                const closeModalButton = document.getElementById('closeMstrApprsModal');
+                const tableBody = document.getElementById('mstrApprsTableBody');
+                const noOrderInput = document.getElementById('no_order');
+                const selectAllCheckbox = document.getElementById('select-all');
+
+                const apprData = @json($status->items()); // Assuming this is a Blade directive
+
+                openModalButtons.forEach(button => {
+                    button.addEventListener('click', function() {
+                        const apprId = button.getAttribute('data-id');
+                        const appr = apprData.find(item => item._id === apprId);
+
+                        if (appr) {
+                            const mstrApprs = appr.mstr_apprs;
+                            tableBody.innerHTML = '';
+                            noOrderInput.value = '';
+
+                            if (mstrApprs.length > 0) {
+                                let rows = '';
+                                mstrApprs.forEach(item => {
+                                    if (item.sap_fails && item.sap_fails.length > 0) {
+                                        let statusDisplay = item.status === 1 ?
+                                            'Waiting for approval' : item.sap_fails[0]
+                                            .Desc_message;
+
+                                        rows += `
+                                        <tr>
+                                            <td><input type="checkbox" class="select-checkbox" data-no-order="${item.no_order}"></td>
+                                            <td>${appr.noOrder}</td>
+                                            <td>${item.consumable?.Cb_desc || '-'}</td>
+                                            <td>${item.jumlah || 0}</td>
+                                            <td>${statusDisplay}</td>
+                                        </tr>`;
+                                    }
+                                });
+                                tableBody.innerHTML = rows;
+                            }
+                            modal.classList.remove('hidden');
+
+                            // Rebind checkbox event
+                            document.querySelectorAll('.select-checkbox').forEach(checkbox => {
+                                checkbox.addEventListener('change', updateNoOrderInput);
+                            });
+                        }
+                    });
+                });
+
+                closeModalButton.addEventListener('click', function() {
+                    modal.classList.add('hidden');
+                });
+
+                function updateNoOrderInput() {
+                    const selectedNoOrders = Array.from(document.querySelectorAll('.select-checkbox:checked'))
+                        .map(checkbox => checkbox.getAttribute('data-no-order'));
+                    noOrderInput.value = selectedNoOrders.join(',');
+                }
+
+                selectAllCheckbox.addEventListener('change', function() {
+                    const checkboxes = document.querySelectorAll('.select-checkbox');
+                    checkboxes.forEach(checkbox => {
+                        checkbox.checked = selectAllCheckbox.checked;
+                    });
+                    updateNoOrderInput();
+                });
+            }
+
+            // Initial binding event for modal
+            bindModalEvents();
+        });
+    </script>
+
+
+
+
 
 
 </x-app-layout>

@@ -96,6 +96,9 @@ Route::group(['middleware' => ['role:4'], 'prefix' => 'sap'], function () {
     Route::post('/resend', [ApprovalController::class, 'resend'])->name('sap.resend');
     Route::post('/sap/print', [ApprovalController::class, 'printSelected'])->name('sap.print');
     Route::post('/mass-reject', [ApprovalController::class, 'massReject'])->name('massReject');
+    Route::get('/downloadError', action: [ApprovalController::class, 'downloadStatus'])->name('error.status');
+    Route::get('/cancelTransaction', action: [ApprovalController::class, 'cancelTransaction'])->name('cancel.status');
+
 
 });
 

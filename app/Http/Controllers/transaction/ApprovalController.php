@@ -13,6 +13,8 @@ use RealRashid\SweetAlert\Facades\Alert;
 use GuzzleHttp\Client;
 use Illuminate\Support\Arr;
 use Carbon\Carbon;
+use App\Exports\OrderSegmentExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 
 class ApprovalController extends Controller
@@ -147,7 +149,9 @@ class ApprovalController extends Controller
         $search = $request->input('search', '');
         $fromDate = $request->input('from_date');
         $toDate = $request->input('to_date');
+        $state = $request->input('status');
 
+        // Start building the query with necessary relationships
         $statusQuery = OrderSegment::with([
             'mstrApprs.sapFails' => function ($query) {
                 $query->where('Desc_message', '!=', 'SUCCESS');
@@ -169,6 +173,21 @@ class ApprovalController extends Controller
             });
         }
 
+        // Apply state filter (status) if available
+        if ($state !== null) { // Check if status is provided
+            if ($state == 0) {
+                // If status is 0, return no data (null case)
+                $statusQuery->whereHas('mstrApprs', function ($query) {
+                    $query->whereNull('status'); // Ensure status 0 or null is handled as null
+                });
+            } else {
+                // Otherwise, apply the filter for the specific status (like 5)
+                $statusQuery->whereHas('mstrApprs', function ($query) use ($state) {
+                    $query->where('status', '=', $state);
+                });
+            }
+        }
+
         // Apply date filters based on 'mstrApprs' related model's date fields
         if ($fromDate) {
             $statusQuery->whereHas('mstrApprs', function ($query) use ($fromDate) {
@@ -183,6 +202,8 @@ class ApprovalController extends Controller
 
         // Paginate the results
         $status = $statusQuery->paginate(20);
+
+        // Temporary debugging step to inspect the query results
 
         return view('transaction.sapStatus', compact('status', 'search', 'fromDate', 'toDate'));
     }
@@ -946,5 +967,49 @@ class ApprovalController extends Controller
             return view('transaction.print', compact('orders'));
         }
     }
+
+
+    public function downloadStatus(Request $request)
+    {
+
+        $selectedOrders = json_decode($request->input('selected_orders'), true);
+        $orderSegment = OrderSegment::with('mstrApprs.consumable', 'mstrApprs.pj', 'mstrApprs.dept', 'mstrApprs.sect')->whereIn('_id', $selectedOrders)->whereHas('mstrApprs', function ($query) {
+            $query->where('NpkPj', auth()->user()->npk);
+        })->get();
+
+
+        return Excel::download(new OrderSegmentExport($orderSegment), 'order_segments.xlsx');
+    }
+
+    public function cancelTransaction(Request $request)
+    {
+
+        $selectedOrders = json_decode($request->input('cancel'), true);
+
+        try {
+            $appr = MstrAppr::with('sapFails')->whereIn('no_order', $selectedOrders)->where('status', 0)->get();
+
+            foreach ($appr as $item) {
+                $item->status = 5;
+                $item->token = null;
+                $item->save();
+                $item->sapFails[0]->Desc_message = "canceled by  PJ Stok";
+                $item->sapFails[0]->save();
+
+
+            }
+
+
+
+            Alert::success('Cancel Success', 'Item has been fully cancelled');
+            return redirect()->back();
+
+        } catch (Exception $e) {
+
+            Alert::error('Approve failed', $e->getMessage());
+        }
+    }
+
+
 
 }
