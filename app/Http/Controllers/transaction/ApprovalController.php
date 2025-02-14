@@ -227,16 +227,17 @@ class ApprovalController extends Controller
 
         $query = OrderSegment::with([
             'mstrApprs.sapFails' => function ($query) {
-                $query->where('Desc_message', 'SUCCESS');
+                $query->whereIn('Desc_message', ['SUCCESS', 'PRINTED', 'REPRINTED']);
             },
+
             'mstrApprs.consumable.masterLineGroup',
             'user'
         ])->whereHas('mstrApprs.sapFails', function ($query) {
-            $query->where('Desc_message', 'SUCCESS');
+            $query->whereIn('Desc_message', ['SUCCESS', 'PRINTED', 'REPRINTED']);
         })->whereHas('mstrApprs.consumable.masterLineGroup', function ($query) {
             $query->where('NpkPjStock', auth()->user()->npk);
         })->whereHas('mstrApprs', function ($query) {
-            $query->where('status', 4);
+            $query->whereIn('status', [4, 6]);
         });
 
         // Filter berdasarkan tanggal `created_at` dari `mstrApprs`
@@ -252,6 +253,7 @@ class ApprovalController extends Controller
         }
 
         $status = $query->paginate(20);
+
 
         return view('transaction.sapStatusSuccess', compact('status', 'search'));
     }
@@ -925,19 +927,36 @@ class ApprovalController extends Controller
         // Cek jika array tidak kosong
         if (!empty($selectedOrders)) {
             // Ambil data dari database berdasarkan nilai checkbox yang dipilih
+
+            $query = OrderSegment::with([
+                'mstrApprs.sapFails' => function ($query) {
+                    $query->whereIn('Desc_message', ['SUCCESS', 'PRINTED', 'REPRINTED']);
+                },
+
+                'mstrApprs.consumable.masterLineGroup',
+                'user'
+            ])->whereHas('mstrApprs.sapFails', function ($query) {
+                $query->whereIn('Desc_message', ['SUCCESS', 'PRINTED', 'REPRINTED']);
+            })->whereHas('mstrApprs.consumable.masterLineGroup', function ($query) {
+                $query->where('NpkPjStock', auth()->user()->npk);
+            })->whereHas('mstrApprs', function ($query) {
+                $query->whereIn('status', [4, 6]);
+            });
+
+            ///
             $orders = OrderSegment::with([
                 'mstrApprs.sapFails' => function ($query) {
-                    $query->where('Desc_message', 'SUCCESS');
+                    $query->whereIn('Desc_message', ['SUCCESS', 'PRINTED', 'REPRINTED']);
                 },
                 'mstrApprs.consumable.masterLineGroup',
                 'mstrApprs.dept',
                 'user'
             ])->whereHas('mstrApprs.sapFails', function ($query) {
-                $query->where('Desc_message', 'SUCCESS');
+                $query->whereIn('Desc_message', ['SUCCESS', 'PRINTED', 'REPRINTED']);
             })->whereHas('mstrApprs.consumable.masterLineGroup', function ($query) {
                 $query->where('NpkPjStock', auth()->user()->npk);
             })->whereHas('mstrApprs', function ($query) {
-                $query->where('status', 4);
+                $query->whereIn('status', [4, 6]);
             })->whereIn('_id', $selectedOrders)->get();
 
             // Hapus MstrApprs yang memiliki sapFails kosong dan ubah indexing menjadi numerik
@@ -957,6 +976,38 @@ class ApprovalController extends Controller
             $orders = $orders->filter(function ($order) {
                 return $order->mstrApprs->isNotEmpty();
             });
+
+
+            foreach ($orders as $index => $order) {
+                foreach ($order->mstrApprs as $mstrAppr) {
+                    // Update status mstrAppr
+                    $mstrAppr->status = 6;
+                    $p = $mstrAppr->save(); // Panggil save() dengan benar
+
+                    // Cek apakah sapFails ada
+                    if ($mstrAppr->sapFails->isNotEmpty()) {
+                        $sapFail = $mstrAppr->sapFails->first(); // Ambil item pertama
+
+                        if ($sapFail->Desc_message !== "PRINTED" && $sapFail->Desc_message !== "REPRINTED") {
+
+                            $sapFail->Desc_message = "PRINTED";
+                        } elseif ($sapFail->Desc_message == "PRINTED") {
+                            $sapFail->Desc_message = "REPRINTED";
+                        } elseif ($sapFail->Desc_message == "REPRINTED") {
+                            Alert::warning('Anda Sudah 2x Melakukan print!');
+                            return redirect()->back();
+                        }
+
+
+                        $p = $sapFail->save(); // Simpan perubahan
+
+                    } else {
+                        Alert::warning('Tidak ada data di sapFails untuk order ini');
+                        return redirect()->back();
+                    }
+                }
+            }
+
 
             // Konversi ke Collection lagi jika diperlukan
             $orders = collect($orders);
