@@ -6,10 +6,10 @@
     </x-slot>
 
     <div class="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
-        <button id="openCreateModal"
+        {{-- <button id="openCreateModal"
             class="inline-block bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white px-4 py-2 rounded-md mb-4">
             {{ __('Add New Role') }}
-        </button>
+        </button> --}}
 
         <div class="overflow-x-auto">
             <table class="table-auto min-w-full text-center text-sm">
@@ -23,10 +23,10 @@
                             class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             {{ __('Role') }}
                         </th>
-                        <th
+                        {{-- <th
                             class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             {{ __('Actions') }}
-                        </th>
+                        </th> --}}
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
@@ -38,7 +38,7 @@
                             <td class="px-6 py-4 text-gray-700 dark:text-gray-300">
                                 {{ $role->NameRole }}
                             </td>
-                            <td class="px-6 py-4 flex justify-center items-center space-x-4">
+                            {{-- <td class="px-6 py-4 flex justify-center items-center space-x-4">
                                 <button
                                     class="bg-yellow-500 hover:bg-yellow-600 dark:bg-yellow-600 dark:hover:bg-yellow-700 text-white px-4 py-2 rounded-md editLineBtn"
                                     data-id="{{ $role->id }}" data-name="{{ $role->NameRole }}">
@@ -54,7 +54,7 @@
                                         {{ __('Delete') }}
                                     </button>
                                 </form>
-                            </td>
+                            </td> --}}
                         </tr>
                     @endforeach
                 </tbody>

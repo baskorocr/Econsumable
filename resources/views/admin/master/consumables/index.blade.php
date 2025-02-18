@@ -40,6 +40,10 @@
                             class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             {{ __('Line Code') }}
                         </th>
+                        <th
+                            class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            {{ __('IO') }}
+                        </th>
 
 
                         <th
@@ -56,6 +60,7 @@
                             <td class="px-6 py-4 text-gray-700 dark:text-gray-300">{{ $consumable->Cb_desc }}</td>
                             <td class="px-6 py-4 text-gray-700 dark:text-gray-300">
                                 {{ $consumable->masterLineGroup->Lg_code ?? 'N/A' }}</td>
+                            <td class="px-6 py-4 text-gray-700 dark:text-gray-300">{{ $consumable->Cb_IO }}</td>
 
                             <td class="px-6 py-4 flex justify-center items-center space-x-4">
                                 <button
