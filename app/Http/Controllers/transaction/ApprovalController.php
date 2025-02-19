@@ -152,15 +152,16 @@ class ApprovalController extends Controller
         $state = $request->input('status');
 
         // Start building the query with necessary relationships
+        // Start building the query with necessary relationships
         $statusQuery = OrderSegment::with([
             'mstrApprs.sapFails' => function ($query) {
-                $query->where('Desc_message', '!=', 'SUCCESS');
+                $query->whereNotIn('Desc_message', ['SUCCESS', 'PRINTED', 'REPRINTED']);
             },
             'mstrApprs.consumable.masterLineGroup',
             'user'
         ])
             ->whereHas('mstrApprs.sapFails', function ($query) {
-                $query->where('Desc_message', '!=', 'SUCCESS');
+                $query->whereNotIn('Desc_message', ['SUCCESS', 'PRINTED', 'REPRINTED']);
             })
             ->whereHas('mstrApprs.consumable.masterLineGroup', function ($query) {
                 $query->where('NpkPjStock', auth()->user()->npk);
@@ -843,7 +844,7 @@ class ApprovalController extends Controller
 
 
         // URL API SAP
-        $sapApiUrl = "http://erpqas-dp.dharmap.com:8001/sap/zapi/ZMM_GI_SCRAP?sap-client=300";
+        $sapApiUrl = config('services.api_url');
 
         try {
             // Membuat client Guzzle
